@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Đăng ký - Gym Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        
+        .register-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .register-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .register-header h2 {
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .register-body {
+            padding: 2rem;
+        }
+        
+        .form-floating {
+            margin-bottom: 1rem;
+        }
+        
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .btn-register {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .password-strength {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .strength-weak { color: #dc3545; }
+        .strength-medium { color: #ffc107; }
+        .strength-strong { color: #198754; }
+        
+
+        
+        .back-to-login {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        
+        .back-to-login a {
+            color: #667eea;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .back-to-login a:hover {
+            color: #764ba2;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-header">
+            <h2><i class="fas fa-user-plus me-2"></i>Đăng ký tài khoản</h2>
+            <p class="mb-0">Tham gia hệ thống quản lý phòng gym</p>
+        </div>
+        
+        <div class="register-body">
+            <!-- Thông báo -->
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
+            <!-- Form đăng ký -->
+            <form th:action="@{/register}" method="post" class="needs-validation" novalidate>
+                <div class="row">
+                    <!-- Thông tin cơ bản -->
+                    <div class="col-md-6">
+                        <h5 class="mb-3"><i class="fas fa-user me-2"></i>Thông tin cơ bản</h5>
+                        
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="name" name="name" 
+                                   placeholder="Họ và tên" required>
+                            <label for="name">
+                                <i class="fas fa-user me-2"></i>Họ và tên
+                            </label>
+                            <div class="invalid-feedback">
+                                Vui lòng nhập họ và tên.
+                            </div>
+                        </div>
+                        
+                        <div class="form-floating">
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   placeholder="name@example.com" required>
+                            <label for="email">
+                                <i class="fas fa-envelope me-2"></i>Email
+                            </label>
+                            <div class="invalid-feedback">
+                                Vui lòng nhập email hợp lệ.
+                            </div>
+                        </div>
+                        
+                        <div class="form-floating">
+                            <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" 
+                                   placeholder="Số điện thoại" required>
+                            <label for="phoneNumber">
+                                <i class="fas fa-phone me-2"></i>Số điện thoại
+                            </label>
+                            <div class="invalid-feedback">
+                                Vui lòng nhập số điện thoại.
+                            </div>
+                        </div>
+                        
+                        <div class="form-floating">
+                            <select class="form-select" id="gender" name="gender" required>
+                                <option value="">Chọn giới tính</option>
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                            <label for="gender">
+                                <i class="fas fa-venus-mars me-2"></i>Giới tính
+                            </label>
+                            <div class="invalid-feedback">
+                                Vui lòng chọn giới tính.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Thông tin bổ sung -->
+                    <div class="col-md-6">
+                        <h5 class="mb-3"><i class="fas fa-info-circle me-2"></i>Thông tin bổ sung</h5>
+                        
+                        <div class="form-floating">
+                            <input type="date" class="form-control" id="birthdate" name="birthdate">
+                            <label for="birthdate">
+                                <i class="fas fa-calendar me-2"></i>Ngày sinh
+                            </label>
+                        </div>
+                        
+                        <div class="form-floating">
+                            <input type="number" class="form-control" id="height" name="height" 
+                                   placeholder="Chiều cao (cm)" step="0.1" min="100" max="250">
+                            <label for="height">
+                                <i class="fas fa-ruler-vertical me-2"></i>Chiều cao (cm)
+                            </label>
+                        </div>
+                        
+                        <div class="form-floating">
+                            <input type="number" class="form-control" id="weight" name="weight" 
+                                   placeholder="Cân nặng (kg)" step="0.1" min="30" max="200">
+                            <label for="weight">
+                                <i class="fas fa-weight me-2"></i>Cân nặng (kg)
+                            </label>
+                        </div>
+                        
+                        <div class="form-floating">
+                            <textarea class="form-control" id="fitnessGoal" name="fitnessGoal" 
+                                      placeholder="Mục tiêu tập luyện" style="height: 100px"></textarea>
+                            <label for="fitnessGoal">
+                                <i class="fas fa-bullseye me-2"></i>Mục tiêu tập luyện
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mật khẩu -->
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <h5 class="mb-3"><i class="fas fa-lock me-2"></i>Bảo mật</h5>
+                        
+                        <div class="form-floating">
+                            <input type="password" class="form-control" id="password" name="password" 
+                                   placeholder="Mật khẩu" required>
+                            <label for="password">
+                                <i class="fas fa-lock me-2"></i>Mật khẩu
+                            </label>
+                            <div class="password-strength" id="passwordStrength"></div>
+                            <div class="invalid-feedback">
+                                Vui lòng nhập mật khẩu.
+                            </div>
+                        </div>
+                        
+                        <div class="form-floating">
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" 
+                                   placeholder="Xác nhận mật khẩu" required>
+                            <label for="confirmPassword">
+                                <i class="fas fa-lock me-2"></i>Xác nhận mật khẩu
+                            </label>
+                            <div class="invalid-feedback">
+                                Vui lòng xác nhận mật khẩu.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mt-5 pt-4">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                                <label class="form-check-label" for="agreeTerms">
+                                    Tôi đồng ý với <a href="#" class="text-primary">Điều khoản sử dụng</a> và 
+                                    <a href="#" class="text-primary">Chính sách bảo mật</a>
+                                </label>
+                                <div class="invalid-feedback">
+                                    Bạn phải đồng ý với điều khoản sử dụng.
+                                </div>
+                            </div>
+                            
+
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary btn-register">
+                            <i class="fas fa-user-plus me-2"></i>Đăng ký tài khoản
+                        </button>
+                    </div>
+                </div>
+            </form>
+            
+            <!-- Link về trang đăng nhập -->
+            <div class="back-to-login">
+                <p class="mb-0">
+                    Đã có tài khoản? 
+                    <a href="/login">
+                        <i class="fas fa-sign-in-alt me-1"></i>Đăng nhập ngay
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/main.js"></script>
+    <script>
+        // Form validation
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+                var forms = document.getElementsByClassName('needs-validation');
+                var validation = Array.prototype.filter.call(forms, function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+        
+        // Password strength checker
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const strengthDiv = document.getElementById('passwordStrength');
+            let strength = 0;
+            let message = '';
+            let className = '';
+            
+            if (password.length >= 8) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            
+            switch(strength) {
+                case 0:
+                case 1:
+                    message = 'Mật khẩu rất yếu';
+                    className = 'strength-weak';
+                    break;
+                case 2:
+                    message = 'Mật khẩu yếu';
+                    className = 'strength-weak';
+                    break;
+                case 3:
+                    message = 'Mật khẩu trung bình';
+                    className = 'strength-medium';
+                    break;
+                case 4:
+                    message = 'Mật khẩu mạnh';
+                    className = 'strength-strong';
+                    break;
+                case 5:
+                    message = 'Mật khẩu rất mạnh';
+                    className = 'strength-strong';
+                    break;
+            }
+            
+            strengthDiv.textContent = message;
+            strengthDiv.className = 'password-strength ' + className;
+        });
+        
+        // Password confirmation checker
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+            
+            if (password !== confirmPassword) {
+                this.setCustomValidity('Mật khẩu xác nhận không khớp');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    </script>
+</body>
+</html>

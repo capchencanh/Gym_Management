@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:replace="base :: title">Chi tiết tài khoản</title>
+    <th:block th:replace="base :: bootstrap"></th:block>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div th:replace="base :: header"></div>
+    
+    <main class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow">
+                    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-user-circle me-2"></i>Chi tiết tài khoản
+                        </h4>
+                        <div>
+                            <a th:href="@{/admin/users/edit/{id}(id=${user.userId})}" class="btn btn-light me-2">
+                                <i class="fas fa-edit me-1"></i>Chỉnh sửa
+                            </a>
+                            <a href="/admin/users" class="btn btn-outline-light">
+                                <i class="fas fa-arrow-left me-1"></i>Quay lại
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Avatar và thông tin cơ bản -->
+                            <div class="col-md-4 text-center">
+                                <div class="mb-4">
+                                    <div class="avatar-lg mx-auto mb-3">
+                                        <i class="fas fa-user-circle fa-8x text-primary"></i>
+                                    </div>
+                                    <h3 th:text="${user.name != null ? user.name : 'Không xác định'}"></h3>
+                                    <span th:class="${user.role != null ? (user.role.name() == 'ADMIN' ? 'badge bg-danger fs-6' : (user.role.name() == 'PT' ? 'badge bg-warning fs-6' : 'badge bg-success fs-6')) : 'badge bg-secondary fs-6'}"
+                                          th:text="${user.role != null ? (user.role.name() == 'ADMIN' ? 'Quản trị viên' : (user.role.name() == 'PT' ? 'Huấn luyện viên' : 'Thành viên')) : 'Không xác định'}">
+                                    </span>
+                                </div>
+                                
+                                <!-- Thống kê nhanh -->
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <div class="border rounded p-2">
+                                            <h5 class="text-primary mb-0" th:text="${user.height != null ? user.height + ' cm' : '-'}"></h5>
+                                            <small class="text-muted">Chiều cao</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="border rounded p-2">
+                                            <h5 class="text-primary mb-0" th:text="${user.weight != null ? user.weight + ' kg' : '-'}"></h5>
+                                            <small class="text-muted">Cân nặng</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Thông tin chi tiết -->
+                            <div class="col-md-8">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h5 class="text-primary mb-3">
+                                            <i class="fas fa-info-circle me-2"></i>Thông tin liên hệ
+                                        </h5>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Email:</label>
+                                            <p class="form-control-plaintext" th:text="${user.email != null ? user.email : 'Chưa cập nhật'}"></p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Số điện thoại:</label>
+                                            <p class="form-control-plaintext" th:text="${user.phoneNumber != null ? user.phoneNumber : 'Chưa cập nhật'}"></p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Giới tính:</label>
+                                            <p class="form-control-plaintext">
+                                                <span th:if="${user.gender != null and user.gender == 'Nam'}" class="badge bg-info">Nam</span>
+                                                <span th:if="${user.gender != null and user.gender == 'Nữ'}" class="badge bg-pink">Nữ</span>
+                                                <span th:if="${user.gender == null or user.gender == ''}" class="text-muted">Chưa cập nhật</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Ngày sinh:</label>
+                                            <p class="form-control-plaintext" 
+                                               th:text="${user.birthdate != null ? #dates.format(user.birthdate, 'dd/MM/yyyy') : 'Chưa cập nhật'}">
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <hr>
+                                
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h5 class="text-primary mb-3">
+                                            <i class="fas fa-dumbbell me-2"></i>Thông tin thể hình
+                                        </h5>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Chiều cao:</label>
+                                            <p class="form-control-plaintext" 
+                                               th:text="${user.height != null ? user.height + ' cm' : 'Chưa cập nhật'}">
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Cân nặng:</label>
+                                            <p class="form-control-plaintext" 
+                                               th:text="${user.weight != null ? user.weight + ' kg' : 'Chưa cập nhật'}">
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-12">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Mục tiêu tập luyện:</label>
+                                            <div class="form-control-plaintext" style="min-height: 60px;">
+                                                <span th:text="${user.fitnessGoal != null and !user.fitnessGoal.isEmpty() ? user.fitnessGoal : 'Chưa cập nhật'}"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <hr>
+                                
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h5 class="text-primary mb-3">
+                                            <i class="fas fa-clock me-2"></i>Thông tin hệ thống
+                                        </h5>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Ngày tạo:</label>
+                                            <p class="form-control-plaintext" 
+                                               th:text="${user.createdAt != null ? #dates.format(user.createdAt, 'dd/MM/yyyy HH:mm') : 'N/A'}">
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Cập nhật lần cuối:</label>
+                                            <p class="form-control-plaintext" 
+                                               th:text="${user.updatedAt != null ? #dates.format(user.updatedAt, 'dd/MM/yyyy HH:mm') : 'N/A'}">
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Nút thao tác -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <hr>
+                                <div class="d-flex justify-content-center">
+                                    <a th:href="@{/admin/users/edit/{id}(id=${user.userId})}" class="btn btn-primary me-2">
+                                        <i class="fas fa-edit me-1"></i>Chỉnh sửa
+                                    </a>
+                                    <a th:href="@{/admin/users/reset-password/{id}(id=${user.userId})}" class="btn btn-warning me-2">
+                                        <i class="fas fa-key me-1"></i>Đặt lại mật khẩu
+                                    </a>
+                                    <button type="button" class="btn btn-danger me-2"
+                                            th:attr="onclick=|confirmDelete(${user.userId}, '${user.name}')|">
+                                        <i class="fas fa-trash me-1"></i>Xóa tài khoản
+                                    </button>
+                                    <a href="/admin/users" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left me-1"></i>Quay lại danh sách
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Form xóa ẩn -->
+    <form id="deleteForm" method="post" style="display: none;">
+    </form>
+    
+    <div th:replace="base :: footer"></div>
+    
+    <script>
+        function confirmDelete(userId, userName) {
+            if (confirm('Bạn có chắc chắn muốn xóa tài khoản "' + userName + '"?')) {
+                var form = document.getElementById('deleteForm');
+                if (form) {
+                    form.action = '/admin/users/delete/' + userId;
+                    form.submit();
+                }
+            }
+        }
+    </script>
+</body>
+</html> 

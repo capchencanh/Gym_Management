@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:replace="base :: title" th:text="${user.userId == null ? 'Thêm tài khoản' : 'Chỉnh sửa tài khoản'}">Quản lý tài khoản</title>
+    <th:block th:replace="base :: bootstrap"></th:block>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div th:replace="base :: header"></div>
+    
+    <main class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-user-edit me-2"></i>
+                            <span th:text="${user.userId == null ? 'Thêm tài khoản mới' : 'Chỉnh sửa tài khoản'}"></span>
+                        </h4>
+                    </div>
+                    
+                    <div class="card-body">
+                        <form th:action="${user.userId == null ? '/admin/users/create' : '/admin/users/edit/' + user.userId}" 
+                              th:object="${user}" method="post" class="needs-validation" novalidate>
+                            
+                            <div class="row">
+                                <!-- Thông tin cơ bản -->
+                                <div class="col-md-6">
+                                    <h5 class="text-primary mb-3">
+                                        <i class="fas fa-info-circle me-2"></i>Thông tin cơ bản
+                                    </h5>
+                                    
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="name" th:field="*{name}" 
+                                               placeholder="Nhập họ và tên" required>
+                                        <div class="invalid-feedback">
+                                            Vui lòng nhập họ và tên
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                        <input type="email" class="form-control" id="email" th:field="*{email}" 
+                                               placeholder="example@email.com" required>
+                                        <div class="invalid-feedback">
+                                            Vui lòng nhập email hợp lệ
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="phoneNumber" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" id="phoneNumber" th:field="*{phoneNumber}" 
+                                               placeholder="0123456789" required>
+                                        <div class="invalid-feedback">
+                                            Vui lòng nhập số điện thoại
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="role" class="form-label">Vai trò <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="role" th:field="*{role}" required>
+                                            <option value="">Chọn vai trò</option>
+                                            <option th:each="role : ${roles}" 
+                                                    th:value="${role.name()}" 
+                                                    th:text="${role.name() == 'ADMIN' ? 'Quản trị viên' : (role.name() == 'PT' ? 'Huấn luyện viên' : 'Thành viên')}">
+                                            </option>
+                                        </select>
+                                        <div class="invalid-feedback">
+                                            Vui lòng chọn vai trò
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Thông tin cá nhân -->
+                                <div class="col-md-6">
+                                    <h5 class="text-primary mb-3">
+                                        <i class="fas fa-user me-2"></i>Thông tin cá nhân
+                                    </h5>
+                                    
+                                    <div class="mb-3">
+                                        <label for="gender" class="form-label">Giới tính</label>
+                                        <select class="form-select" id="gender" th:field="*{gender}">
+                                            <option value="">Chọn giới tính</option>
+                                            <option value="Nam">Nam</option>
+                                            <option value="Nữ">Nữ</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="birthdate" class="form-label">Ngày sinh</label>
+                                        <input type="date" class="form-control" id="birthdate" th:field="*{birthdate}">
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="height" class="form-label">Chiều cao (cm)</label>
+                                                <input type="number" class="form-control" id="height" th:field="*{height}" 
+                                                       min="100" max="250" step="0.1" placeholder="170">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="weight" class="form-label">Cân nặng (kg)</label>
+                                                <input type="number" class="form-control" id="weight" th:field="*{weight}" 
+                                                       min="30" max="200" step="0.1" placeholder="65">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="fitnessGoal" class="form-label">Mục tiêu tập luyện</label>
+                                        <textarea class="form-control" id="fitnessGoal" th:field="*{fitnessGoal}" 
+                                                  rows="3" placeholder="Mô tả mục tiêu tập luyện..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Mật khẩu -->
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <h5 class="text-primary mb-3">
+                                        <i class="fas fa-lock me-2"></i>Mật khẩu
+                                    </h5>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="passwordHash" class="form-label">
+                                                    <span th:text="${user.userId == null ? 'Mật khẩu' : 'Mật khẩu mới (để trống nếu không đổi)'}"></span>
+                                                    <span th:if="${user.userId == null}" class="text-danger">*</span>
+                                                </label>
+                                                <div class="input-group">
+                                                    <input type="password" class="form-control" id="passwordHash" 
+                                                           th:field="*{passwordHash}" 
+                                                           th:required="${user.userId == null}"
+                                                           placeholder="Nhập mật khẩu">
+                                                    <button class="btn btn-outline-secondary" type="button" 
+                                                            onclick="togglePassword('passwordHash')">
+                                                        <i class="fas fa-eye" id="passwordHashIcon"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="invalid-feedback">
+                                                    Vui lòng nhập mật khẩu
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="confirmPassword" class="form-label">
+                                                    <span th:text="${user.userId == null ? 'Xác nhận mật khẩu' : 'Xác nhận mật khẩu mới'}"></span>
+                                                    <span th:if="${user.userId == null}" class="text-danger">*</span>
+                                                </label>
+                                                <div class="input-group">
+                                                    <input type="password" class="form-control" id="confirmPassword" 
+                                                           th:required="${user.userId == null}"
+                                                           placeholder="Nhập lại mật khẩu">
+                                                    <button class="btn btn-outline-secondary" type="button" 
+                                                            onclick="togglePassword('confirmPassword')">
+                                                        <i class="fas fa-eye" id="confirmPasswordIcon"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="invalid-feedback" id="confirmPasswordFeedback">
+                                                    Mật khẩu không khớp
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Nút thao tác -->
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <hr>
+                                    <div class="d-flex justify-content-between">
+                                        <a href="/admin/users" class="btn btn-secondary">
+                                            <i class="fas fa-arrow-left me-1"></i>Quay lại
+                                        </a>
+                                        <div>
+                                            <button type="reset" class="btn btn-warning me-2">
+                                                <i class="fas fa-undo me-1"></i>Làm mới
+                                            </button>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-save me-1"></i>
+                                                <span th:text="${user.userId == null ? 'Thêm tài khoản' : 'Cập nhật'}"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <div th:replace="base :: footer"></div>
+    
+    <script>
+
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+                var forms = document.getElementsByClassName('needs-validation');
+                var validation = Array.prototype.filter.call(forms, function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        
+                        // Kiểm tra mật khẩu
+                        var password = document.getElementById('passwordHash');
+                        var confirmPassword = document.getElementById('confirmPassword');
+                        
+                        if (password.value && confirmPassword.value && password.value !== confirmPassword.value) {
+                            event.preventDefault();
+                            confirmPassword.setCustomValidity('Mật khẩu không khớp');
+                        } else {
+                            confirmPassword.setCustomValidity('');
+                        }
+                        
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+        
+
+        function togglePassword(inputId) {
+            var input = document.getElementById(inputId);
+            var icon = document.getElementById(inputId + 'Icon');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+        
+
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            var password = document.getElementById('passwordHash');
+            var confirmPassword = this;
+            
+            if (password.value && confirmPassword.value && password.value !== confirmPassword.value) {
+                confirmPassword.setCustomValidity('Mật khẩu không khớp');
+            } else {
+                confirmPassword.setCustomValidity('');
+            }
+        });
+    </script>
+</body>
+</html> 

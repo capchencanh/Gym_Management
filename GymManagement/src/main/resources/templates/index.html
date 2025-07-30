@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:replace="base :: title">Gym Management System</title>
+    <th:block th:replace="base :: bootstrap"></th:block>
+</head>
+<body>
+    <div th:replace="base :: header"></div>
+    <main class="container mt-5">
+        <!-- Thông báo lỗi -->
+        <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <span th:text="${param.error}">Lỗi</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <h1 class="mb-4">Chào mừng bạn đến với hệ thống quản lý phòng gym</h1>
+                <p class="lead">Quản lý thành viên, gói tập, lịch tập, thiết bị, huấn luyện viên và nhiều hơn nữa một cách dễ dàng và chuyên nghiệp.</p>
+                <div class="row mt-5" th:if="${session.user}">
+                    <div class="col-md-4 mb-3" th:each="c : ${categories}">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${c.name}"></h5>
+                                <p class="card-text text-muted" th:text="${c.description}"></p>
+                                <a class="btn btn-primary mt-2" th:href="@{'/admin?categoryId=' + ${c.id}}">Quản lý</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Hiển thị cho user chưa đăng nhập -->
+                <div class="row mt-5" th:unless="${session.user}">
+                    <div class="col-md-6 mb-3">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-sign-in-alt fa-3x text-primary mb-3"></i>
+                                <h5 class="card-title">Đăng nhập</h5>
+                                <p class="card-text text-muted">Đăng nhập để truy cập hệ thống quản lý</p>
+                                <a class="btn btn-primary" href="/login">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-user-plus fa-3x text-success mb-3"></i>
+                                <h5 class="card-title">Đăng ký</h5>
+                                <p class="card-text text-muted">Tạo tài khoản mới để sử dụng hệ thống</p>
+                                <a class="btn btn-success" href="/register">
+                                    <i class="fas fa-user-plus me-2"></i>Đăng ký
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div th:replace="base :: footer"></div>
+</body>
+</html> 

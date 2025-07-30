@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:replace="base :: title">Chi tiết thiết bị</title>
+    <th:block th:replace="base :: bootstrap"></th:block>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div th:replace="base :: header"></div>
+    
+    <main class="container-fluid mt-4">
+        <div class="row justify-content-center">
+            <div class="col-xl-10 col-lg-12">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-dumbbell me-2"></i>Chi tiết thiết bị
+                        </h4>
+                        <div>
+                            <a th:href="@{/admin/devices/edit/{id}(id=${device.deviceId})}" class="btn btn-light me-2">
+                                <i class="fas fa-edit me-1"></i>Chỉnh sửa
+                            </a>
+                            <a href="/admin/devices" class="btn btn-outline-light">
+                                <i class="fas fa-arrow-left me-1"></i>Quay lại
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <!-- Thông báo -->
+                        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span th:text="${success}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <span th:text="${error}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        
+                        <!-- Header với thông tin thiết bị -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="d-flex align-items-center justify-content-between mb-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-lg me-4">
+                                            <i class="fas fa-dumbbell fa-3x text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <h2 th:text="${device.name}" class="mb-1">Tên thiết bị</h2>
+                                            <p class="text-muted mb-0 fs-5" th:text="${device.type}">Loại thiết bị</p>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span th:if="${device.status != null}" 
+                                              th:class="${device.status.name() == 'AVAILABLE' ? 'badge bg-success fs-5 px-3 py-2' : (device.status.name() == 'IN_USE' ? 'badge bg-info fs-5 px-3 py-2' : (device.status.name() == 'MAINTENANCE' ? 'badge bg-warning fs-5 px-3 py-2' : 'badge bg-danger fs-5 px-3 py-2'))}"
+                                              th:text="${device.status.displayName}">
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Thông tin chi tiết -->
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6 col-lg-3">
+                                <div class="card border-0 bg-light h-100">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-map-marker-alt fa-2x text-primary mb-2"></i>
+                                        <h6 class="card-title text-muted">Vị trí</h6>
+                                        <p class="mb-0 fw-bold" th:text="${device.location != null ? device.location : 'Chưa cập nhật'}">Vị trí</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <div class="card border-0 bg-light h-100">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-tools fa-2x text-warning mb-2"></i>
+                                        <h6 class="card-title text-muted">Ngày bảo trì</h6>
+                                        <p class="mb-0 fw-bold" th:text="${device.maintenanceDate != null ? #temporals.format(device.maintenanceDate, 'dd/MM/yyyy') : 'Chưa cập nhật'}">Ngày bảo trì</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <div class="card border-0 bg-light h-100">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-calendar-check fa-2x text-info mb-2"></i>
+                                        <h6 class="card-title text-muted">Lần bảo trì cuối</h6>
+                                        <p class="mb-0 fw-bold" th:text="${device.lastServiceDate != null ? #temporals.format(device.lastServiceDate, 'dd/MM/yyyy') : 'Chưa cập nhật'}">Lần bảo trì cuối</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <div class="card border-0 bg-light h-100">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-info-circle fa-2x text-secondary mb-2"></i>
+                                        <h6 class="card-title text-muted">ID Thiết bị</h6>
+                                        <p class="mb-0 fw-bold" th:text="${device.deviceId}">ID</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Ghi chú -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body">
+                                        <h6 class="text-muted mb-3">
+                                            <i class="fas fa-sticky-note me-2"></i>Ghi chú
+                                        </h6>
+                                        <p th:text="${device.notes != null ? device.notes : 'Chưa có ghi chú'}" class="mb-0 fs-6">Ghi chú</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+
+                        
+                        <!-- Cập nhật trạng thái -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Cập nhật trạng thái</h6>
+                            </div>
+                            <div class="card-body">
+                                <form th:action="@{/admin/devices/update-status/{id}(id=${device.deviceId})}" method="post" class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="status" class="form-label">Trạng thái mới</label>
+                                        <select class="form-select" id="status" name="status" required>
+                                            <option value="">Chọn trạng thái</option>
+                                            <option th:each="status : ${T(com.dhd.gymmanagement.entity.Device.DeviceStatus).values()}" 
+                                                    th:value="${status}" 
+                                                    th:text="${status.displayName}"
+                                                    th:selected="${status == device.status}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">&nbsp;</label>
+                                        <button type="submit" class="btn btn-primary d-block">
+                                            <i class="fas fa-save me-1"></i>Cập nhật trạng thái
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <!-- Thêm ghi chú -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Thêm ghi chú</h6>
+                            </div>
+                            <div class="card-body">
+                                <form th:action="@{/admin/devices/add-note/{id}(id=${device.deviceId})}" method="post">
+                                    <div class="mb-3">
+                                        <label for="note" class="form-label">Ghi chú mới</label>
+                                        <textarea class="form-control" id="note" name="note" rows="3" 
+                                                  placeholder="Nhập ghi chú mới..." required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-plus me-1"></i>Thêm ghi chú
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Thống kê nhanh -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Thống kê nhanh</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center g-3">
+                            <div class="col-6">
+                                <div class="p-3 border rounded bg-success bg-opacity-10">
+                                    <h3 class="text-success mb-1" th:text="${availableCount}">0</h3>
+                                    <small class="text-muted">Sẵn sàng</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 border rounded bg-info bg-opacity-10">
+                                    <h3 class="text-info mb-1" th:text="${inUseCount}">0</h3>
+                                    <small class="text-muted">Đang sử dụng</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 border rounded bg-warning bg-opacity-10">
+                                    <h3 class="text-warning mb-1" th:text="${maintenanceCount}">0</h3>
+                                    <small class="text-muted">Bảo trì</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 border rounded bg-danger bg-opacity-10">
+                                    <h3 class="text-danger mb-1" th:text="${brokenCount}">0</h3>
+                                    <small class="text-muted">Hỏng</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Hành động nhanh -->
+                <div class="card shadow">
+                    <div class="card-header bg-secondary text-white">
+                        <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Hành động nhanh</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-3">
+                            <a th:href="@{/admin/devices/edit/{id}(id=${device.deviceId})}" class="btn btn-outline-primary">
+                                <i class="fas fa-edit me-2"></i>Chỉnh sửa thiết bị
+                            </a>
+                            <a href="/admin/devices" class="btn btn-outline-secondary">
+                                <i class="fas fa-list me-2"></i>Danh sách thiết bị
+                            </a>
+                            <a th:href="@{/admin/devices/create}" class="btn btn-outline-success">
+                                <i class="fas fa-plus me-2"></i>Thêm thiết bị mới
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Thông tin khác -->
+                <div class="card shadow mt-4">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Thông tin khác</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-3">
+                                <small class="text-muted d-block">Ngày tạo</small>
+                                <strong th:text="${device.createdAt != null ? #temporals.format(device.createdAt, 'dd/MM/yyyy HH:mm') : 'N/A'}">Ngày tạo</strong>
+                            </li>
+                            <li class="mb-3">
+                                <small class="text-muted d-block">Cập nhật lần cuối</small>
+                                <strong th:text="${device.updatedAt != null ? #temporals.format(device.updatedAt, 'dd/MM/yyyy HH:mm') : 'N/A'}">Cập nhật</strong>
+                            </li>
+                            <li class="mb-3">
+                                <small class="text-muted d-block">Trạng thái xóa</small>
+                                <strong th:text="${device.isDeleted != null && device.isDeleted ? 'Đã xóa' : 'Hoạt động'}">Trạng thái</strong>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <div th:replace="base :: footer"></div>
+</body>
+</html> 

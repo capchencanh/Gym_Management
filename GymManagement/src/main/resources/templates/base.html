@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <title th:fragment="title">Gym Management System</title>
+    <th:block th:fragment="bootstrap">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    </th:block>
+</head>
+<body>
+    <header th:fragment="header">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                <a class="navbar-brand" href="/">🏋️‍♂️ Gym Management</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item" th:if="${session.user}">
+                            <a class="nav-link" href="/admin">Dashboard</a>
+                        </li>
+                        <li class="nav-item dropdown" th:if="${session.user}">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" 
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user me-1"></i>
+                                <span th:text="${session.userName}">User</span>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="/profile">
+                                    <i class="fas fa-user-cog me-2"></i>Hồ sơ
+                                </a></li>
+                                <li><a class="dropdown-item" href="/settings">
+                                    <i class="fas fa-cog me-2"></i>Cài đặt
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/logout">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+                                </a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item" th:unless="${session.user}">
+                            <a class="nav-link" th:href="@{/login}">
+                                <i class="fas fa-sign-in-alt me-1"></i>Đăng nhập
+                            </a>
+                        </li>
+                        <li class="nav-item" th:unless="${session.user}">
+                            <a class="nav-link" th:href="@{/register}">
+                                <i class="fas fa-user-plus me-1"></i>Đăng ký
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <footer th:fragment="footer">
+        <div class="mt-4 p-5 bg-primary text-white rounded-0 text-center">
+            <h1>Gym Management System</h1>
+            <p>&copy; 2025 Gym Management. All rights reserved.</p>
+        </div>
+        <script src="/js/main.js"></script>
+    </footer>
+</body>
+</html> 

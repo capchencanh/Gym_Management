@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:replace="base :: title">Quản lý thiết bị</title>
+    <th:block th:replace="base :: bootstrap"></th:block>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div th:replace="base :: header"></div>
+    
+    <main class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-dumbbell me-2"></i>Quản lý thiết bị
+                        </h4>
+                        <a href="/admin/devices/create" class="btn btn-light">
+                            <i class="fas fa-plus me-1"></i>Thêm thiết bị
+                        </a>
+                    </div>
+                    
+                    <div class="card-body">
+                        <!-- Thông báo -->
+                        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span th:text="${success}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <span th:text="${error}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        
+                        <!-- Form tìm kiếm và lọc -->
+                        <form th:action="@{/admin/devices}" method="get" class="row g-3 mb-4">
+                            <div class="col-md-3">
+                                <label for="name" class="form-label">Tên thiết bị</label>
+                                <input type="text" class="form-control" id="name" name="name" 
+                                       th:value="${name}" placeholder="Nhập tên thiết bị...">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="type" class="form-label">Loại</label>
+                                <input type="text" class="form-control" id="type" name="type" 
+                                       th:value="${selectedType}" placeholder="Loại thiết bị...">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="status" class="form-label">Trạng thái</label>
+                                <select class="form-select" id="status" name="status">
+                                    <option value="">Tất cả trạng thái</option>
+                                    <option th:each="status : ${statuses}" 
+                                            th:value="${status}" 
+                                            th:text="${status.displayName}"
+                                            th:selected="${status == selectedStatus}">
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="location" class="form-label">Vị trí</label>
+                                <input type="text" class="form-control" id="location" name="location" 
+                                       th:value="${location}" placeholder="Vị trí thiết bị...">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">&nbsp;</label>
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary flex-fill">
+                                        <i class="fas fa-search me-1"></i>Tìm kiếm
+                                    </button>
+                                    <a href="/admin/devices" class="btn btn-secondary">
+                                        <i class="fas fa-refresh"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <!-- Thống kê -->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <div class="card bg-success text-white">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h6 class="card-title">Sẵn sàng</h6>
+                                                <h3 th:text="${availableCount}">0</h3>
+                                            </div>
+                                            <div class="align-self-center">
+                                                <i class="fas fa-check-circle fa-2x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-info text-white">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h6 class="card-title">Đang sử dụng</h6>
+                                                <h3 th:text="${inUseCount}">0</h3>
+                                            </div>
+                                            <div class="align-self-center">
+                                                <i class="fas fa-users fa-2x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-warning text-white">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h6 class="card-title">Bảo trì</h6>
+                                                <h3 th:text="${maintenanceCount}">0</h3>
+                                            </div>
+                                            <div class="align-self-center">
+                                                <i class="fas fa-tools fa-2x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-danger text-white">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h6 class="card-title">Hỏng</h6>
+                                                <h3 th:text="${brokenCount}">0</h3>
+                                            </div>
+                                            <div class="align-self-center">
+                                                <i class="fas fa-exclamation-triangle fa-2x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+
+                        
+                        <!-- Bảng danh sách -->
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tên thiết bị</th>
+                                        <th>Loại</th>
+                                        <th>Trạng thái</th>
+                                        <th>Vị trí</th>
+                                        <th>Ngày bảo trì</th>
+                                        <th>Lần bảo trì cuối</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="device : ${devices}" 
+                                        th:class="${deviceStat.even} ? 'table-light' : ''">
+                                        <td th:text="${device.deviceId}"></td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm me-2">
+                                                    <i class="fas fa-dumbbell fa-2x text-primary"></i>
+                                                </div>
+                                                <div>
+                                                    <strong th:text="${device.name}"></strong>
+                                                    <br>
+                                                    <small class="text-muted" th:text="${device.notes}"></small>
+                                                    <span th:if="${device.isDeleted != null && device.isDeleted}" 
+                                                          class="badge bg-secondary ms-2">Đã xóa</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td th:text="${device.type}"></td>
+                                        <td>
+                                            <span th:if="${device.status != null}" 
+                                                  th:class="${device.status.name() == 'AVAILABLE' ? 'badge bg-success' : (device.status.name() == 'IN_USE' ? 'badge bg-info' : (device.status.name() == 'MAINTENANCE' ? 'badge bg-warning' : 'badge bg-danger'))}"
+                                                  th:text="${device.status.displayName}">
+                                            </span>
+                                        </td>
+                                        <td th:text="${device.location}"></td>
+                                        <td th:text="${device.maintenanceDate != null ? #temporals.format(device.maintenanceDate, 'dd/MM/yyyy') : '-'}"></td>
+                                        <td th:text="${device.lastServiceDate != null ? #temporals.format(device.lastServiceDate, 'dd/MM/yyyy') : '-'}"></td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a th:href="@{/admin/devices/view/{id}(id=${device.deviceId})}" 
+                                                   class="btn btn-sm btn-outline-info" title="Xem chi tiết">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a th:href="@{/admin/devices/edit/{id}(id=${device.deviceId})}" 
+                                                   class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-danger delete-btn" 
+                                                        title="Xóa"
+                                                        th:data-device-id="${device.deviceId}"
+                                                        th:data-device-name="${device.name}">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(devices)}">
+                                        <td colspan="8" class="text-center text-muted py-4">
+                                            <i class="fas fa-dumbbell fa-3x mb-3"></i>
+                                            <p>Không có dữ liệu thiết bị</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <div th:replace="base :: footer"></div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa thiết bị <strong id="deviceName"></strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <form id="deleteForm" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">Xóa</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Delete confirmation
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteButtons = document.querySelectorAll('.delete-btn');
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            const deleteForm = document.getElementById('deleteForm');
+            const deviceName = document.getElementById('deviceName');
+            
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const deviceId = this.getAttribute('data-device-id');
+                    const name = this.getAttribute('data-device-name');
+                    
+                    deviceName.textContent = name;
+                    deleteForm.action = `/admin/devices/delete/${deviceId}`;
+                    deleteModal.show();
+                });
+            });
+        });
+    </script>
+</body>
+</html> 
