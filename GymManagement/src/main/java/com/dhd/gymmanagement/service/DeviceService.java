@@ -31,4 +31,7 @@ public interface DeviceService {
     void addMaintenanceNote(Integer deviceId, String note);
     void updateMaintenanceDate(Integer deviceId, String maintenanceDate);
     void updateLastServiceDate(Integer deviceId, String serviceDate);
+    
+
+    Device removeDeviceImage(Integer deviceId);
 }

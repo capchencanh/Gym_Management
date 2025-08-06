@@ -125,8 +125,17 @@ public class AdminDeviceController {
     public String editDevice(@PathVariable Integer id, 
                            @ModelAttribute Device device,
                            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
+                           @RequestParam(value = "removeCurrentImage", required = false) String removeCurrentImage,
                            RedirectAttributes redirectAttributes) {
         try {
+
+            if ("true".equals(removeCurrentImage)) {
+                deviceService.removeDeviceImage(id);
+                redirectAttributes.addFlashAttribute("success", "Cập nhật thiết bị thành công! Đã gỡ ảnh hiện tại.");
+                return "redirect:/admin/devices";
+            }
+            
+            // Xử lý upload ảnh mới
             if (imageFile != null && !imageFile.isEmpty()) {
                 deviceService.updateDeviceWithImage(id, device, imageFile);
             } else {

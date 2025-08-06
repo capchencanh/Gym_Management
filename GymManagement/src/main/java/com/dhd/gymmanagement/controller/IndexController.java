@@ -1,6 +1,10 @@
 package com.dhd.gymmanagement.controller;
 
 import com.dhd.gymmanagement.service.CategoryService;
+import com.dhd.gymmanagement.service.UserService;
+import com.dhd.gymmanagement.service.TrainerService;
+import com.dhd.gymmanagement.service.DeviceService;
+import com.dhd.gymmanagement.entity.Device;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,6 +15,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class IndexController {
     @Autowired
     private CategoryService categoryService;
+    
+    @Autowired
+    private UserService userService;
+    
+    @Autowired
+    private TrainerService trainerService;
+    
+    @Autowired
+    private DeviceService deviceService;
 
     @GetMapping("/")
     public String index(Model model) {
@@ -41,9 +54,19 @@ public class IndexController {
             }
         }
         
+
+        model.addAttribute("totalUsers", userService.countUsers());
+        model.addAttribute("totalTrainers", trainerService.getAllTrainers().size());
+        model.addAttribute("totalClasses", 0);
+        model.addAttribute("totalDevices", deviceService.countTotalDevices());
+        
+
+        model.addAttribute("userCount", userService.countUsers());
+        model.addAttribute("ptCount", trainerService.getAllTrainers().size());
+        model.addAttribute("activeClasses", 0);
+        model.addAttribute("activeDevices", deviceService.countDevicesByStatus(Device.DeviceStatus.IN_USE));
+        
         model.addAttribute("categories", categoryService.getAllCategories());
         return "admin/dashboard";
     }
-    
-
 } 

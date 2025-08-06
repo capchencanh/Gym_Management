@@ -1,157 +1,128 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Dashboard - Quản trị viên</title>
     <th:block th:replace="~{base :: head}"></th:block>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/css/admin.css">
 </head>
 <body>
     <div th:replace="~{base :: header}"></div>
-    <main class="container mt-4">
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h4 class="mb-0">
-                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard - Quản trị viên
-                        </h4>
+    
+    <main class="dashboard-container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <h1>Dashboard</h1>
+            <p>Quản lý hệ thống gym</p>
+        </div>
+
+
+        <div class="dashboard-content">
+
+            <div>
+
+                <div class="stats-section">
+                    <div class="stat-item">
+                        <span class="stat-number" th:text="${totalUsers}">0</span>
+                        <div class="stat-label">Người dùng</div>
                     </div>
-                    <div class="card-body">
-                        <div class="row mb-4">
-                            <div class="col-md-3">
-                                <div class="card bg-primary text-white">
-                                    <div class="card-body text-center">
-                                        <h5>Tổng người dùng</h5>
-                                        <h3 th:text="${totalUsers}">0</h3>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="card bg-success text-white">
-                                    <div class="card-body text-center">
-                                        <h5>Huấn luyện viên</h5>
-                                        <h3 th:text="${totalTrainers}">0</h3>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="card bg-info text-white">
-                                    <div class="card-body text-center">
-                                        <h5>Lớp học</h5>
-                                        <h3 th:text="${totalClasses}">0</h3>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="card bg-warning text-white">
-                                    <div class="card-body text-center">
-                                        <h5>Thiết bị</h5>
-                                        <h3 th:text="${totalDevices}">0</h3>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5 class="mb-0">
-                                            <i class="fas fa-users me-2"></i>Quản lý người dùng
-                                        </h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="list-group">
-                                            <a href="/admin/users" class="list-group-item list-group-item-action">
-                                                <i class="fas fa-user me-2"></i>Danh sách người dùng
-                                            </a>
-                                            <a href="/admin/trainers" class="list-group-item list-group-item-action">
-                                                <i class="fas fa-user-tie me-2"></i>Quản lý huấn luyện viên
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5 class="mb-0">
-                                            <i class="fas fa-dumbbell me-2"></i>Quản lý hoạt động
-                                        </h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="list-group">
-                                            <a href="/admin/classes" class="list-group-item list-group-item-action">
-                                                <i class="fas fa-chalkboard-teacher me-2"></i>Quản lý lớp học
-                                            </a>
-                                            <a href="/admin/devices" class="list-group-item list-group-item-action">
-                                                <i class="fas fa-cogs me-2"></i>Quản lý thiết bị
-                                            </a>
-                                            <a href="/admin/packages" class="list-group-item list-group-item-action">
-                                                <i class="fas fa-box me-2"></i>Quản lý gói tập
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mt-4">
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5 class="mb-0">
-                                            <i class="fas fa-chart-bar me-2"></i>Thống kê người dùng
-                                        </h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-6">
-                                                <div class="text-center">
-                                                    <h4 class="text-primary" th:text="${userCount}">0</h4>
-                                                    <p class="text-muted">Người dùng</p>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="text-center">
-                                                    <h4 class="text-success" th:text="${ptCount}">0</h4>
-                                                    <p class="text-muted">Huấn luyện viên</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5 class="mb-0">
-                                            <i class="fas fa-chart-line me-2"></i>Thống kê hoạt động
-                                        </h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-6">
-                                                <div class="text-center">
-                                                    <h4 class="text-info" th:text="${activeClasses}">0</h4>
-                                                    <p class="text-muted">Lớp đang hoạt động</p>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="text-center">
-                                                    <h4 class="text-warning" th:text="${activeDevices}">0</h4>
-                                                    <p class="text-muted">Thiết bị đang sử dụng</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="stat-item">
+                        <span class="stat-number" th:text="${totalTrainers}">0</span>
+                        <div class="stat-label">Huấn luyện viên</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" th:text="${totalClasses}">0</span>
+                        <div class="stat-label">Lớp học</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" th:text="${totalDevices}">0</span>
+                        <div class="stat-label">Thiết bị</div>
+                    </div>
+                </div>
+
+                <!-- Actions Section -->
+                <div class="actions-section">
+                    <h2>Quản lý</h2>
+                    <div class="actions-list">
+                        <a href="/admin/users" class="action-link">
+                            <span class="action-text">Người dùng</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="/admin/trainers" class="action-link">
+                            <span class="action-text">Huấn luyện viên</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="/admin/classes" class="action-link">
+                            <span class="action-text">Lớp học</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="/admin/devices" class="action-link">
+                            <span class="action-text">Thiết bị</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="/admin/packages" class="action-link">
+                            <span class="action-text">Gói tập</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="/admin/payments" class="action-link">
+                            <span class="action-text">Thanh toán</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+
+            <div>
+
+                <div class="quick-actions">
+                    <div class="quick-action-card">
+                        <h4>Thao tác nhanh</h4>
+                        <ul class="quick-action-list">
+                            <li><a href="/admin/users/new">Thêm người dùng mới</a></li>
+                            <li><a href="/admin/classes/new">Tạo lớp học mới</a></li>
+                            <li><a href="/admin/packages/new">Thêm gói tập</a></li>
+                            <li><a href="/admin/reports">Xem báo cáo</a></li>
+                        </ul>
+                    </div>
+                    <div class="quick-action-card">
+                        <h4>Thông báo</h4>
+                        <ul class="quick-action-list">
+                            <li><a href="/admin/notifications">Xem tất cả thông báo</a></li>
+                            <li><a href="/admin/schedule">Lịch trình hôm nay</a></li>
+                            <li><a href="/admin/maintenance">Bảo trì thiết bị</a></li>
+                            <li><a href="/admin/settings">Cài đặt hệ thống</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="details-section">
+            <div class="detail-card">
+                <h3>Thống kê</h3>
+                <div class="detail-content">
+                    <div class="detail-item">
+                        <span class="detail-number" th:text="${userCount}">0</span>
+                        <div class="detail-label">Người dùng</div>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-number" th:text="${ptCount}">0</span>
+                        <div class="detail-label">Huấn luyện viên</div>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-number" th:text="${activeClasses}">0</span>
+                        <div class="detail-label">Lớp đang hoạt động</div>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-number" th:text="${activeDevices}">0</span>
+                        <div class="detail-label">Thiết bị đang sử dụng</div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
+    
     <div th:replace="~{base :: footer}"></div>
 </body>
 </html> 

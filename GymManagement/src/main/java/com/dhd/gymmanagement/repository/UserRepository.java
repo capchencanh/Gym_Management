@@ -29,4 +29,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     List<User> findByRoleAndKeyword(@Param("role") User.Role role, @Param("keyword") String keyword);
 
     List<User> findAllByIsDeleted(int isDeleted);
+    
+    long countByIsDeleted(int isDeleted);
 }

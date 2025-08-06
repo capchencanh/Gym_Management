@@ -188,8 +188,43 @@ public class DeviceServiceImpl implements DeviceService {
         
         if (serviceDate != null && !serviceDate.trim().isEmpty()) {
             device.setLastServiceDate(LocalDate.parse(serviceDate));
+        } else {
+            device.setLastServiceDate(null);
         }
+        
         device.setUpdatedAt(LocalDateTime.now());
         deviceRepository.save(device);
+    }
+    
+    @Override
+    public Device removeDeviceImage(Integer deviceId) {
+        Device device = deviceRepository.findById(deviceId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thiết bị"));
+        
+
+        if (device.getImage() != null && !device.getImage().isEmpty()) {
+            try {
+
+                String imageUrl = device.getImage();
+                if (imageUrl.contains("cloudinary.com")) {
+
+                    String[] urlParts = imageUrl.split("/");
+                    String fileName = urlParts[urlParts.length - 1];
+                    String publicId = "gym_devices/" + fileName.substring(0, fileName.lastIndexOf("."));
+                    
+                    // Xóa từ Cloudinary
+                    cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+                }
+            } catch (Exception e) {
+                System.err.println("Error deleting image from Cloudinary: " + e.getMessage());
+                // Không throw exception, chỉ log lỗi
+            }
+        }
+        
+
+        device.setImage(null);
+        device.setUpdatedAt(LocalDateTime.now());
+        
+        return deviceRepository.save(device);
     }
 } 

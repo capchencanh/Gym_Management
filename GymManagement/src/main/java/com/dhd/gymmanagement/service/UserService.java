@@ -123,6 +123,11 @@ public class UserService {
         
         user.setPasswordHash(passwordEncoder.encode(newPassword));
         user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        
         userRepository.save(user);
+    }
+    
+    public long countUsers() {
+        return userRepository.countByIsDeleted(0);
     }
 }

@@ -58,6 +58,19 @@
         .remove-image-btn {
             margin-top: 10px;
         }
+        .current-image {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .current-image img {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        .image-actions {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -151,8 +164,21 @@
                             </div>
                             
                             <h5 class="text-primary mb-3">Hình ảnh thiết bị</h5>
+                            
+                            <!-- Hiển thị ảnh hiện tại nếu có -->
+                            <div th:if="${device.image != null and device.image != ''}" class="current-image">
+                                <h6 class="text-muted mb-2">Ảnh hiện tại:</h6>
+                                <img th:src="@{'/images/devices/' + ${device.image}}" alt="Ảnh thiết bị" class="img-fluid">
+                                <div class="image-actions">
+                                    <button type="button" class="btn btn-outline-danger btn-sm" id="removeCurrentImageBtn">
+                                        <i class="fas fa-trash me-1"></i>Gỡ ảnh hiện tại
+                                    </button>
+                                    <input type="hidden" id="removeCurrentImage" name="removeCurrentImage" value="false">
+                                </div>
+                            </div>
+                            
                             <div class="mb-3">
-                                <label for="imageFile" class="form-label">Chọn ảnh</label>
+                                <label for="imageFile" class="form-label">Chọn ảnh mới</label>
                                 <div class="image-upload-area" id="uploadArea">
 
                                     <div class="upload-content" id="uploadContent">
@@ -177,7 +203,7 @@
                                 <div th:if="${device.image != null}" class="mt-2">
                                     <small class="text-muted">
                                         <i class="fas fa-info-circle me-1"></i>
-                                        Thiết bị này đã có ảnh. Chọn ảnh mới để thay thế.
+                                        Chọn ảnh mới để thay thế ảnh hiện tại.
                                     </small>
                                 </div>
                             </div>
@@ -231,6 +257,8 @@
             const selectedImage = document.getElementById('selectedImage');
             const fileName = document.getElementById('fileName');
             const removeImageBtn = document.getElementById('removeImageBtn');
+            const removeCurrentImageBtn = document.getElementById('removeCurrentImageBtn');
+            const removeCurrentImageInput = document.getElementById('removeCurrentImage');
             
 
             function showImagePreview(file) {
@@ -274,6 +302,20 @@
                 e.preventDefault();
                 hideImagePreview();
             });
+            
+            // Remove current image button click
+            if (removeCurrentImageBtn) {
+                removeCurrentImageBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (confirm('Bạn có chắc muốn gỡ ảnh hiện tại?')) {
+                        removeCurrentImageInput.value = 'true';
+                        this.disabled = true;
+                        this.innerHTML = '<i class="fas fa-check me-1"></i>Đã chọn gỡ';
+                        this.classList.remove('btn-outline-danger');
+                        this.classList.add('btn-success');
+                    }
+                });
+            }
             
 
             uploadArea.addEventListener('dragover', function(e) {
