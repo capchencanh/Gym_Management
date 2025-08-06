@@ -3,59 +3,128 @@
 <head>
     <title>Gym Management System</title>
     <th:block th:replace="base :: head"></th:block>
+    <style>
+        .main-container {
+            display: flex;
+            min-height: calc(100vh - 200px);
+        }
+        
+        .left-section {
+            flex: 1;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .right-section {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        
+        .hero-image {
+            width: 100%;
+            height: 500px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .welcome-heading {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            line-height: 1.2;
+            color: #2c3e50;
+        }
+        
+        .tagline {
+            font-style: italic;
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            margin-bottom: 50px;
+            line-height: 1.5;
+        }
+        
+        .auth-buttons {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .auth-btn {
+            padding: 15px 40px;
+            border: 2px solid #3498db;
+            background: none;
+            color: #3498db;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .auth-btn:hover {
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        .auth-btn.register {
+            border-color: #27ae60;
+            color: #27ae60;
+        }
+        
+        .auth-btn.register:hover {
+            background-color: #27ae60;
+            color: white;
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .welcome-heading {
+                font-size: 2.5rem;
+            }
+            
+            .auth-buttons {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div th:replace="base :: header"></div>
-    <main class="container mt-5">
-        <div th:if="${param.error}" class="alert alert-danger alert-dismissible show" role="alert">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            <span th:text="${param.error}">Lỗi</span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        <div class="row justify-content-center">
-            <div class="col-md-8 text-center">
-                <h1 class="mb-4">Chào mừng bạn đến với hệ thống quản lý phòng gym</h1>
-                <p class="lead">Quản lý thành viên, gói tập, lịch tập, thiết bị, huấn luyện viên và nhiều hơn nữa một cách dễ dàng và chuyên nghiệp.</p>
-                <div class="row mt-5" th:if="${session.user}">
-                    <div class="col-md-4 mb-3" th:each="c : ${categories}">
-                        <div class="card shadow-sm h-100">
-                            <div class="card-body">
-                                <h5 class="card-title" th:text="${c.name}"></h5>
-                                <p class="card-text text-muted" th:text="${c.description}"></p>
-                                <a class="btn btn-primary mt-2" th:href="@{'/admin?categoryId=' + ${c.id}}">Quản lý</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row mt-5" th:unless="${session.user}">
-                    <div class="col-md-6 mb-3">
-                        <div class="card shadow-sm h-100">
-                            <div class="card-body text-center">
-                                <i class="fas fa-sign-in-alt fa-3x text-primary mb-3"></i>
-                                <h5 class="card-title">Đăng nhập</h5>
-                                <p class="card-text text-muted">Đăng nhập để truy cập hệ thống quản lý</p>
-                                <a class="btn btn-primary" href="/login">
-                                    <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="card shadow-sm h-100">
-                            <div class="card-body text-center">
-                                <i class="fas fa-user-plus fa-3x text-success mb-3"></i>
-                                <h5 class="card-title">Đăng ký</h5>
-                                <p class="card-text text-muted">Tạo tài khoản mới để sử dụng hệ thống</p>
-                                <a class="btn btn-success" href="/register">
-                                    <i class="fas fa-user-plus me-2"></i>Đăng ký
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    
+    <div class="main-container">
+        <div class="left-section">
+            <h1 class="welcome-heading">Welcome Back!<br>Log In to Your Account</h1>
+            <p class="tagline">"Behind Every Strong Gym Is a Strong System."</p>
+            <div class="auth-buttons">
+                <a href="/login" class="auth-btn">Login</a>
+                <a href="/register" class="auth-btn register">Register</a>
             </div>
         </div>
-    </main>
+        
+
+        <div class="right-section">
+            <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
+                 alt="Gym Equipment" 
+                 class="hero-image">
+        </div>
+    </div>
+    
     <div th:replace="base :: footer"></div>
 </body>
 </html> 

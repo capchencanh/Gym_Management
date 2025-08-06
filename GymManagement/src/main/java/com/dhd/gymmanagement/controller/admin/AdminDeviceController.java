@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -90,9 +91,15 @@ public class AdminDeviceController {
     }
     
     @PostMapping("/create")
-    public String createDevice(@ModelAttribute Device device, RedirectAttributes redirectAttributes) {
+    public String createDevice(@ModelAttribute Device device, 
+                             @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
+                             RedirectAttributes redirectAttributes) {
         try {
-            deviceService.createDevice(device);
+            if (imageFile != null && !imageFile.isEmpty()) {
+                deviceService.createDeviceWithImage(device, imageFile);
+            } else {
+                deviceService.createDevice(device);
+            }
             redirectAttributes.addFlashAttribute("success", "Thêm thiết bị thành công!");
             return "redirect:/admin/devices";
         } catch (Exception e) {
@@ -115,9 +122,16 @@ public class AdminDeviceController {
     }
     
     @PostMapping("/edit/{id}")
-    public String editDevice(@PathVariable Integer id, @ModelAttribute Device device, RedirectAttributes redirectAttributes) {
+    public String editDevice(@PathVariable Integer id, 
+                           @ModelAttribute Device device,
+                           @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
+                           RedirectAttributes redirectAttributes) {
         try {
-            deviceService.updateDevice(id, device);
+            if (imageFile != null && !imageFile.isEmpty()) {
+                deviceService.updateDeviceWithImage(id, device, imageFile);
+            } else {
+                deviceService.updateDevice(id, device);
+            }
             redirectAttributes.addFlashAttribute("success", "Cập nhật thiết bị thành công!");
             return "redirect:/admin/devices";
         } catch (Exception e) {

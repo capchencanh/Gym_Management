@@ -5,6 +5,60 @@
     <th:block th:replace="~{base :: head}"></th:block>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/css/admin.css">
+    <style>
+        .image-upload-area {
+            border: 2px dashed #007bff;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .image-upload-area:hover {
+            border-color: #0056b3;
+            background-color: #e9ecef;
+        }
+        .image-upload-area.dragover {
+            border-color: #28a745;
+            background-color: #d4edda;
+        }
+        .file-input {
+            display: none;
+        }
+        .selected-image {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 8px;
+            margin: 10px 0;
+            object-fit: cover;
+        }
+        .upload-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        .upload-content.has-image {
+            display: none;
+        }
+        .image-preview {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        .image-preview.show {
+            display: flex;
+        }
+        .remove-image-btn {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
     <div th:replace="~{base :: header}"></div>
@@ -25,7 +79,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                         <form th:action="${device.deviceId == null ? '/admin/devices/create' : '/admin/devices/edit/' + device.deviceId}" 
-                              th:object="${device}" method="post" class="needs-validation" novalidate>
+                              th:object="${device}" method="post" class="needs-validation" enctype="multipart/form-data" novalidate>
                             <h5 class="text-primary mb-3">Thông tin cơ bản</h5>
                             <div class="row">
                                 <div class="col-md-6">
@@ -95,6 +149,39 @@
                                 <textarea class="form-control" id="notes" th:field="*{notes}" 
                                           rows="3" placeholder="Ghi chú về thiết bị..."></textarea>
                             </div>
+                            
+                            <h5 class="text-primary mb-3">Hình ảnh thiết bị</h5>
+                            <div class="mb-3">
+                                <label for="imageFile" class="form-label">Chọn ảnh</label>
+                                <div class="image-upload-area" id="uploadArea">
+
+                                    <div class="upload-content" id="uploadContent">
+                                        <i class="fas fa-cloud-upload-alt fa-2x text-primary mb-2"></i>
+                                        <p class="mb-2">Kéo thả ảnh vào đây hoặc click để chọn</p>
+                                        <input type="file" class="file-input" id="imageFile" name="imageFile" 
+                                               accept="image/*">
+                                        <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="selectFileBtn">
+                                            <i class="fas fa-folder-open me-1"></i>Chọn ảnh
+                                        </button>
+                                    </div>
+                                    
+
+                                    <div class="image-preview" id="imagePreview">
+                                        <img id="selectedImage" class="selected-image" alt="Ảnh đã chọn">
+                                        <p class="text-muted mb-2" id="fileName"></p>
+                                        <button type="button" class="btn btn-outline-danger btn-sm remove-image-btn" id="removeImageBtn">
+                                            <i class="fas fa-trash me-1"></i>Gỡ ảnh
+                                        </button>
+                                    </div>
+                                </div>
+                                <div th:if="${device.image != null}" class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Thiết bị này đã có ảnh. Chọn ảnh mới để thay thế.
+                                    </small>
+                                </div>
+                            </div>
+                            
                             <hr>
                             <div class="d-flex justify-content-between">
                                 <a href="/admin/devices" class="btn btn-secondary">
@@ -133,6 +220,86 @@
                 });
             }, false);
         })();
+        
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('imageFile');
+            const uploadArea = document.getElementById('uploadArea');
+            const selectFileBtn = document.getElementById('selectFileBtn');
+            const uploadContent = document.getElementById('uploadContent');
+            const imagePreview = document.getElementById('imagePreview');
+            const selectedImage = document.getElementById('selectedImage');
+            const fileName = document.getElementById('fileName');
+            const removeImageBtn = document.getElementById('removeImageBtn');
+            
+
+            function showImagePreview(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    selectedImage.src = e.target.result;
+                    fileName.textContent = file.name;
+                    uploadContent.style.display = 'none';
+                    imagePreview.classList.add('show');
+                };
+                reader.readAsDataURL(file);
+            }
+            
+
+            function hideImagePreview() {
+                fileInput.value = '';
+                uploadContent.style.display = 'flex';
+                imagePreview.classList.remove('show');
+                selectedImage.src = '';
+                fileName.textContent = '';
+            }
+            
+
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    console.log('File selected:', file.name);
+                    showImagePreview(file);
+                }
+            });
+            
+
+            selectFileBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                fileInput.click();
+            });
+            
+            // Remove image button click
+            removeImageBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                hideImagePreview();
+            });
+            
+
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    const file = files[0];
+                    if (file) {
+                        console.log('File dropped:', file.name);
+                        showImagePreview(file);
+                    }
+                }
+            });
+        });
     </script>
 </body>
 </html> 

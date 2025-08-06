@@ -1,5 +1,7 @@
 package com.dhd.gymmanagement.config;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.dhd.gymmanagement.filters.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,12 +27,24 @@ public class SecurityConfig {
     }
 
     @Bean
+    public Cloudinary cloudinary() {
+        Cloudinary cloudinary
+                = new Cloudinary(ObjectUtils.asMap(
+                        "cloud_name", "dd6b0cj7l",
+                        "api_key", "267421887711631",
+                        "api_secret", "wUmlepRqAcrORuIrNcLhgsG5IlQ",
+                        "secure", true));
+        return cloudinary;
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/login", "/api/user").permitAll()
+                .requestMatchers("/api/upload/**").authenticated()
                 .requestMatchers("/login", "/register", "/forgot-password", "/", "/create-admin").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/static/**").permitAll()
                 

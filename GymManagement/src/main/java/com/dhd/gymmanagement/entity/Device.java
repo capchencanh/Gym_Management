@@ -44,6 +44,9 @@ public class Device {
     @Column(name = "is_deleted")
     private Boolean isDeleted = false;
     
+    @Column(length = 500)
+    private String image;
+    
     public enum DeviceStatus {
         AVAILABLE("Sẵn sàng"),
         BROKEN("Hỏng"),
@@ -153,6 +156,14 @@ public class Device {
     
     public void setIsDeleted(Boolean isDeleted) {
         this.isDeleted = isDeleted;
+    }
+    
+    public String getImage() {
+        return image;
+    }
+    
+    public void setImage(String image) {
+        this.image = image;
     }
     
     @PreUpdate

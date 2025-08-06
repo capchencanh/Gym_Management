@@ -6,204 +6,162 @@
     <title>Đăng ký - Gym Management</title>
     <th:block th:replace="~{base :: head}"></th:block>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            padding: 20px 0;
-        }
-        .register-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        .register-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 15px 15px 0 0;
-        }
-        .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-        }
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-        }
-    </style>
+    <link rel="stylesheet" href="/css/auth.css">
 </head>
 <body>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-6">
-                <div class="register-card">
-                    <div class="register-header text-center p-4">
-                        <h3 class="mb-0">
-                            <i class="fas fa-user-plus me-2"></i>Đăng ký tài khoản
-                        </h3>
-                        <p class="mb-0 mt-2">Tham gia hệ thống Gym Management</p>
+    <div class="auth-wrapper register-wrapper">
+        <div class="auth-left">
+            <div class="image-placeholder">
+                <div class="placeholder-content">
+                    <div class="placeholder-icon">
+                        <i class="fas fa-user-plus"></i>
                     </div>
-                    <div class="card-body p-4">
-                        <div th:if="${error}" class="alert alert-danger alert-dismissible show" role="alert">
-                            <i class="fas fa-exclamation-circle me-2"></i>
-                            <span th:text="${error}"></span>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                        <div th:if="${success}" class="alert alert-success alert-dismissible show" role="alert">
-                            <i class="fas fa-check-circle me-2"></i>
-                            <span th:text="${success}"></span>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                        <form th:action="@{/register}" method="post" th:object="${user}" class="needs-validation" novalidate>
-                            <h5 class="text-primary mb-3">Thông tin cơ bản</h5>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="name" class="form-label">Họ và tên <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="name" th:field="*{name}" 
-                                               placeholder="Nhập họ và tên" required>
-                                        <div class="invalid-feedback">
-                                            Vui lòng nhập họ và tên
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-                                        <input type="email" class="form-control" id="email" th:field="*{email}" 
-                                               placeholder="example@email.com" required>
-                                        <div class="invalid-feedback">
-                                            Vui lòng nhập email hợp lệ
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="phoneNumber" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
-                                        <input type="tel" class="form-control" id="phoneNumber" th:field="*{phoneNumber}" 
-                                               placeholder="0123456789" required>
-                                        <div class="invalid-feedback">
-                                            Vui lòng nhập số điện thoại
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="gender" class="form-label">Giới tính</label>
-                                        <select class="form-select" id="gender" th:field="*{gender}">
-                                            <option value="">Chọn giới tính</option>
-                                            <option value="Nam">Nam</option>
-                                            <option value="Nữ">Nữ</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="birthdate" class="form-label">Ngày sinh</label>
-                                        <input type="date" class="form-control" id="birthdate" th:field="*{birthdate}">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="role" class="form-label">Vai trò <span class="text-danger">*</span></label>
-                                        <select class="form-select" id="role" th:field="*{role}" required>
-                                            <option value="">Chọn vai trò</option>
-                                            <option value="USER">Người dùng</option>
-                                            <option value="PT">Huấn luyện viên</option>
-                                        </select>
-                                        <div class="invalid-feedback">
-                                            Vui lòng chọn vai trò
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="height" class="form-label">Chiều cao (cm)</label>
-                                        <input type="number" class="form-control" id="height" th:field="*{height}" 
-                                               placeholder="170" min="100" max="250">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="weight" class="form-label">Cân nặng (kg)</label>
-                                        <input type="number" class="form-control" id="weight" th:field="*{weight}" 
-                                               placeholder="65" min="30" max="300" step="0.1">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="fitnessGoal" class="form-label">Mục tiêu thể hình</label>
-                                <textarea class="form-control" id="fitnessGoal" th:field="*{fitnessGoal}" 
-                                          rows="3" placeholder="Mô tả mục tiêu thể hình của bạn..."></textarea>
-                            </div>
-                            <h5 class="text-primary mb-3">Mật khẩu</h5>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="passwordHash" class="form-label">Mật khẩu <span class="text-danger">*</span></label>
-                                        <input type="password" class="form-control" id="passwordHash" 
-                                               th:field="*{passwordHash}" 
-                                               placeholder="Nhập mật khẩu" required>
-                                        <div class="invalid-feedback">
-                                            Vui lòng nhập mật khẩu
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="confirmPassword" class="form-label">Xác nhận mật khẩu <span class="text-danger">*</span></label>
-                                        <input type="password" class="form-control" id="confirmPassword" 
-                                               placeholder="Nhập lại mật khẩu" required>
-                                        <div class="invalid-feedback" id="confirmPasswordFeedback">
-                                            Mật khẩu không khớp
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mb-3 form-check">
-                                <input type="checkbox" class="form-check-input" id="agree" required>
-                                <label class="form-check-label" for="agree">
-                                    Tôi đồng ý với <a href="#" class="text-primary">điều khoản sử dụng</a>
-                                </label>
-                                <div class="invalid-feedback">
-                                    Bạn phải đồng ý với điều khoản sử dụng
-                                </div>
-                            </div>
-                            <hr>
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary btn-lg">
-                                    <i class="fas fa-user-plus me-2"></i>Đăng ký
-                                </button>
-                            </div>
-                        </form>
-                        <hr class="my-4">
-                        <div class="text-center">
-                            <p class="mb-0">Đã có tài khoản?</p>
-                            <a href="/login" class="btn btn-outline-primary mt-2">
-                                <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập ngay
-                            </a>
-                        </div>
+                    <div class="placeholder-text">
+                        <h3>Join Our Community</h3>
+                        <p>Start your fitness journey today</p>
                     </div>
-                </div>
-                <div class="text-center mt-3">
-                    <small class="text-white">
-                        © 2025 Gym Management System
-                    </small>
                 </div>
             </div>
         </div>
+        
+        <div class="auth-right register-right">
+            <div class="auth-form-header">
+                <h2>Đăng ký tài khoản</h2>
+                <p>Điền thông tin để tạo tài khoản mới</p>
+            </div>
+            
+            <div th:if="${error}" class="alert alert-danger">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span th:text="${error}"></span>
+            </div>
+            <div th:if="${success}" class="alert alert-success">
+                <i class="fas fa-check-circle me-2"></i>
+                <span th:text="${success}"></span>
+            </div>
+            
+            <form th:action="@{/register}" method="post" th:object="${user}" class="needs-validation" novalidate>
+                <div class="form-section">
+                    <h3 class="section-title">Thông tin cơ bản</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name" class="form-label">Họ và tên <span class="required">*</span></label>
+                            <input type="text" class="form-input" id="name" th:field="*{name}" 
+                                   placeholder="Nhập họ và tên" required>
+                            <div class="invalid-feedback">
+                                Vui lòng nhập họ và tên
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email <span class="required">*</span></label>
+                            <input type="email" class="form-input" id="email" th:field="*{email}" 
+                                   placeholder="example@email.com" required>
+                            <div class="invalid-feedback">
+                                Vui lòng nhập email hợp lệ
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phoneNumber" class="form-label">Số điện thoại <span class="required">*</span></label>
+                            <input type="tel" class="form-input" id="phoneNumber" th:field="*{phoneNumber}" 
+                                   placeholder="0123456789" required>
+                            <div class="invalid-feedback">
+                                Vui lòng nhập số điện thoại
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="gender" class="form-label">Giới tính</label>
+                            <select class="form-select" id="gender" th:field="*{gender}">
+                                <option value="">Chọn giới tính</option>
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="birthdate" class="form-label">Ngày sinh</label>
+                            <input type="date" class="form-input" id="birthdate" th:field="*{birthdate}">
+                        </div>
+                        <div class="form-group">
+                            <label for="role" class="form-label">Vai trò <span class="required">*</span></label>
+                            <select class="form-select" id="role" th:field="*{role}" required>
+                                <option value="">Chọn vai trò</option>
+                                <option value="USER">Người dùng</option>
+                                <option value="PT">Huấn luyện viên</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                Vui lòng chọn vai trò
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="height" class="form-label">Chiều cao (cm)</label>
+                            <input type="number" class="form-input" id="height" th:field="*{height}" 
+                                   placeholder="170" min="100" max="250">
+                        </div>
+                        <div class="form-group">
+                            <label for="weight" class="form-label">Cân nặng (kg)</label>
+                            <input type="number" class="form-input" id="weight" th:field="*{weight}" 
+                                   placeholder="65" min="30" max="300" step="0.1">
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="fitnessGoal" class="form-label">Mục tiêu thể hình</label>
+                        <textarea class="form-input" id="fitnessGoal" th:field="*{fitnessGoal}" 
+                                  rows="3" placeholder="Mô tả mục tiêu thể hình của bạn..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3 class="section-title">Mật khẩu</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="passwordHash" class="form-label">Mật khẩu <span class="required">*</span></label>
+                            <input type="password" class="form-input" id="passwordHash" 
+                                   th:field="*{passwordHash}" 
+                                   placeholder="Nhập mật khẩu" required>
+                            <div class="invalid-feedback">
+                                Vui lòng nhập mật khẩu
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword" class="form-label">Xác nhận mật khẩu <span class="required">*</span></label>
+                            <input type="password" class="form-input" id="confirmPassword" 
+                                   placeholder="Nhập lại mật khẩu" required>
+                            <div class="invalid-feedback" id="confirmPasswordFeedback">
+                                Mật khẩu không khớp
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="agree" required>
+                    <label class="form-check-label" for="agree">
+                        Tôi đồng ý với <a href="#">điều khoản sử dụng</a> và <a href="#">chính sách bảo mật</a>
+                    </label>
+                    <div class="invalid-feedback">
+                        Bạn phải đồng ý với điều khoản sử dụng
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-auth">
+                    <i class="fas fa-user-plus me-2"></i>Đăng ký
+                </button>
+            </form>
+            
+            <div class="divider">
+                <span>hoặc</span>
+            </div>
+            
+            <div class="auth-link">
+                <p>Đã có tài khoản? <a href="/login">Đăng nhập ngay</a></p>
+            </div>
+        </div>
     </div>
+    
     <script>
         (function() {
             'use strict';

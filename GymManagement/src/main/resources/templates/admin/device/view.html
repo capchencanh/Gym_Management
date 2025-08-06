@@ -5,6 +5,46 @@
     <th:block th:replace="~{base :: head}"></th:block>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/css/admin.css">
+    <style>
+        .device-image-large {
+            width: 100%;
+            max-width: 300px;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 3px solid #e9ecef;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .device-image-large:hover {
+            transform: scale(1.02);
+            transition: transform 0.3s ease;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        .image-container {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .no-image {
+            width: 100%;
+            max-width: 300px;
+            height: 250px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 3px dashed #dee2e6;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: #6c757d;
+        }
+        .no-image i {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
     <div th:replace="~{base :: header}"></div>
@@ -98,6 +138,16 @@
                                 </div>
                             </div>
                             <div class="col-md-4">
+                                <h5 class="text-primary mb-3">Hình ảnh thiết bị</h5>
+                                <div class="image-container">
+                                    <img th:if="${device.image != null}" th:src="${device.image}" 
+                                         class="device-image-large" alt="Ảnh thiết bị">
+                                    <div th:unless="${device.image != null}" class="no-image">
+                                        <i class="fas fa-image"></i>
+                                        <p>Chưa có hình ảnh</p>
+                                    </div>
+                                </div>
+                                
                                 <h5 class="text-primary mb-3">Thống kê</h5>
                                 <div class="card bg-primary text-white mb-3">
                                     <div class="card-body text-center">

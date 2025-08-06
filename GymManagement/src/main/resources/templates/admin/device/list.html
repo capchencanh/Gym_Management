@@ -5,6 +5,27 @@
     <th:block th:replace="~{base :: head}"></th:block>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/css/admin.css">
+    <style>
+        .device-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 2px solid #e9ecef;
+        }
+        .device-image:hover {
+            transform: scale(1.1);
+            transition: transform 0.2s ease;
+        }
+        .image-modal .modal-body {
+            text-align: center;
+        }
+        .image-modal img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 8px;
+        }
+    </style>
 </head>
 <body>
     <div th:replace="~{base :: header}"></div>
@@ -101,6 +122,7 @@
                                 <thead class="table-dark">
                                     <tr>
                                         <th>ID</th>
+                                        <th>Hình ảnh</th>
                                         <th>Tên thiết bị</th>
                                         <th>Loại</th>
                                         <th>Trạng thái</th>
@@ -111,6 +133,18 @@
                                 <tbody>
                                     <tr th:each="device : ${devices}">
                                         <td th:text="${device.deviceId}"></td>
+                                        <td>
+                                            <div class="text-center">
+                                                <img th:if="${device.image != null}" th:src="${device.image}" 
+                                                     class="device-image" alt="Ảnh thiết bị"
+                                                     data-bs-toggle="modal" data-bs-target="#imageModal"
+                                                     th:data-image-url="${device.image}"
+                                                     th:data-device-name="${device.name}"
+                                                     style="cursor: pointer;">
+                                                <img th:unless="${device.image != null}" src="/images/placeholder-device.png" 
+                                                     class="device-image" alt="Ảnh mặc định">
+                                            </div>
+                                        </td>
                                         <td th:text="${device.name}"></td>
                                         <td th:text="${device.type}"></td>
                                         <td>
@@ -138,7 +172,7 @@
                                         </td>
                                     </tr>
                                     <tr th:if="${#lists.isEmpty(devices)}">
-                                        <td colspan="6" class="text-center text-muted py-4">
+                                        <td colspan="7" class="text-center text-muted py-4">
                                             <i class="fas fa-cogs fa-2x mb-2"></i>
                                             <p>Không có dữ liệu thiết bị</p>
                                         </td>
@@ -151,11 +185,31 @@
             </div>
         </div>
     </main>
+    
+
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageModalLabel">Hình ảnh thiết bị</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <img id="modalImage" src="" alt="Hình ảnh thiết bị" class="img-fluid">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <form id="deleteForm" method="post" style="display: none;">
     </form>
     <div th:replace="~{base :: footer}"></div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Delete functionality
             const deleteButtons = document.querySelectorAll('.delete-btn');
             deleteButtons.forEach(button => {
                 button.addEventListener('click', function() {
@@ -168,6 +222,21 @@
                     }
                 });
             });
+            
+
+            const imageModal = document.getElementById('imageModal');
+            if (imageModal) {
+                imageModal.addEventListener('show.bs.modal', function (event) {
+                    const button = event.relatedTarget;
+                    const imageUrl = button.getAttribute('data-image-url');
+                    const deviceName = button.getAttribute('data-device-name');
+                    const modalImage = document.getElementById('modalImage');
+                    const modalTitle = document.getElementById('imageModalLabel');
+                    
+                    modalImage.src = imageUrl;
+                    modalTitle.textContent = `Hình ảnh thiết bị: ${deviceName}`;
+                });
+            }
         });
     </script>
 </body>

@@ -1,13 +1,18 @@
 package com.dhd.gymmanagement.service;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.dhd.gymmanagement.entity.Device;
 import com.dhd.gymmanagement.repository.DeviceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -15,6 +20,9 @@ public class DeviceServiceImpl implements DeviceService {
     
     @Autowired
     private DeviceRepository deviceRepository;
+    
+    @Autowired
+    private Cloudinary cloudinary;
     
     @Override
     public List<Device> getAllDevices() {
@@ -34,6 +42,25 @@ public class DeviceServiceImpl implements DeviceService {
         return deviceRepository.save(device);
     }
     
+    public Device createDeviceWithImage(Device device, MultipartFile imageFile) {
+        device.setCreatedAt(LocalDateTime.now());
+        device.setUpdatedAt(LocalDateTime.now());
+        device.setIsDeleted(false);
+        
+        if (imageFile != null && !imageFile.isEmpty()) {
+            try {
+                Map uploadResult = cloudinary.uploader().upload(imageFile.getBytes(),
+                        ObjectUtils.asMap("resource_type", "auto", "folder", "gym_devices"));
+                device.setImage((String) uploadResult.get("secure_url"));
+            } catch (IOException e) {
+                // Log error but don't fail the device creation
+                System.err.println("Error uploading image: " + e.getMessage());
+            }
+        }
+        
+        return deviceRepository.save(device);
+    }
+    
     @Override
     public Device updateDevice(Integer deviceId, Device deviceDetails) {
         Device device = deviceRepository.findById(deviceId)
@@ -47,6 +74,32 @@ public class DeviceServiceImpl implements DeviceService {
         device.setLastServiceDate(deviceDetails.getLastServiceDate());
         device.setNotes(deviceDetails.getNotes());
         device.setUpdatedAt(LocalDateTime.now());
+        
+        return deviceRepository.save(device);
+    }
+    
+    public Device updateDeviceWithImage(Integer deviceId, Device deviceDetails, MultipartFile imageFile) {
+        Device device = deviceRepository.findById(deviceId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thiết bị"));
+        
+        device.setName(deviceDetails.getName());
+        device.setType(deviceDetails.getType());
+        device.setStatus(deviceDetails.getStatus());
+        device.setLocation(deviceDetails.getLocation());
+        device.setMaintenanceDate(deviceDetails.getMaintenanceDate());
+        device.setLastServiceDate(deviceDetails.getLastServiceDate());
+        device.setNotes(deviceDetails.getNotes());
+        device.setUpdatedAt(LocalDateTime.now());
+        
+        if (imageFile != null && !imageFile.isEmpty()) {
+            try {
+                Map uploadResult = cloudinary.uploader().upload(imageFile.getBytes(),
+                        ObjectUtils.asMap("resource_type", "auto", "folder", "gym_devices"));
+                device.setImage((String) uploadResult.get("secure_url"));
+            } catch (IOException e) {
+                System.err.println("Error uploading image: " + e.getMessage());
+            }
+        }
         
         return deviceRepository.save(device);
     }

@@ -1,6 +1,8 @@
 package com.dhd.gymmanagement.service;
 
 import com.dhd.gymmanagement.entity.Device;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -9,7 +11,9 @@ public interface DeviceService {
     List<Device> getAllDevices();
     Optional<Device> getDeviceById(Integer deviceId);
     Device createDevice(Device device);
+    Device createDeviceWithImage(Device device, MultipartFile imageFile);
     Device updateDevice(Integer deviceId, Device device);
+    Device updateDeviceWithImage(Integer deviceId, Device device, MultipartFile imageFile);
     void deleteDevice(Integer deviceId);
     
     List<Device> searchDevices(String name, String type, Device.DeviceStatus status, String location);
