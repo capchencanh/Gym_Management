@@ -19,6 +19,9 @@ public class Trainer {
 
     @Column(columnDefinition = "text")
     private String schedule;
+    
+    @Column(name = "is_deleted")
+    private Integer isDeleted = 0;
 
     public Integer getTrainerId() { return trainerId; }
     public void setTrainerId(Integer trainerId) { this.trainerId = trainerId; }
@@ -28,4 +31,6 @@ public class Trainer {
     public void setSpecialization(String specialization) { this.specialization = specialization; }
     public String getSchedule() { return schedule; }
     public void setSchedule(String schedule) { this.schedule = schedule; }
+    public Integer getIsDeleted() { return isDeleted; }
+    public void setIsDeleted(Integer isDeleted) { this.isDeleted = isDeleted; }
 }

@@ -1,116 +1,114 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title th:replace="base :: title">Thêm/Sửa thiết bị</title>
-    <th:block th:replace="base :: bootstrap"></th:block>
+    <title th:text="${device.deviceId == null ? 'Thêm thiết bị' : 'Chỉnh sửa thiết bị'}">Quản lý thiết bị</title>
+    <th:block th:replace="~{base :: head}"></th:block>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/css/admin.css">
 </head>
 <body>
-    <div th:replace="base :: header"></div>
-    
-    <main class="container-fluid mt-4">
+    <div th:replace="~{base :: header}"></div>
+    <main class="container mt-4">
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                <div class="card shadow">
+                <div class="card">
                     <div class="card-header bg-primary text-white">
                         <h4 class="mb-0">
-                            <i class="fas fa-dumbbell me-2"></i>
-                            <span th:text="${device.deviceId != null ? 'Chỉnh sửa thiết bị' : 'Thêm thiết bị mới'}">Thêm thiết bị</span>
+                            <i class="fas fa-cogs me-2"></i>
+                            <span th:text="${device.deviceId == null ? 'Thêm thiết bị mới' : 'Chỉnh sửa thiết bị'}"></span>
                         </h4>
                     </div>
-                    
                     <div class="card-body">
-                        <!-- Thông báo -->
-                        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible show" role="alert">
                             <i class="fas fa-exclamation-circle me-2"></i>
                             <span th:text="${error}"></span>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
-                        
-                        <form th:action="${device.deviceId != null ? '/admin/devices/edit/' + device.deviceId : '/admin/devices/create'}" 
+                        <form th:action="${device.deviceId == null ? '/admin/devices/create' : '/admin/devices/edit/' + device.deviceId}" 
                               th:object="${device}" method="post" class="needs-validation" novalidate>
-                            
+                            <h5 class="text-primary mb-3">Thông tin cơ bản</h5>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="name" class="form-label">Tên thiết bị <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="name" name="name" 
-                                               th:field="*{name}" required placeholder="Nhập tên thiết bị...">
+                                        <input type="text" class="form-control" id="name" th:field="*{name}" 
+                                               placeholder="Nhập tên thiết bị" required>
                                         <div class="invalid-feedback">
-                                            Vui lòng nhập tên thiết bị.
+                                            Vui lòng nhập tên thiết bị
                                         </div>
                                     </div>
                                 </div>
-                                
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="type" class="form-label">Loại thiết bị</label>
-                                        <input type="text" class="form-control" id="type" name="type" 
-                                               th:field="*{type}" placeholder="Cardio, Strength, Accessory...">
+                                        <label for="type" class="form-label">Loại thiết bị <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="type" th:field="*{type}" 
+                                               placeholder="Ví dụ: Máy chạy bộ, Tạ, Xe đạp..." required>
+                                        <div class="invalid-feedback">
+                                            Vui lòng nhập loại thiết bị
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="status" class="form-label">Trạng thái <span class="text-danger">*</span></label>
-                                        <select class="form-select" id="status" name="status" th:field="*{status}" required>
+                                        <select class="form-select" id="status" th:field="*{status}" required>
                                             <option value="">Chọn trạng thái</option>
-                                            <option th:each="status : ${statuses}" 
-                                                    th:value="${status}" 
-                                                    th:text="${status.displayName}">
-                                            </option>
+                                            <option value="AVAILABLE">Sẵn sàng</option>
+                                            <option value="IN_USE">Đang sử dụng</option>
+                                            <option value="MAINTENANCE">Bảo trì</option>
+                                            <option value="BROKEN">Hỏng</option>
                                         </select>
                                         <div class="invalid-feedback">
-                                            Vui lòng chọn trạng thái.
+                                            Vui lòng chọn trạng thái
                                         </div>
                                     </div>
                                 </div>
-                                
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="location" class="form-label">Vị trí</label>
-                                        <input type="text" class="form-control" id="location" name="location" 
-                                               th:field="*{location}" placeholder="Tầng 1 - Khu Cardio...">
+                                        <label for="location" class="form-label">Vị trí <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="location" th:field="*{location}" 
+                                               placeholder="Ví dụ: Khu A, Tầng 1..." required>
+                                        <div class="invalid-feedback">
+                                            Vui lòng nhập vị trí
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="maintenanceDate" class="form-label">Ngày bảo trì</label>
-                                        <input type="date" class="form-control" id="maintenanceDate" name="maintenanceDate" 
-                                               th:field="*{maintenanceDate}">
+                                        <input type="date" class="form-control" id="maintenanceDate" th:field="*{maintenanceDate}">
                                     </div>
                                 </div>
-                                
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="lastServiceDate" class="form-label">Lần bảo trì cuối</label>
-                                        <input type="date" class="form-control" id="lastServiceDate" name="lastServiceDate" 
-                                               th:field="*{lastServiceDate}">
+                                        <input type="date" class="form-control" id="lastServiceDate" th:field="*{lastServiceDate}">
                                     </div>
                                 </div>
                             </div>
-                            
                             <div class="mb-3">
                                 <label for="notes" class="form-label">Ghi chú</label>
-                                <textarea class="form-control" id="notes" name="notes" 
-                                          th:field="*{notes}" rows="4" 
-                                          placeholder="Ghi chú về thiết bị, tình trạng, lịch sử bảo trì..."></textarea>
+                                <textarea class="form-control" id="notes" th:field="*{notes}" 
+                                          rows="3" placeholder="Ghi chú về thiết bị..."></textarea>
                             </div>
-                            
+                            <hr>
                             <div class="d-flex justify-content-between">
                                 <a href="/admin/devices" class="btn btn-secondary">
                                     <i class="fas fa-arrow-left me-1"></i>Quay lại
                                 </a>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save me-1"></i>
-                                    <span th:text="${device.deviceId != null ? 'Cập nhật' : 'Thêm thiết bị'}">Lưu</span>
-                                </button>
+                                <div>
+                                    <button type="reset" class="btn btn-warning me-2">
+                                        <i class="fas fa-undo me-1"></i>Làm mới
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-1"></i>
+                                        <span th:text="${device.deviceId == null ? 'Thêm thiết bị' : 'Cập nhật'}"></span>
+                                    </button>
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -118,11 +116,8 @@
             </div>
         </div>
     </main>
-    
-    <div th:replace="base :: footer"></div>
-    
+    <div th:replace="~{base :: footer}"></div>
     <script>
-        // Form validation
         (function() {
             'use strict';
             window.addEventListener('load', function() {

@@ -1,136 +1,170 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Chi tiết thiết bị</title>
+    <title>Chi tiết huấn luyện viên</title>
     <th:block th:replace="~{base :: head}"></th:block>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/css/admin.css">
 </head>
 <body>
     <div th:replace="~{base :: header}"></div>
+    
     <main class="container mt-4">
         <div class="row justify-content-center">
             <div class="col-lg-10">
                 <div class="card">
                     <div class="card-header bg-primary text-white">
                         <h4 class="mb-0">
-                            <i class="fas fa-cogs me-2"></i>Chi tiết thiết bị
+                            <i class="fas fa-user-tie me-2"></i>Chi tiết huấn luyện viên
                         </h4>
                     </div>
+                    
                     <div class="card-body">
+                        <!-- Thông báo -->
                         <div th:if="${success}" class="alert alert-success alert-dismissible show" role="alert">
                             <i class="fas fa-check-circle me-2"></i>
                             <span th:text="${success}"></span>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
+                        
                         <div th:if="${error}" class="alert alert-danger alert-dismissible show" role="alert">
                             <i class="fas fa-exclamation-circle me-2"></i>
                             <span th:text="${error}"></span>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
+                        
+                        <!-- Thông tin cơ bản -->
                         <div class="row">
                             <div class="col-md-8">
-                                <h5 class="text-primary mb-3">Thông tin thiết bị</h5>
+                                <h5 class="text-primary mb-3">Thông tin huấn luyện viên</h5>
+                                
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label fw-bold">ID thiết bị</label>
-                                            <p class="form-control-plaintext" th:text="${device.deviceId}"></p>
+                                            <label class="form-label fw-bold">ID huấn luyện viên</label>
+                                            <p class="form-control-plaintext" th:text="${trainer.trainerId}"></p>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label fw-bold">Tên thiết bị</label>
-                                            <p class="form-control-plaintext" th:text="${device.name}"></p>
+                                            <label class="form-label fw-bold">Họ và tên</label>
+                                            <p class="form-control-plaintext" th:text="${trainer.user.name}"></p>
                                         </div>
                                     </div>
                                 </div>
+                                
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label fw-bold">Loại thiết bị</label>
-                                            <p class="form-control-plaintext" th:text="${device.type}"></p>
+                                            <label class="form-label fw-bold">Email</label>
+                                            <p class="form-control-plaintext" th:text="${trainer.user.email}"></p>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label fw-bold">Trạng thái</label>
-                                            <p>
-                                                <span th:if="${device.status == 'AVAILABLE'}" class="badge bg-success">Sẵn sàng</span>
-                                                <span th:if="${device.status == 'IN_USE'}" class="badge bg-info">Đang sử dụng</span>
-                                                <span th:if="${device.status == 'MAINTENANCE'}" class="badge bg-warning">Bảo trì</span>
-                                                <span th:if="${device.status == 'BROKEN'}" class="badge bg-danger">Hỏng</span>
-                                            </p>
+                                            <label class="form-label fw-bold">Số điện thoại</label>
+                                            <p class="form-control-plaintext" th:text="${trainer.user.phoneNumber}"></p>
                                         </div>
                                     </div>
                                 </div>
+                                
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label fw-bold">Vị trí</label>
-                                            <p class="form-control-plaintext" th:text="${device.location}"></p>
+                                            <label class="form-label fw-bold">Chuyên môn</label>
+                                            <p class="form-control-plaintext" th:text="${trainer.specialization != null ? trainer.specialization : '-'}"></p>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label fw-bold">Ngày bảo trì</label>
-                                            <p class="form-control-plaintext" th:text="${device.maintenanceDate != null ? #temporals.format(device.maintenanceDate, 'dd/MM/yyyy') : '-'}"></p>
+                                            <label class="form-label fw-bold">Giới tính</label>
+                                            <p class="form-control-plaintext" th:text="${trainer.user.gender != null ? trainer.user.gender : '-'}"></p>
                                         </div>
                                     </div>
                                 </div>
+                                
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label fw-bold">Lần bảo trì cuối</label>
-                                            <p class="form-control-plaintext" th:text="${device.lastServiceDate != null ? #temporals.format(device.lastServiceDate, 'dd/MM/yyyy') : '-'}"></p>
+                                            <label class="form-label fw-bold">Ngày sinh</label>
+                                            <p class="form-control-plaintext" th:text="${trainer.user.birthdate != null ? #dates.format(trainer.user.birthdate, 'dd/MM/yyyy') : '-'}"></p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Chiều cao</label>
+                                            <p class="form-control-plaintext" th:text="${trainer.user.height != null ? trainer.user.height + ' cm' : '-'}"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Cân nặng</label>
+                                            <p class="form-control-plaintext" th:text="${trainer.user.weight != null ? trainer.user.weight + ' kg' : '-'}"></p>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label class="form-label fw-bold">Ngày tạo</label>
-                                            <p class="form-control-plaintext" th:text="${device.createdAt != null ? #temporals.format(device.createdAt, 'dd/MM/yyyy HH:mm') : '-'}"></p>
+                                            <p class="form-control-plaintext" th:text="${trainer.user.createdAt != null ? #dates.format(trainer.user.createdAt, 'dd/MM/yyyy HH:mm') : '-'}"></p>
                                         </div>
                                     </div>
                                 </div>
+                                
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Ghi chú</label>
-                                    <p class="form-control-plaintext" th:text="${device.notes != null ? device.notes : '-'}"></p>
+                                    <label class="form-label fw-bold">Lịch làm việc</label>
+                                    <p class="form-control-plaintext" th:text="${trainer.schedule != null ? trainer.schedule : '-'}"></p>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Mục tiêu thể hình</label>
+                                    <p class="form-control-plaintext" th:text="${trainer.user.fitnessGoal != null ? trainer.user.fitnessGoal : '-'}"></p>
                                 </div>
                             </div>
+                            
+                            <!-- Thống kê -->
                             <div class="col-md-4">
                                 <h5 class="text-primary mb-3">Thống kê</h5>
+                                
                                 <div class="card bg-primary text-white mb-3">
                                     <div class="card-body text-center">
-                                        <h6>Trạng thái hiện tại</h6>
-                                        <h4 th:text="${device.status}">-</h4>
+                                        <h6>Chuyên môn</h6>
+                                        <h4 th:text="${trainer.specialization != null ? trainer.specialization : '-'}">-</h4>
                                     </div>
                                 </div>
+                                
                                 <div class="card bg-info text-white mb-3">
                                     <div class="card-body text-center">
-                                        <h6>Vị trí</h6>
-                                        <h4 th:text="${device.location}">-</h4>
+                                        <h6>Email</h6>
+                                        <small th:text="${trainer.user.email}">-</small>
                                     </div>
                                 </div>
+                                
                                 <div class="card bg-success text-white">
                                     <div class="card-body text-center">
-                                        <h6>Loại thiết bị</h6>
-                                        <h4 th:text="${device.type}">-</h4>
+                                        <h6>Trạng thái</h6>
+                                        <h4 th:text="${trainer.user.isDeleted == 0 ? 'Hoạt động' : 'Đã xóa'}">-</h4>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        
                         <hr>
+                        
+                        <!-- Nút thao tác -->
                         <div class="d-flex justify-content-between">
-                            <a href="/admin/devices" class="btn btn-secondary">
+                            <a href="/admin/trainers" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left me-1"></i>Quay lại
                             </a>
                             <div>
-                                <a th:href="@{/admin/devices/edit/{id}(id=${device.deviceId})}" class="btn btn-warning me-2">
+                                <a th:href="@{/admin/trainers/edit/{id}(id=${trainer.trainerId})}" class="btn btn-warning me-2">
                                     <i class="fas fa-edit me-1"></i>Chỉnh sửa
                                 </a>
                                 <button type="button" class="btn btn-danger delete-btn" 
-                                        th:data-device-id="${device.deviceId}"
-                                        th:data-device-name="${device.name}">
+                                        th:data-trainer-id="${trainer.trainerId}"
+                                        th:data-trainer-name="${trainer.user.name}">
                                     <i class="fas fa-trash me-1"></i>Xóa
                                 </button>
                             </div>
@@ -140,19 +174,26 @@
             </div>
         </div>
     </main>
+    
+    <!-- Form xóa ẩn -->
     <form id="deleteForm" method="post" style="display: none;">
     </form>
+    
     <div th:replace="~{base :: footer}"></div>
+    
     <script>
+        // Delete confirmation
         document.addEventListener('DOMContentLoaded', function() {
             const deleteButton = document.querySelector('.delete-btn');
+            
             if (deleteButton) {
                 deleteButton.addEventListener('click', function() {
-                    const deviceId = this.getAttribute('data-device-id');
-                    const name = this.getAttribute('data-device-name');
-                    if (confirm(`Bạn có chắc chắn muốn xóa thiết bị "${name}"?`)) {
+                    const trainerId = this.getAttribute('data-trainer-id');
+                    const name = this.getAttribute('data-trainer-name');
+                    
+                    if (confirm(`Bạn có chắc chắn muốn xóa huấn luyện viên "${name}"?`)) {
                         const form = document.getElementById('deleteForm');
-                        form.action = `/admin/devices/delete/${deviceId}`;
+                        form.action = `/admin/trainers/delete/${trainerId}`;
                         form.submit();
                     }
                 });

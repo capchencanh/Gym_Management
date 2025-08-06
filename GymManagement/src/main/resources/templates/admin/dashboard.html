@@ -1,44 +1,148 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title th:replace="base :: title">Admin Dashboard</title>
-    <th:block th:replace="base :: bootstrap"></th:block>
+    <title>Dashboard - Quản trị viên</title>
+    <th:block th:replace="~{base :: head}"></th:block>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/css/admin.css">
 </head>
 <body>
-    <div th:replace="base :: header"></div>
-    
-    <main class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-10">
-                <div class="card shadow">
+    <div th:replace="~{base :: header}"></div>
+    <main class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
                     <div class="card-header bg-primary text-white">
-                        <h3 class="mb-0">
-                            <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
-                        </h3>
+                        <h4 class="mb-0">
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard - Quản trị viên
+                        </h4>
                     </div>
-                    
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-4 mb-4" th:each="c : ${categories}">
-                                <div class="card h-100 shadow-sm">
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <div class="card bg-primary text-white">
                                     <div class="card-body text-center">
-                                        <div class="mb-3">
-                                            <!-- Icon tương ứng với từng category -->
-                                            <i th:class="${c.id == 7 ? 'fas fa-user-cog fa-3x text-success' : 
-                                                          c.id == 8 ? 'fas fa-dumbbell fa-3x text-warning' :
-                                                          c.id == 9 ? 'fas fa-chalkboard-teacher fa-3x text-info' :
-                                                          c.id == 10 ? 'fas fa-box fa-3x text-secondary' :
-                                                          c.id == 11 ? 'fas fa-credit-card fa-3x text-danger' :
-                                                          c.id == 12 ? 'fas fa-chart-bar fa-3x text-dark' :
-                                                          'fas fa-cog fa-3x text-primary'}"></i>
+                                        <h5>Tổng người dùng</h5>
+                                        <h3 th:text="${totalUsers}">0</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-success text-white">
+                                    <div class="card-body text-center">
+                                        <h5>Huấn luyện viên</h5>
+                                        <h3 th:text="${totalTrainers}">0</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-info text-white">
+                                    <div class="card-body text-center">
+                                        <h5>Lớp học</h5>
+                                        <h3 th:text="${totalClasses}">0</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-warning text-white">
+                                    <div class="card-body text-center">
+                                        <h5>Thiết bị</h5>
+                                        <h3 th:text="${totalDevices}">0</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-users me-2"></i>Quản lý người dùng
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="list-group">
+                                            <a href="/admin/users" class="list-group-item list-group-item-action">
+                                                <i class="fas fa-user me-2"></i>Danh sách người dùng
+                                            </a>
+                                            <a href="/admin/trainers" class="list-group-item list-group-item-action">
+                                                <i class="fas fa-user-tie me-2"></i>Quản lý huấn luyện viên
+                                            </a>
                                         </div>
-                                        <h5 class="card-title" th:text="${c.name}"></h5>
-                                        <p class="card-text text-muted" th:text="${c.description}"></p>
-                                        <a class="btn btn-primary" th:href="@{'/admin?categoryId=' + ${c.id}}">
-                                            <i class="fas fa-cog me-1"></i>Quản lý
-                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-dumbbell me-2"></i>Quản lý hoạt động
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="list-group">
+                                            <a href="/admin/classes" class="list-group-item list-group-item-action">
+                                                <i class="fas fa-chalkboard-teacher me-2"></i>Quản lý lớp học
+                                            </a>
+                                            <a href="/admin/devices" class="list-group-item list-group-item-action">
+                                                <i class="fas fa-cogs me-2"></i>Quản lý thiết bị
+                                            </a>
+                                            <a href="/admin/packages" class="list-group-item list-group-item-action">
+                                                <i class="fas fa-box me-2"></i>Quản lý gói tập
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-chart-bar me-2"></i>Thống kê người dùng
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <div class="text-center">
+                                                    <h4 class="text-primary" th:text="${userCount}">0</h4>
+                                                    <p class="text-muted">Người dùng</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="text-center">
+                                                    <h4 class="text-success" th:text="${ptCount}">0</h4>
+                                                    <p class="text-muted">Huấn luyện viên</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-chart-line me-2"></i>Thống kê hoạt động
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <div class="text-center">
+                                                    <h4 class="text-info" th:text="${activeClasses}">0</h4>
+                                                    <p class="text-muted">Lớp đang hoạt động</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="text-center">
+                                                    <h4 class="text-warning" th:text="${activeDevices}">0</h4>
+                                                    <p class="text-muted">Thiết bị đang sử dụng</p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -48,7 +152,6 @@
             </div>
         </div>
     </main>
-    
-    <div th:replace="base :: footer"></div>
+    <div th:replace="~{base :: footer}"></div>
 </body>
 </html> 

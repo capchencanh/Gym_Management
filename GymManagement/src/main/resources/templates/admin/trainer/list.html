@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Quản lý người dùng</title>
+    <title>Quản lý huấn luyện viên</title>
     <th:block th:replace="~{base :: head}"></th:block>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/css/admin.css">
@@ -14,7 +14,7 @@
                 <div class="card">
                     <div class="card-header bg-primary text-white">
                         <h4 class="mb-0">
-                            <i class="fas fa-users me-2"></i>Quản lý người dùng
+                            <i class="fas fa-user-tie me-2"></i>Quản lý huấn luyện viên
                         </h4>
                     </div>
                     <div class="card-body">
@@ -29,32 +29,23 @@
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                         <div class="mb-3">
-                            <a href="/admin/users/create" class="btn btn-primary">
-                                <i class="fas fa-plus me-1"></i>Thêm người dùng mới
+                            <a href="/admin/trainers/create" class="btn btn-primary">
+                                <i class="fas fa-plus me-1"></i>Thêm huấn luyện viên mới
                             </a>
                         </div>
                         <div class="card mb-3">
                             <div class="card-body">
-                                <form th:action="@{/admin/users}" method="get" class="row g-3">
-                                    <div class="col-md-6">
+                                <form th:action="@{/admin/trainers}" method="get" class="row g-3">
+                                    <div class="col-md-8">
                                         <label for="keyword" class="form-label">Tìm kiếm</label>
                                         <input type="text" class="form-control" id="keyword" name="keyword" 
                                                th:value="${keyword}" placeholder="Nhập tên, email hoặc số điện thoại...">
                                     </div>
-                                    <div class="col-md-3">
-                                        <label for="role" class="form-label">Vai trò</label>
-                                        <select class="form-select" id="role" name="role">
-                                            <option value="">Tất cả vai trò</option>
-                                            <option value="USER" th:selected="${role == 'USER'}">Người dùng</option>
-                                            <option value="PT" th:selected="${role == 'PT'}">Huấn luyện viên</option>
-                                            <option value="ADMIN" th:selected="${role == 'ADMIN'}">Quản trị viên</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-3 d-flex align-items-end">
+                                    <div class="col-md-4 d-flex align-items-end">
                                         <button type="submit" class="btn btn-primary me-2">
                                             <i class="fas fa-search me-1"></i>Tìm kiếm
                                         </button>
-                                        <a href="/admin/users" class="btn btn-secondary">
+                                        <a href="/admin/trainers" class="btn btn-secondary">
                                             <i class="fas fa-refresh me-1"></i>Làm mới
                                         </a>
                                     </div>
@@ -62,35 +53,27 @@
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="card bg-primary text-white">
                                     <div class="card-body text-center">
                                         <h5>Tổng số</h5>
-                                        <h3 th:text="${totalUsers}">0</h3>
+                                        <h3 th:text="${totalTrainers}">0</h3>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="card bg-success text-white">
                                     <div class="card-body text-center">
-                                        <h5>Người dùng</h5>
-                                        <h3 th:text="${userCount}">0</h3>
+                                        <h5>Đang hoạt động</h5>
+                                        <h3 th:text="${activeTrainers}">0</h3>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="card bg-info text-white">
-                                    <div class="card-body text-center">
-                                        <h5>Huấn luyện viên</h5>
-                                        <h3 th:text="${ptCount}">0</h3>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="card bg-warning text-white">
                                     <div class="card-body text-center">
-                                        <h5>Quản trị viên</h5>
-                                        <h3 th:text="${adminCount}">0</h3>
+                                        <h5>Đã xóa</h5>
+                                        <h3 th:text="${inactiveTrainers}">0</h3>
                                     </div>
                                 </div>
                             </div>
@@ -103,42 +86,43 @@
                                         <th>Họ tên</th>
                                         <th>Email</th>
                                         <th>Số điện thoại</th>
-                                        <th>Vai trò</th>
+                                        <th>Chuyên môn</th>
                                         <th>Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr th:each="user : ${users}">
-                                        <td th:text="${user.userId}"></td>
-                                        <td th:text="${user.name}"></td>
-                                        <td th:text="${user.email}"></td>
-                                        <td th:text="${user.phoneNumber}"></td>
+                                    <tr th:each="trainer : ${trainers}">
+                                        <td th:text="${trainer.trainerId}"></td>
+                                        <td th:text="${trainer.user.name}"></td>
+                                        <td th:text="${trainer.user.email}"></td>
+                                        <td th:text="${trainer.user.phoneNumber}"></td>
                                         <td>
-                                            <span th:if="${user.role == 'USER'}" class="badge bg-success">Người dùng</span>
-                                            <span th:if="${user.role == 'PT'}" class="badge bg-info">Huấn luyện viên</span>
-                                            <span th:if="${user.role == 'ADMIN'}" class="badge bg-warning">Quản trị viên</span>
+                                            <span th:if="${trainer.specialization != null && trainer.specialization != ''}" 
+                                                  th:text="${trainer.specialization}"></span>
+                                            <span th:if="${trainer.specialization == null || trainer.specialization == ''}" 
+                                                  class="text-muted">-</span>
                                         </td>
                                         <td>
-                                            <a th:href="@{/admin/users/view/{id}(id=${user.userId})}" 
+                                            <a th:href="@{/admin/trainers/view/{id}(id=${trainer.trainerId})}" 
                                                class="btn btn-sm btn-info me-1" title="Xem">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a th:href="@{/admin/users/edit/{id}(id=${user.userId})}" 
+                                            <a th:href="@{/admin/trainers/edit/{id}(id=${trainer.trainerId})}" 
                                                class="btn btn-sm btn-warning me-1" title="Sửa">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <button type="button" class="btn btn-sm btn-danger delete-btn" 
                                                     title="Xóa"
-                                                    th:data-user-id="${user.userId}"
-                                                    th:data-user-name="${user.name}">
+                                                    th:data-trainer-id="${trainer.trainerId}"
+                                                    th:data-trainer-name="${trainer.user.name}">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </td>
                                     </tr>
-                                    <tr th:if="${#lists.isEmpty(users)}">
+                                    <tr th:if="${#lists.isEmpty(trainers)}">
                                         <td colspan="6" class="text-center text-muted py-4">
-                                            <i class="fas fa-users fa-2x mb-2"></i>
-                                            <p>Không có dữ liệu người dùng</p>
+                                            <i class="fas fa-user-tie fa-2x mb-2"></i>
+                                            <p>Không có dữ liệu huấn luyện viên</p>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -157,11 +141,11 @@
             const deleteButtons = document.querySelectorAll('.delete-btn');
             deleteButtons.forEach(button => {
                 button.addEventListener('click', function() {
-                    const userId = this.getAttribute('data-user-id');
-                    const name = this.getAttribute('data-user-name');
-                    if (confirm(`Bạn có chắc chắn muốn xóa người dùng "${name}"?`)) {
+                    const trainerId = this.getAttribute('data-trainer-id');
+                    const name = this.getAttribute('data-trainer-name');
+                    if (confirm(`Bạn có chắc chắn muốn xóa huấn luyện viên "${name}"?`)) {
                         const form = document.getElementById('deleteForm');
-                        form.action = `/admin/users/delete/${userId}`;
+                        form.action = `/admin/trainers/delete/${trainerId}`;
                         form.submit();
                     }
                 });

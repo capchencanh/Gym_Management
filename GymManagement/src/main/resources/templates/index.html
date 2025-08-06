@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title th:replace="base :: title">Gym Management System</title>
-    <th:block th:replace="base :: bootstrap"></th:block>
+    <title>Gym Management System</title>
+    <th:block th:replace="base :: head"></th:block>
 </head>
 <body>
     <div th:replace="base :: header"></div>
     <main class="container mt-5">
-        <!-- Thông báo lỗi -->
-        <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <div th:if="${param.error}" class="alert alert-danger alert-dismissible show" role="alert">
             <i class="fas fa-exclamation-triangle me-2"></i>
             <span th:text="${param.error}">Lỗi</span>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -28,8 +27,6 @@
                         </div>
                     </div>
                 </div>
-                
-                <!-- Hiển thị cho user chưa đăng nhập -->
                 <div class="row mt-5" th:unless="${session.user}">
                     <div class="col-md-6 mb-3">
                         <div class="card shadow-sm h-100">

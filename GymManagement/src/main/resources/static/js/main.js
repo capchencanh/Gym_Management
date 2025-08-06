@@ -1,11 +1,8 @@
-// Main JavaScript file for Gym Management System
 console.log('Gym Management System - JavaScript loaded');
 
-// Event listener cho nút xóa user
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing delete buttons...');
     
-    // Gắn sự kiện cho các nút có class delete-btn
     const deleteButtons = document.querySelectorAll('.delete-btn');
     console.log('Found', deleteButtons.length, 'delete buttons');
     
@@ -23,7 +20,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Hàm confirmDelete cho user
 function confirmDelete(userId, userName) {
     if (confirm('Bạn có chắc chắn muốn xóa tài khoản "' + userName + '"?')) {
         var form = document.getElementById('deleteForm');
