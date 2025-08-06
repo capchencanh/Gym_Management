@@ -44,4 +44,6 @@ public class IndexController {
         model.addAttribute("categories", categoryService.getAllCategories());
         return "admin/dashboard";
     }
+    
+
 } 

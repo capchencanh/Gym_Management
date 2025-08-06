@@ -18,6 +18,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 
+
+
 @Controller
 public class AuthController {
 
@@ -77,16 +79,8 @@ public class AuthController {
             }
             
 
-            switch (user.getRole()) {
-                case ADMIN:
-                    return "redirect:/admin";
-                case PT:
-                    return "redirect:/pt/dashboard";
-                case USER:
-                    return "redirect:/user/dashboard";
-                default:
-                    return "redirect:/";
-            }
+            // Tất cả role đều dùng chung dashboard admin
+            return "redirect:/admin";
 
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
@@ -106,9 +100,10 @@ public class AuthController {
     public String register(@RequestParam String name,
                           @RequestParam String email,
                           @RequestParam String phoneNumber,
-                          @RequestParam String password,
-                          @RequestParam String confirmPassword,
+                          @RequestParam String passwordHash,
+                          @RequestParam(required = false) String confirmPassword,
                           @RequestParam String gender,
+                          @RequestParam String role,
                           @RequestParam(required = false) String birthdate,
                           @RequestParam(required = false) Double height,
                           @RequestParam(required = false) Double weight,
@@ -116,47 +111,44 @@ public class AuthController {
                           RedirectAttributes redirectAttributes) {
         try {
 
-            if (!password.equals(confirmPassword)) {
+            if (confirmPassword != null && !passwordHash.equals(confirmPassword)) {
                 redirectAttributes.addFlashAttribute("error", "Mật khẩu xác nhận không khớp");
                 return "redirect:/register";
             }
 
+            // Xử lý role
+            User.Role selectedRole = User.Role.valueOf(role);
 
             if (userService.getUserByEmail(email).isPresent()) {
                 redirectAttributes.addFlashAttribute("error", "Email đã được sử dụng");
                 return "redirect:/register";
             }
 
-
             if (userService.getUserByPhoneNumber(phoneNumber).isPresent()) {
                 redirectAttributes.addFlashAttribute("error", "Số điện thoại đã được sử dụng");
                 return "redirect:/register";
             }
 
-
             User newUser = new User();
             newUser.setName(name);
             newUser.setEmail(email);
             newUser.setPhoneNumber(phoneNumber);
-            newUser.setPasswordHash(password);
+            newUser.setPasswordHash(passwordHash);
             newUser.setGender(gender);
-            newUser.setRole(User.Role.USER);
+            newUser.setRole(selectedRole);
             newUser.setFitnessGoal(fitnessGoal);
-
 
             if (birthdate != null && !birthdate.trim().isEmpty()) {
                 try {
                     newUser.setBirthdate(java.sql.Date.valueOf(birthdate));
                 } catch (Exception e) {
-
+                    // Ignore invalid date format
                 }
             }
-
 
             if (height != null) newUser.setHeight(height);
             if (weight != null) newUser.setWeight(weight);
 
-            
             userService.createUser(newUser);
 
             redirectAttributes.addFlashAttribute("success", "Đăng ký thành công! Vui lòng đăng nhập.");

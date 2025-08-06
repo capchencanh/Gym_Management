@@ -426,4 +426,45 @@ body {
     .placeholder-text p {
         font-size: 0.9rem;
     }
+}
+
+/* Role selection enhancements */
+.form-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.form-text i {
+    color: #007bff;
+    font-size: 0.75rem;
+}
+
+.role-option {
+    padding: 8px 12px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.role-option:last-child {
+    border-bottom: none;
+}
+
+.role-description {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 2px;
+}
+
+/* Enhanced form select styling */
+.form-select option {
+    padding: 10px;
+    font-size: 0.9rem;
+}
+
+.form-select option:first-child {
+    font-weight: 600;
+    color: #495057;
 } 
