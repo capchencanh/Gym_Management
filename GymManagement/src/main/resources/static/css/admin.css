@@ -1,4 +1,4 @@
-
+/* Reset và Base Styles */
 * {
     margin: 0;
     padding: 0;
@@ -6,20 +6,20 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: #f8f9fa;
-    color: #212529;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #ffffff;
+    color: #000000;
     line-height: 1.6;
 }
 
-
+/* Dashboard Container */
 .dashboard-container {
     max-width: 1400px;
     margin: 0 auto;
     padding: 1.5rem;
 }
 
-
+/* Dashboard Header */
 .dashboard-header {
     text-align: center;
     margin-bottom: 2rem;
@@ -29,17 +29,17 @@ body {
 .dashboard-header h1 {
     font-size: 2.25rem;
     font-weight: 600;
-    color: #212529;
+    color: #000000;
     margin-bottom: 0.5rem;
 }
 
 .dashboard-header p {
-    color: #6c757d;
+    color: #666666;
     font-size: 1rem;
     font-weight: 400;
 }
 
-
+/* Dashboard Content */
 .dashboard-content {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -47,7 +47,7 @@ body {
     margin-bottom: 2rem;
 }
 
-
+/* Stats Section */
 .stats-section {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -56,24 +56,24 @@ body {
 }
 
 .stat-item {
-    background: white;
-    border: 1px solid #dee2e6;
-    border-radius: 0.5rem;
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
     padding: 1.5rem;
     text-align: center;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .stat-number {
     display: block;
     font-size: 2rem;
     font-weight: 700;
-    color: #0d6efd;
+    color: #000000;
     margin-bottom: 0.5rem;
 }
 
 .stat-label {
-    color: #6c757d;
+    color: #666666;
     font-size: 0.9rem;
     font-weight: 500;
 }
@@ -86,16 +86,16 @@ body {
 .actions-section h2 {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #212529;
+    color: #000000;
     margin-bottom: 1rem;
 }
 
 .actions-list {
-    background: white;
-    border: 1px solid #dee2e6;
-    border-radius: 0.5rem;
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .action-link {
@@ -103,9 +103,9 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 1rem 1.25rem;
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid #e5e5e5;
     text-decoration: none;
-    color: #212529;
+    color: #000000;
 }
 
 .action-link:last-child {
@@ -113,9 +113,9 @@ body {
 }
 
 .action-link:hover {
-    background-color: #f8f9fa;
+    background-color: #f8f8f8;
     text-decoration: none;
-    color: #212529;
+    color: #000000;
 }
 
 .action-text {
@@ -124,11 +124,11 @@ body {
 }
 
 .action-link i {
-    color: #6c757d;
+    color: #999999;
     font-size: 0.9rem;
 }
 
-
+/* Quick Actions */
 .quick-actions {
     display: grid;
     grid-template-columns: 1fr;
@@ -136,17 +136,17 @@ body {
 }
 
 .quick-action-card {
-    background: white;
-    border: 1px solid #dee2e6;
-    border-radius: 0.5rem;
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
     padding: 1.25rem;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .quick-action-card h4 {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #212529;
+    color: #000000;
     margin-bottom: 0.75rem;
 }
 
@@ -164,7 +164,7 @@ body {
 }
 
 .quick-action-list a {
-    color: #0d6efd;
+    color: #000000;
     text-decoration: none;
     font-weight: 500;
     font-size: 0.9rem;
@@ -180,17 +180,17 @@ body {
 }
 
 .detail-card {
-    background: white;
-    border: 1px solid #dee2e6;
-    border-radius: 0.5rem;
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
     padding: 1.5rem;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .detail-card h3 {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #212529;
+    color: #000000;
     margin-bottom: 1rem;
 }
 
@@ -203,26 +203,26 @@ body {
 .detail-item {
     text-align: center;
     padding: 1rem;
-    background: #f8f9fa;
-    border-radius: 0.375rem;
-    border: 1px solid #dee2e6;
+    background: #f8f8f8;
+    border-radius: 6px;
+    border: 1px solid #e5e5e5;
 }
 
 .detail-number {
     display: block;
     font-size: 1.5rem;
     font-weight: 700;
-    color: #198754;
+    color: #000000;
     margin-bottom: 0.5rem;
 }
 
 .detail-label {
-    color: #6c757d;
+    color: #666666;
     font-size: 0.8rem;
     font-weight: 500;
 }
 
-
+/* Responsive Design */
 @media (max-width: 1200px) {
     .dashboard-content {
         grid-template-columns: 1fr;

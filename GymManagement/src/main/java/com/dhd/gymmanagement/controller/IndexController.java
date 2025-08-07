@@ -2,9 +2,9 @@ package com.dhd.gymmanagement.controller;
 
 import com.dhd.gymmanagement.service.CategoryService;
 import com.dhd.gymmanagement.service.UserService;
-import com.dhd.gymmanagement.service.TrainerService;
 import com.dhd.gymmanagement.service.DeviceService;
 import com.dhd.gymmanagement.entity.Device;
+import com.dhd.gymmanagement.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,9 +18,6 @@ public class IndexController {
     
     @Autowired
     private UserService userService;
-    
-    @Autowired
-    private TrainerService trainerService;
     
     @Autowired
     private DeviceService deviceService;
@@ -55,14 +52,18 @@ public class IndexController {
         }
         
 
-        model.addAttribute("totalUsers", userService.countUsers());
-        model.addAttribute("totalTrainers", trainerService.getAllTrainers().size());
+        long totalUsers = userService.countUsers();
+        long ptCount = userService.getUsersByRole(User.Role.PT).size();
+        long userCount = userService.getUsersByRole(User.Role.USER).size();
+        long adminCount = userService.getUsersByRole(User.Role.ADMIN).size();
+
+        model.addAttribute("totalUsers", totalUsers);
+        model.addAttribute("totalTrainers", ptCount);
         model.addAttribute("totalClasses", 0);
         model.addAttribute("totalDevices", deviceService.countTotalDevices());
         
-
-        model.addAttribute("userCount", userService.countUsers());
-        model.addAttribute("ptCount", trainerService.getAllTrainers().size());
+        model.addAttribute("userCount", userCount);
+        model.addAttribute("ptCount", ptCount);
         model.addAttribute("activeClasses", 0);
         model.addAttribute("activeDevices", deviceService.countDevicesByStatus(Device.DeviceStatus.IN_USE));
         

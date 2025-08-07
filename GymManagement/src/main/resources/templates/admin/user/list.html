@@ -114,9 +114,12 @@
                                         <td th:text="${user.email}"></td>
                                         <td th:text="${user.phoneNumber}"></td>
                                         <td>
-                                            <span th:if="${user.role == 'USER'}" class="badge bg-success">Người dùng</span>
-                                            <span th:if="${user.role == 'PT'}" class="badge bg-info">Huấn luyện viên</span>
-                                            <span th:if="${user.role == 'ADMIN'}" class="badge bg-warning">Quản trị viên</span>
+                                            <!-- Hiển thị badge theo role -->
+                                            <span th:if="${user.role != null and user.role.name() == 'USER'}" class="badge bg-success">Người dùng</span>
+                                            <span th:if="${user.role != null and user.role.name() == 'PT'}" class="badge bg-info">Huấn luyện viên</span>
+                                            <span th:if="${user.role != null and user.role.name() == 'ADMIN'}" class="badge bg-warning">Quản trị viên</span>
+                                            <!-- Fallback nếu role null -->
+                                            <span th:if="${user.role == null}" class="badge bg-secondary">Chưa phân quyền</span>
                                         </td>
                                         <td>
                                             <a th:href="@{/admin/users/view/{id}(id=${user.userId})}" 

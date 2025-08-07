@@ -2,12 +2,12 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:replace="~{base :: head}"></th:block>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/admin.css">
 </head>
 <body>
     <div th:replace="~{base :: header}"></div>
-    
+
     <main class="dashboard-container">
         <!-- Header -->
         <div class="dashboard-header">
@@ -15,11 +15,8 @@
             <p>Quản lý hệ thống gym</p>
         </div>
 
-
         <div class="dashboard-content">
-
             <div>
-
                 <div class="stats-section">
                     <div class="stat-item">
                         <span class="stat-number" th:text="${totalUsers}">0</span>
@@ -71,14 +68,12 @@
                 </div>
             </div>
 
-
             <div>
-
                 <div class="quick-actions">
                     <div class="quick-action-card">
                         <h4>Thao tác nhanh</h4>
                         <ul class="quick-action-list">
-                            <li><a href="/admin/users/new">Thêm người dùng mới</a></li>
+                            <li><a href="/admin/users/create">Thêm người dùng mới</a></li>
                             <li><a href="/admin/classes/new">Tạo lớp học mới</a></li>
                             <li><a href="/admin/packages/new">Thêm gói tập</a></li>
                             <li><a href="/admin/reports">Xem báo cáo</a></li>
@@ -96,7 +91,6 @@
                 </div>
             </div>
         </div>
-
 
         <div class="details-section">
             <div class="detail-card">
@@ -122,7 +116,7 @@
             </div>
         </div>
     </main>
-    
+
     <div th:replace="~{base :: footer}"></div>
 </body>
-</html> 
+</html>

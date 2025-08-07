@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/admin/users")
@@ -46,10 +47,12 @@ public class AdminUserController {
             users = userService.getAllUsers();
         }
         
-        long totalUsers = users.size();
-        long adminCount = users.stream().filter(u -> u.getRole() == User.Role.ADMIN).count();
-        long ptCount = users.stream().filter(u -> u.getRole() == User.Role.PT).count();
-        long userCount = users.stream().filter(u -> u.getRole() == User.Role.USER).count();
+
+        List<User> allUsers = userService.getAllUsers();
+        long totalUsers = allUsers.size();
+        long adminCount = allUsers.stream().filter(u -> u.getRole() == User.Role.ADMIN).count();
+        long ptCount = allUsers.stream().filter(u -> u.getRole() == User.Role.PT).count();
+        long userCount = allUsers.stream().filter(u -> u.getRole() == User.Role.USER).count();
         
         model.addAttribute("users", users);
         model.addAttribute("keyword", keyword);
@@ -71,8 +74,60 @@ public class AdminUserController {
     }
     
     @PostMapping("/create")
-    public String createUser(@ModelAttribute User user, RedirectAttributes redirectAttributes) {
+    public String createUser(@RequestParam String name,
+                           @RequestParam String email,
+                           @RequestParam String phoneNumber,
+                           @RequestParam String role,
+                           @RequestParam String passwordHash,
+                           @RequestParam(required = false) String gender,
+                           @RequestParam(required = false) String birthdate,
+                           @RequestParam(required = false) String height,
+                           @RequestParam(required = false) String weight,
+                           @RequestParam(required = false) String fitnessGoal,
+                           RedirectAttributes redirectAttributes) {
         try {
+            User user = new User();
+            user.setName(name);
+            user.setEmail(email);
+            user.setPhoneNumber(phoneNumber);
+            user.setPasswordHash(passwordHash);
+            user.setGender(gender);
+            user.setFitnessGoal(fitnessGoal);
+            
+
+            try {
+                user.setRole(User.Role.valueOf(role.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                user.setRole(User.Role.USER);
+            }
+            
+
+            if (birthdate != null && !birthdate.trim().isEmpty()) {
+                try {
+                    user.setBirthdate(java.sql.Date.valueOf(birthdate));
+                } catch (IllegalArgumentException e) {
+                    user.setBirthdate(null);
+                }
+            }
+            
+
+            if (height != null && !height.trim().isEmpty()) {
+                try {
+                    user.setHeight(Double.parseDouble(height));
+                } catch (NumberFormatException e) {
+                    user.setHeight(null);
+                }
+            }
+            
+
+            if (weight != null && !weight.trim().isEmpty()) {
+                try {
+                    user.setWeight(Double.parseDouble(weight));
+                } catch (NumberFormatException e) {
+                    user.setWeight(null);
+                }
+            }
+            
             userService.createUser(user);
             redirectAttributes.addFlashAttribute("success", "Tạo người dùng thành công!");
             return "redirect:/admin/users";
@@ -96,8 +151,65 @@ public class AdminUserController {
     }
     
     @PostMapping("/edit/{id}")
-    public String editUser(@PathVariable Integer id, @ModelAttribute User user, RedirectAttributes redirectAttributes) {
+    public String editUser(@PathVariable Integer id,
+                          @RequestParam String name,
+                          @RequestParam String email,
+                          @RequestParam String phoneNumber,
+                          @RequestParam String role,
+                          @RequestParam(required = false) String gender,
+                          @RequestParam(required = false) String birthdate,
+                          @RequestParam(required = false) String height,
+                          @RequestParam(required = false) String weight,
+                          @RequestParam(required = false) String fitnessGoal,
+                          @RequestParam(required = false) String passwordHash,
+                          RedirectAttributes redirectAttributes) {
         try {
+            User user = new User();
+            user.setName(name);
+            user.setEmail(email);
+            user.setPhoneNumber(phoneNumber);
+            user.setGender(gender);
+            user.setFitnessGoal(fitnessGoal);
+            
+
+            try {
+                user.setRole(User.Role.valueOf(role.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                user.setRole(User.Role.USER);
+            }
+            
+
+            if (birthdate != null && !birthdate.trim().isEmpty()) {
+                try {
+                    user.setBirthdate(java.sql.Date.valueOf(birthdate));
+                } catch (IllegalArgumentException e) {
+                    user.setBirthdate(null);
+                }
+            }
+            
+
+            if (height != null && !height.trim().isEmpty()) {
+                try {
+                    user.setHeight(Double.parseDouble(height));
+                } catch (NumberFormatException e) {
+                    user.setHeight(null);
+                }
+            }
+            
+
+            if (weight != null && !weight.trim().isEmpty()) {
+                try {
+                    user.setWeight(Double.parseDouble(weight));
+                } catch (NumberFormatException e) {
+                    user.setWeight(null);
+                }
+            }
+            
+
+            if (passwordHash != null && !passwordHash.trim().isEmpty()) {
+                user.setPasswordHash(passwordHash);
+            }
+            
             userService.updateUser(id, user);
             redirectAttributes.addFlashAttribute("success", "Cập nhật người dùng thành công!");
             return "redirect:/admin/users";
@@ -155,6 +267,4 @@ public class AdminUserController {
             return "redirect:/admin/users/reset-password/" + id;
         }
     }
-
-
 }

@@ -44,23 +44,6 @@ public class AdminDeviceController {
             devices = deviceService.getAllDevices();
         }
         
-        System.out.println("Total devices found: " + devices.size());
-        devices.forEach(device -> {
-            System.out.println("Device: ID=" + device.getDeviceId() + 
-                             ", Name=" + device.getName() + 
-                             ", Status=" + device.getStatus() + 
-                             ", IsDeleted=" + device.getIsDeleted());
-        });
-        
-        List<Device> allDevicesDebug = deviceService.getAllDevicesForDebug();
-        System.out.println("All devices in DB: " + allDevicesDebug.size());
-        allDevicesDebug.forEach(device -> {
-            System.out.println("All Device: ID=" + device.getDeviceId() + 
-                             ", Name=" + device.getName() + 
-                             ", Status=" + device.getStatus() + 
-                             ", IsDeleted=" + device.getIsDeleted());
-        });
-        
         List<Device> allDevices = deviceService.getAllDevicesForStats();
         long totalDevices = allDevices.size();
         long availableCount = allDevices.stream().filter(d -> d.getStatus() == Device.DeviceStatus.AVAILABLE).count();
