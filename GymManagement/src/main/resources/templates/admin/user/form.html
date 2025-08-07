@@ -114,6 +114,33 @@
                                 <textarea class="form-control" id="fitnessGoal" th:field="*{fitnessGoal}" 
                                           rows="3" placeholder="Mô tả mục tiêu thể hình..."></textarea>
                             </div>
+                            
+                            <!-- Trainer Information Section -->
+                            <div id="trainerSection" style="display: none;">
+                                <h5 class="text-primary mb-3">Thông tin huấn luyện viên</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="specialization" class="form-label">Chuyên môn</label>
+                                            <input type="text" class="form-control" id="specialization" name="specialization" 
+                                                   placeholder="Ví dụ: Yoga, Cardio, Strength Training...">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="schedule" class="form-label">Lịch làm việc</label>
+                                            <input type="text" class="form-control" id="schedule" name="schedule" 
+                                                   placeholder="Ví dụ: Thứ 2-6, 8h-17h">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="experience" class="form-label">Kinh nghiệm</label>
+                                    <textarea class="form-control" id="experience" name="experience" 
+                                              rows="3" placeholder="Mô tả kinh nghiệm làm việc..."></textarea>
+                                </div>
+                            </div>
+                            
                             <h5 class="text-primary mb-3">Mật khẩu</h5>
                             <div class="row">
                                 <div class="col-md-6">
@@ -203,6 +230,25 @@
                 }
             });
         }
+        
+        // Toggle trainer section based on role
+        document.getElementById('role').addEventListener('change', function() {
+            var trainerSection = document.getElementById('trainerSection');
+            if (this.value === 'PT') {
+                trainerSection.style.display = 'block';
+            } else {
+                trainerSection.style.display = 'none';
+            }
+        });
+        
+        // Show trainer section on page load if role is PT
+        window.addEventListener('load', function() {
+            var roleSelect = document.getElementById('role');
+            var trainerSection = document.getElementById('trainerSection');
+            if (roleSelect.value === 'PT') {
+                trainerSection.style.display = 'block';
+            }
+        });
     </script>
 </body>
 </html> 

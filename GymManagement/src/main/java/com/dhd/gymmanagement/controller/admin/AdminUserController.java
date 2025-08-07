@@ -1,7 +1,9 @@
 package com.dhd.gymmanagement.controller.admin;
 
 import com.dhd.gymmanagement.entity.User;
+import com.dhd.gymmanagement.entity.Trainer;
 import com.dhd.gymmanagement.service.UserService;
+import com.dhd.gymmanagement.service.TrainerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/admin/users")
@@ -17,6 +18,9 @@ public class AdminUserController {
     
     @Autowired
     private UserService userService;
+    
+    @Autowired
+    private TrainerService trainerService;
     
     @GetMapping
     public String listUsers(Model model, 
@@ -84,6 +88,9 @@ public class AdminUserController {
                            @RequestParam(required = false) String height,
                            @RequestParam(required = false) String weight,
                            @RequestParam(required = false) String fitnessGoal,
+                           @RequestParam(required = false) String specialization,
+                           @RequestParam(required = false) String schedule,
+                           @RequestParam(required = false) String experience,
                            RedirectAttributes redirectAttributes) {
         try {
             User user = new User();
@@ -94,13 +101,11 @@ public class AdminUserController {
             user.setGender(gender);
             user.setFitnessGoal(fitnessGoal);
             
-
             try {
                 user.setRole(User.Role.valueOf(role.toUpperCase()));
             } catch (IllegalArgumentException e) {
                 user.setRole(User.Role.USER);
             }
-            
 
             if (birthdate != null && !birthdate.trim().isEmpty()) {
                 try {
@@ -109,7 +114,6 @@ public class AdminUserController {
                     user.setBirthdate(null);
                 }
             }
-            
 
             if (height != null && !height.trim().isEmpty()) {
                 try {
@@ -118,7 +122,6 @@ public class AdminUserController {
                     user.setHeight(null);
                 }
             }
-            
 
             if (weight != null && !weight.trim().isEmpty()) {
                 try {
@@ -128,7 +131,16 @@ public class AdminUserController {
                 }
             }
             
-            userService.createUser(user);
+            User savedUser = userService.createUser(user);
+
+            if (savedUser.getRole() == User.Role.PT) {
+                Trainer trainer = new Trainer();
+                trainer.setUser(savedUser);
+                trainer.setSpecialization(specialization);
+                trainer.setSchedule(schedule);
+                trainerService.createTrainer(trainer);
+            }
+
             redirectAttributes.addFlashAttribute("success", "Tạo người dùng thành công!");
             return "redirect:/admin/users";
         } catch (Exception e) {
@@ -162,6 +174,9 @@ public class AdminUserController {
                           @RequestParam(required = false) String weight,
                           @RequestParam(required = false) String fitnessGoal,
                           @RequestParam(required = false) String passwordHash,
+                          @RequestParam(required = false) String specialization,
+                          @RequestParam(required = false) String schedule,
+                          @RequestParam(required = false) String experience,
                           RedirectAttributes redirectAttributes) {
         try {
             User user = new User();
@@ -204,13 +219,36 @@ public class AdminUserController {
                     user.setWeight(null);
                 }
             }
-            
 
             if (passwordHash != null && !passwordHash.trim().isEmpty()) {
                 user.setPasswordHash(passwordHash);
             }
             
-            userService.updateUser(id, user);
+            User updatedUser = userService.updateUser(id, user);
+
+            if (updatedUser.getRole() == User.Role.PT) {
+                try {
+                    Trainer existingTrainer = trainerService.getTrainerById(updatedUser.getUserId()).orElse(null);
+                    if (existingTrainer != null) {
+                        existingTrainer.setSpecialization(specialization);
+                        existingTrainer.setSchedule(schedule);
+                        trainerService.updateTrainer(updatedUser.getUserId(), existingTrainer);
+                    } else {
+                        Trainer trainer = new Trainer();
+                        trainer.setUser(updatedUser);
+                        trainer.setSpecialization(specialization);
+                        trainer.setSchedule(schedule);
+                        trainerService.createTrainer(trainer);
+                    }
+                } catch (Exception e) {
+                    Trainer trainer = new Trainer();
+                    trainer.setUser(updatedUser);
+                    trainer.setSpecialization(specialization);
+                    trainer.setSchedule(schedule);
+                    trainerService.createTrainer(trainer);
+                }
+            }
+
             redirectAttributes.addFlashAttribute("success", "Cập nhật người dùng thành công!");
             return "redirect:/admin/users";
         } catch (Exception e) {
@@ -265,6 +303,32 @@ public class AdminUserController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Lỗi khi đặt lại mật khẩu: " + e.getMessage());
             return "redirect:/admin/users/reset-password/" + id;
+        }
+    }
+
+    @GetMapping("/sync-trainers")
+    public String syncTrainers(RedirectAttributes redirectAttributes) {
+        try {
+            List<User> ptUsers = userService.getUsersByRole(User.Role.PT);
+            int createdCount = 0;
+            
+            for (User user : ptUsers) {
+                try {
+                    trainerService.getTrainerById(user.getUserId());
+                } catch (Exception e) {
+                    Trainer trainer = new Trainer();
+                    trainer.setUser(user);
+                    trainerService.createTrainer(trainer);
+                    createdCount++;
+                }
+            }
+            
+            redirectAttributes.addFlashAttribute("success", 
+                "Đồng bộ thành công! Đã tạo " + createdCount + " trainer records cho " + ptUsers.size() + " PT users.");
+            return "redirect:/admin/users";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi đồng bộ: " + e.getMessage());
+            return "redirect:/admin/users";
         }
     }
 }

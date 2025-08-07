@@ -29,8 +29,12 @@
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                         <div class="mb-3">
-                            <a href="/admin/users/create" class="btn btn-primary">
+                            <a href="/admin/users/create" class="btn btn-primary me-2">
                                 <i class="fas fa-plus me-1"></i>Thêm người dùng mới
+                            </a>
+                            <a href="/admin/users/sync-trainers" class="btn btn-warning" 
+                               onclick="return confirm('Bạn có chắc muốn đồng bộ dữ liệu trainers?')">
+                                <i class="fas fa-sync me-1"></i>Đồng bộ Trainers
                             </a>
                         </div>
                         <div class="card mb-3">

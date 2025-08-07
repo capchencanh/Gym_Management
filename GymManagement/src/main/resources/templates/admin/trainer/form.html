@@ -31,8 +31,8 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="name" class="form-label">Họ và tên <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="name" th:field="*{user.name}" 
-                                               placeholder="Nhập họ và tên" required>
+                                        <input type="text" class="form-control" id="name" name="name" 
+                                               th:value="${trainer.user.name}" placeholder="Nhập họ và tên" required>
                                         <div class="invalid-feedback">
                                             Vui lòng nhập họ và tên
                                         </div>
@@ -41,8 +41,8 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-                                        <input type="email" class="form-control" id="email" th:field="*{user.email}" 
-                                               placeholder="example@email.com" required>
+                                        <input type="email" class="form-control" id="email" name="email" 
+                                               th:value="${trainer.user.email}" placeholder="example@email.com" required>
                                         <div class="invalid-feedback">
                                             Vui lòng nhập email hợp lệ
                                         </div>
@@ -53,8 +53,8 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="phoneNumber" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
-                                        <input type="tel" class="form-control" id="phoneNumber" th:field="*{user.phoneNumber}" 
-                                               placeholder="0123456789" required>
+                                        <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" 
+                                               th:value="${trainer.user.phoneNumber}" placeholder="0123456789" required>
                                         <div class="invalid-feedback">
                                             Vui lòng nhập số điện thoại
                                         </div>
@@ -63,8 +63,8 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="specialization" class="form-label">Chuyên môn</label>
-                                        <input type="text" class="form-control" id="specialization" th:field="*{specialization}" 
-                                               placeholder="Ví dụ: Yoga, Cardio, Strength Training...">
+                                        <input type="text" class="form-control" id="specialization" name="specialization" 
+                                               th:value="${trainer.specialization}" placeholder="Ví dụ: Yoga, Cardio, Strength Training...">
                                     </div>
                                 </div>
                             </div>
@@ -72,17 +72,18 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="gender" class="form-label">Giới tính</label>
-                                        <select class="form-select" id="gender" th:field="*{user.gender}">
+                                        <select class="form-select" id="gender" name="gender">
                                             <option value="">Chọn giới tính</option>
-                                            <option value="Nam">Nam</option>
-                                            <option value="Nữ">Nữ</option>
+                                            <option value="Nam" th:selected="${trainer.user.gender == 'Nam'}">Nam</option>
+                                            <option value="Nữ" th:selected="${trainer.user.gender == 'Nữ'}">Nữ</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="birthdate" class="form-label">Ngày sinh</label>
-                                        <input type="date" class="form-control" id="birthdate" th:field="*{user.birthdate}">
+                                        <input type="date" class="form-control" id="birthdate" name="birthdate" 
+                                               th:value="${#dates.format(trainer.user.birthdate, 'yyyy-MM-dd')}">
                                     </div>
                                 </div>
                             </div>
@@ -90,27 +91,27 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="height" class="form-label">Chiều cao (cm)</label>
-                                        <input type="number" class="form-control" id="height" th:field="*{user.height}" 
-                                               placeholder="170" min="100" max="250">
+                                        <input type="number" class="form-control" id="height" name="height" 
+                                               th:value="${trainer.user.height}" placeholder="170" min="100" max="250">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="weight" class="form-label">Cân nặng (kg)</label>
-                                        <input type="number" class="form-control" id="weight" th:field="*{user.weight}" 
-                                               placeholder="65" min="30" max="300" step="0.1">
+                                        <input type="number" class="form-control" id="weight" name="weight" 
+                                               th:value="${trainer.user.weight}" placeholder="65" min="30" max="300" step="0.1">
                                     </div>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label for="fitnessGoal" class="form-label">Mục tiêu thể hình</label>
-                                <textarea class="form-control" id="fitnessGoal" th:field="*{user.fitnessGoal}" 
-                                          rows="3" placeholder="Mô tả mục tiêu thể hình..."></textarea>
+                                <textarea class="form-control" id="fitnessGoal" name="fitnessGoal" 
+                                          rows="3" placeholder="Mô tả mục tiêu thể hình..." th:text="${trainer.user.fitnessGoal}"></textarea>
                             </div>
                             <div class="mb-3">
                                 <label for="schedule" class="form-label">Lịch làm việc</label>
-                                <textarea class="form-control" id="schedule" th:field="*{schedule}" 
-                                          rows="3" placeholder="Mô tả lịch làm việc..."></textarea>
+                                <textarea class="form-control" id="schedule" name="schedule" 
+                                          rows="3" placeholder="Mô tả lịch làm việc..." th:text="${trainer.schedule}"></textarea>
                             </div>
                             <h5 class="text-primary mb-3">Mật khẩu</h5>
                             <div class="row">
@@ -120,8 +121,7 @@
                                             <span th:text="${trainer.trainerId == null ? 'Mật khẩu' : 'Mật khẩu mới (để trống nếu không đổi)'}"></span>
                                             <span th:if="${trainer.trainerId == null}" class="text-danger">*</span>
                                         </label>
-                                        <input type="password" class="form-control" id="passwordHash" 
-                                               th:field="*{user.passwordHash}" 
+                                        <input type="password" class="form-control" id="passwordHash" name="passwordHash"
                                                th:required="${trainer.trainerId == null}"
                                                placeholder="Nhập mật khẩu">
                                         <div class="invalid-feedback">
