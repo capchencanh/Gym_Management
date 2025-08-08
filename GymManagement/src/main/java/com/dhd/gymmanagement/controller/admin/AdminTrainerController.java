@@ -301,29 +301,5 @@ public class AdminTrainerController {
         }
     }
 
-    @GetMapping("/sync-trainers")
-    public String syncTrainers(RedirectAttributes redirectAttributes) {
-        try {
-            List<User> ptUsers = userService.getUsersByRole(User.Role.PT);
-            int createdCount = 0;
-            
-            for (User user : ptUsers) {
-                try {
-                    trainerService.getTrainerById(user.getUserId());
-                } catch (Exception e) {
-                    Trainer trainer = new Trainer();
-                    trainer.setUser(user);
-                    trainerService.createTrainer(trainer);
-                    createdCount++;
-                }
-            }
-            
-            redirectAttributes.addFlashAttribute("success", 
-                "Đồng bộ thành công! Đã tạo " + createdCount + " trainer records cho " + ptUsers.size() + " PT users.");
-            return "redirect:/admin/trainers";
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Lỗi khi đồng bộ: " + e.getMessage());
-            return "redirect:/admin/trainers";
-        }
-    }
+
 }

@@ -25,15 +25,15 @@ DROP TABLE IF EXISTS `body_measurements`;
 CREATE TABLE `body_measurements` (
   `measurement_id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
-  `weight` decimal(5,2) DEFAULT NULL,
-  `body_fat_percentage` decimal(5,2) DEFAULT NULL,
-  `muscle_mass` decimal(5,2) DEFAULT NULL,
-  `chest` decimal(5,2) DEFAULT NULL,
-  `waist` decimal(5,2) DEFAULT NULL,
-  `bicep` decimal(5,2) DEFAULT NULL,
-  `thigh` decimal(5,2) DEFAULT NULL,
+  `weight` double DEFAULT NULL,
+  `body_fat_percentage` double DEFAULT NULL,
+  `muscle_mass` double DEFAULT NULL,
+  `chest` double DEFAULT NULL,
+  `waist` double DEFAULT NULL,
+  `bicep` double DEFAULT NULL,
+  `thigh` double DEFAULT NULL,
   `notes` text,
-  `measured_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `measured_at` datetime(6) DEFAULT NULL,
   `is_deleted` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`measurement_id`),
   KEY `idx_user_date` (`user_id`,`measured_at`),
@@ -47,8 +47,33 @@ CREATE TABLE `body_measurements` (
 
 LOCK TABLES `body_measurements` WRITE;
 /*!40000 ALTER TABLE `body_measurements` DISABLE KEYS */;
-INSERT INTO `body_measurements` VALUES (1,8,70.00,18.00,35.00,100.00,80.00,35.00,55.00,'Đo đầu tháng 7','2025-07-01 01:00:00',0),(2,9,55.00,22.00,25.00,85.00,70.00,30.00,50.00,'Đo đầu tháng 6','2025-06-01 01:00:00',1);
+INSERT INTO `body_measurements` VALUES (1,8,70,18,35,100,80,35,55,'Đo đầu tháng 7','2025-07-01 08:00:00.000000',0),(2,9,55,22,25,85,70,30,50,'Đo đầu tháng 6','2025-06-01 08:00:00.000000',1);
 /*!40000 ALTER TABLE `body_measurements` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `category`
+--
+
+DROP TABLE IF EXISTS `category`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `category` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(45) CHARACTER SET utf8mb3 COLLATE utf8_unicode_ci NOT NULL,
+  `description` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `category`
+--
+
+LOCK TABLES `category` WRITE;
+/*!40000 ALTER TABLE `category` DISABLE KEYS */;
+INSERT INTO `category` VALUES (7,'Quản lý tài khoản','Quản lý thông tin người dùng, phân quyền và tài khoản hệ thống'),(8,'Quản lý huấn luyện viên','Quản lý thông tin và lịch làm việc của huấn luyện viên'),(9,'Quản lý lớp tập','Quản lý lịch học, đăng ký và thông tin lớp tập'),(10,'Quản lý gói tập','Quản lý các gói tập và dịch vụ của phòng gym'),(11,'Quản lý thanh toán','Theo dõi và quản lý các khoản thanh toán'),(12,'Báo cáo thống kê','Xem báo cáo và thống kê hoạt động phòng gym'),(13,'Quản lý thiết bị','Quản lý trang thiết bị phòng gym');
+/*!40000 ALTER TABLE `category` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -63,9 +88,9 @@ CREATE TABLE `chat_messages` (
   `sender_id` int NOT NULL,
   `receiver_id` int NOT NULL,
   `message` text,
-  `message_type` enum('TEXT','IMAGE','FILE') DEFAULT 'TEXT',
+  `message_type` enum('FILE','IMAGE','TEXT') DEFAULT NULL,
   `read_status` tinyint(1) DEFAULT '0',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` datetime(6) DEFAULT NULL,
   `is_deleted` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`message_id`),
   KEY `receiver_id` (`receiver_id`),
@@ -81,7 +106,7 @@ CREATE TABLE `chat_messages` (
 
 LOCK TABLES `chat_messages` WRITE;
 /*!40000 ALTER TABLE `chat_messages` DISABLE KEYS */;
-INSERT INTO `chat_messages` VALUES (3,8,6,'Hôm nay em tập Bench Press hơi đau vai, anh xem giúp em nhé!','TEXT',1,'2025-07-20 03:30:00',0),(4,6,8,'OK, anh sẽ xem log và nhận xét. Cố gắng giữ tư thế đúng nhé!','TEXT',0,'2025-07-20 05:00:00',0);
+INSERT INTO `chat_messages` VALUES (3,8,6,'Hôm nay em tập Bench Press hơi đau vai, anh xem giúp em nhé!','TEXT',1,'2025-07-20 10:30:00.000000',0),(4,6,8,'OK, anh sẽ xem log và nhận xét. Cố gắng giữ tư thế đúng nhé!','TEXT',0,'2025-07-20 12:00:00.000000',0);
 /*!40000 ALTER TABLE `chat_messages` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -96,10 +121,10 @@ CREATE TABLE `class_enrollments` (
   `enrollment_id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
   `class_id` int NOT NULL,
-  `joined_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `joined_at` datetime(6) DEFAULT NULL,
   `attendance` tinyint(1) DEFAULT '0',
-  `check_in_time` timestamp NULL DEFAULT NULL,
-  `status` enum('ENROLLED','COMPLETED','CANCELLED') DEFAULT 'ENROLLED',
+  `check_in_time` datetime(6) DEFAULT NULL,
+  `status` enum('CANCELLED','COMPLETED','ENROLLED') NOT NULL,
   `is_deleted` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`enrollment_id`),
   KEY `class_id` (`class_id`),
@@ -115,7 +140,7 @@ CREATE TABLE `class_enrollments` (
 
 LOCK TABLES `class_enrollments` WRITE;
 /*!40000 ALTER TABLE `class_enrollments` DISABLE KEYS */;
-INSERT INTO `class_enrollments` VALUES (3,8,3,'2025-07-01 01:00:00',1,'2025-07-03 11:00:00','ENROLLED',0),(4,9,4,'2025-06-01 01:00:00',0,NULL,'CANCELLED',1);
+INSERT INTO `class_enrollments` VALUES (3,8,3,'2025-07-01 08:00:00.000000',1,'2025-07-03 18:00:00.000000','ENROLLED',0),(4,9,4,'2025-06-01 08:00:00.000000',0,NULL,'CANCELLED',1);
 /*!40000 ALTER TABLE `class_enrollments` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -128,20 +153,21 @@ DROP TABLE IF EXISTS `devices`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `devices` (
   `device_id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `type` varchar(100) DEFAULT NULL,
-  `status` enum('AVAILABLE','IN_USE','BROKEN','MAINTENANCE') DEFAULT 'AVAILABLE',
-  `location` varchar(100) DEFAULT NULL,
+  `name` varchar(255) NOT NULL,
+  `type` varchar(255) DEFAULT NULL,
+  `status` enum('AVAILABLE','BROKEN','IN_USE','MAINTENANCE') NOT NULL,
+  `location` varchar(255) DEFAULT NULL,
   `maintenance_date` date DEFAULT NULL,
   `last_service_date` date DEFAULT NULL,
   `notes` text,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` datetime(6) DEFAULT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
   `is_deleted` tinyint(1) DEFAULT '0',
+  `image` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`device_id`),
   KEY `idx_name` (`name`),
   KEY `idx_status` (`status`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -150,7 +176,7 @@ CREATE TABLE `devices` (
 
 LOCK TABLES `devices` WRITE;
 /*!40000 ALTER TABLE `devices` DISABLE KEYS */;
-INSERT INTO `devices` VALUES (3,'Máy chạy bộ #1','Cardio','AVAILABLE','Tầng 1 - Khu Cardio','2025-12-01','2025-06-01','Hoạt động tốt','2025-07-01 01:00:00','2025-07-01 01:00:00',0),(4,'Tạ đòn #1','Strength','AVAILABLE','Tầng 2 - Khu tạ',NULL,'2025-05-01','Mới bảo trì','2025-07-01 01:00:00','2025-07-01 01:00:00',0),(5,'Thảm yoga #1','Accessory','BROKEN','Tầng 3 - Phòng lớp tập',NULL,NULL,'Hỏng, cần thay mới','2025-07-01 01:00:00','2025-07-01 01:00:00',1);
+INSERT INTO `devices` VALUES (3,'Máy chạy bộ #1','Cardio','IN_USE','Tầng 1 - Khu Cardio','2025-12-01','2025-06-01','Hoạt động tốt nhak','2025-07-01 08:00:00.000000','2025-08-07 16:42:16.659038',0,'https://res.cloudinary.com/dd6b0cj7l/image/upload/v1754584934/gym_devices/nqzaaia2obql1gfoifje.jpg'),(4,'Tạ đòn #1','Strength','AVAILABLE','Tầng 2 - Khu tạ',NULL,'2025-05-01','Mới bảo trì','2025-07-01 08:00:00.000000','2025-07-01 08:00:00.000000',0,NULL),(5,'Thảm yoga #1','Accessory','AVAILABLE','Tầng 3 - Phòng lớp tập',NULL,NULL,'Hỏng, cần thay mới','2025-07-01 08:00:00.000000','2025-07-28 18:35:58.970514',1,NULL),(6,'máy chạy bộ ABC','Cardio','AVAILABLE','Tầng 3 - Phòng lớp tập',NULL,NULL,'','2025-08-01 18:51:33.782600','2025-08-01 18:51:33.782600',0,NULL);
 /*!40000 ALTER TABLE `devices` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -164,13 +190,13 @@ DROP TABLE IF EXISTS `diet_items`;
 CREATE TABLE `diet_items` (
   `diet_item_id` int NOT NULL AUTO_INCREMENT,
   `diet_plan_id` int DEFAULT NULL,
-  `meal_name` varchar(100) DEFAULT NULL,
-  `meal_type` enum('BREAKFAST','LUNCH','DINNER','SNACK') DEFAULT 'BREAKFAST',
+  `meal_name` varchar(255) DEFAULT NULL,
+  `meal_type` enum('BREAKFAST','DINNER','LUNCH','SNACK') DEFAULT NULL,
   `calories` int DEFAULT NULL,
   `protein` int DEFAULT NULL,
   `carb` int DEFAULT NULL,
   `fat` int DEFAULT NULL,
-  `serving_size` varchar(50) DEFAULT NULL,
+  `serving_size` varchar(255) DEFAULT NULL,
   `preparation_notes` text,
   `is_deleted` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`diet_item_id`),
@@ -200,7 +226,7 @@ DROP TABLE IF EXISTS `diet_plans`;
 CREATE TABLE `diet_plans` (
   `diet_plan_id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
-  `plan_name` varchar(100) DEFAULT NULL,
+  `plan_name` varchar(255) DEFAULT NULL,
   `calories_target` int DEFAULT NULL,
   `protein_target` int DEFAULT NULL,
   `carb_target` int DEFAULT NULL,
@@ -208,9 +234,9 @@ CREATE TABLE `diet_plans` (
   `created_by` int DEFAULT NULL,
   `start_date` date DEFAULT NULL,
   `end_date` date DEFAULT NULL,
-  `status` enum('ACTIVE','COMPLETED','PAUSED') DEFAULT 'ACTIVE',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` enum('ACTIVE','COMPLETED','PAUSED') NOT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
   `is_deleted` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`diet_plan_id`),
   KEY `created_by` (`created_by`),
@@ -226,8 +252,43 @@ CREATE TABLE `diet_plans` (
 
 LOCK TABLES `diet_plans` WRITE;
 /*!40000 ALTER TABLE `diet_plans` DISABLE KEYS */;
-INSERT INTO `diet_plans` VALUES (3,8,'Chế độ tăng cơ',2500,180,300,80,6,'2025-07-01','2025-09-30','ACTIVE','2025-07-01 01:00:00','2025-07-01 01:00:00',0),(4,9,'Chế độ giảm mỡ',1800,120,150,60,7,'2025-06-01','2025-08-31','PAUSED','2025-06-01 01:00:00','2025-06-01 01:00:00',1);
+INSERT INTO `diet_plans` VALUES (3,8,'Chế độ tăng cơ',2500,180,300,80,6,'2025-07-01','2025-09-30','ACTIVE','2025-07-01 08:00:00.000000','2025-07-01 08:00:00.000000',0),(4,9,'Chế độ giảm mỡ',1800,120,150,60,7,'2025-06-01','2025-08-31','PAUSED','2025-06-01 08:00:00.000000','2025-06-01 08:00:00.000000',1);
 /*!40000 ALTER TABLE `diet_plans` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `equipment`
+--
+
+DROP TABLE IF EXISTS `equipment`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `equipment` (
+  `equipment_id` int NOT NULL AUTO_INCREMENT,
+  `brand` varchar(255) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `description` text,
+  `maintenance_notes` text,
+  `model` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `purchase_date` date NOT NULL,
+  `purchase_price` double NOT NULL,
+  `serial_number` varchar(255) NOT NULL,
+  `status` enum('ACTIVE','MAINTENANCE','REPAIR','RETIRED') NOT NULL,
+  `type` enum('ACCESSORIES','CARDIO','FLEXIBILITY','FUNCTIONAL','STRENGTH') NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
+  PRIMARY KEY (`equipment_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `equipment`
+--
+
+LOCK TABLES `equipment` WRITE;
+/*!40000 ALTER TABLE `equipment` DISABLE KEYS */;
+INSERT INTO `equipment` VALUES (1,'fdsfd','2025-07-28 18:05:28.969854','','','sdfsf','dsfds','2025-07-02',10000000,'fdgfd','ACTIVE','CARDIO','2025-07-28 18:05:28.969854');
+/*!40000 ALTER TABLE `equipment` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -268,12 +329,12 @@ DROP TABLE IF EXISTS `membership_packages`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `membership_packages` (
   `package_id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
+  `name` varchar(255) NOT NULL,
   `duration_months` int NOT NULL,
-  `price` decimal(10,2) NOT NULL,
+  `price` double NOT NULL,
   `description` text,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` datetime(6) DEFAULT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
   `is_deleted` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`package_id`),
   KEY `idx_name` (`name`)
@@ -286,7 +347,7 @@ CREATE TABLE `membership_packages` (
 
 LOCK TABLES `membership_packages` WRITE;
 /*!40000 ALTER TABLE `membership_packages` DISABLE KEYS */;
-INSERT INTO `membership_packages` VALUES (4,'Gói Cơ Bản',1,500000.00,'Gói tập cơ bản 1 tháng, sử dụng tất cả thiết bị','2025-07-01 01:00:00','2025-07-01 01:00:00',0),(5,'Gói Tiêu Chuẩn',3,1350000.00,'Gói tập 3 tháng, tiết kiệm 10%','2025-07-01 01:00:00','2025-07-01 01:00:00',0),(6,'Gói VIP',12,4800000.00,'Gói VIP 1 năm, bao gồm PT và lớp tập nhóm','2025-07-01 01:00:00','2025-07-01 01:00:00',0),(7,'Gói Cũ',1,450000.00,'Gói cơ bản cũ, đã ngừng cung cấp','2025-06-01 01:00:00','2025-07-01 01:00:00',1);
+INSERT INTO `membership_packages` VALUES (4,'Gói Cơ Bản',1,500000,'Gói tập cơ bản 1 tháng, sử dụng tất cả thiết bị','2025-07-01 08:00:00.000000','2025-07-01 08:00:00.000000',0),(5,'Gói Tiêu Chuẩn',3,1350000,'Gói tập 3 tháng, tiết kiệm 10%','2025-07-01 08:00:00.000000','2025-07-01 08:00:00.000000',0),(6,'Gói VIP',12,4800000,'Gói VIP 1 năm, bao gồm PT và lớp tập nhóm','2025-07-01 08:00:00.000000','2025-07-01 08:00:00.000000',0),(7,'Gói Cũ',1,450000,'Gói cơ bản cũ, đã ngừng cung cấp','2025-06-01 08:00:00.000000','2025-07-01 08:00:00.000000',1);
 /*!40000 ALTER TABLE `membership_packages` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -301,12 +362,12 @@ CREATE TABLE `notifications` (
   `notification_id` int NOT NULL AUTO_INCREMENT,
   `receiver_id` int NOT NULL,
   `sender_id` int DEFAULT NULL,
-  `title` varchar(200) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
   `content` text,
-  `type` enum('REMINDER','CHAT','SYSTEM','MEMBERSHIP','CLASS') DEFAULT NULL,
-  `status` enum('READ','UNREAD') DEFAULT 'UNREAD',
-  `scheduled_at` timestamp NULL DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `type` enum('CHAT','CLASS','MEMBERSHIP','REMINDER','SYSTEM') DEFAULT NULL,
+  `status` enum('READ','UNREAD') NOT NULL,
+  `scheduled_at` datetime(6) DEFAULT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
   `is_deleted` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`notification_id`),
   KEY `sender_id` (`sender_id`),
@@ -323,7 +384,7 @@ CREATE TABLE `notifications` (
 
 LOCK TABLES `notifications` WRITE;
 /*!40000 ALTER TABLE `notifications` DISABLE KEYS */;
-INSERT INTO `notifications` VALUES (3,8,6,'Nhắc nhở tập luyện','Hôm nay là ngày tập ngực, đừng quên!','REMINDER','UNREAD','2025-07-20 00:00:00','2025-07-19 23:00:00',0),(4,9,NULL,'Hết hạn gói tập','Gói tập của bạn đã hết hạn, vui lòng gia hạn!','MEMBERSHIP','READ',NULL,'2025-06-01 01:00:00',1);
+INSERT INTO `notifications` VALUES (3,8,6,'Nhắc nhở tập luyện','Hôm nay là ngày tập ngực, đừng quên!','REMINDER','UNREAD','2025-07-20 07:00:00.000000','2025-07-20 06:00:00.000000',0),(4,9,NULL,'Hết hạn gói tập','Gói tập của bạn đã hết hạn, vui lòng gia hạn!','MEMBERSHIP','READ',NULL,'2025-06-01 08:00:00.000000',1);
 /*!40000 ALTER TABLE `notifications` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -337,10 +398,10 @@ DROP TABLE IF EXISTS `payments`;
 CREATE TABLE `payments` (
   `payment_id` int NOT NULL AUTO_INCREMENT,
   `membership_id` int NOT NULL,
-  `amount` decimal(10,2) NOT NULL,
-  `payment_method` enum('CASH','CARD','TRANSFER') DEFAULT 'CASH',
-  `payment_status` enum('PENDING','COMPLETED','FAILED') DEFAULT 'PENDING',
-  `payment_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `amount` double NOT NULL,
+  `payment_method` enum('CARD','CASH','TRANSFER') DEFAULT NULL,
+  `payment_status` enum('COMPLETED','FAILED','PENDING') DEFAULT NULL,
+  `payment_date` datetime(6) DEFAULT NULL,
   `notes` text,
   `is_deleted` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`payment_id`),
@@ -355,7 +416,7 @@ CREATE TABLE `payments` (
 
 LOCK TABLES `payments` WRITE;
 /*!40000 ALTER TABLE `payments` DISABLE KEYS */;
-INSERT INTO `payments` VALUES (1,3,500000.00,'CASH','COMPLETED','2025-07-01 02:00:00','Thanh toán gói cơ bản',0),(2,4,1350000.00,'CARD','COMPLETED','2025-06-01 03:00:00','Thanh toán gói tiêu chuẩn',1);
+INSERT INTO `payments` VALUES (1,3,500000,'CASH','COMPLETED','2025-07-01 09:00:00.000000','Thanh toán gói cơ bản',0),(2,4,1350000,'CARD','COMPLETED','2025-06-01 10:00:00.000000','Thanh toán gói tiêu chuẩn',1);
 /*!40000 ALTER TABLE `payments` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -370,10 +431,10 @@ CREATE TABLE `plan_details` (
   `detail_id` int NOT NULL AUTO_INCREMENT,
   `plan_id` int NOT NULL,
   `day_of_week` int DEFAULT NULL COMMENT '1=Monday, 7=Sunday',
-  `exercise_name` varchar(100) DEFAULT NULL,
+  `exercise_name` varchar(255) DEFAULT NULL,
   `sets` int DEFAULT NULL,
   `reps` int DEFAULT NULL,
-  `weight` decimal(6,2) DEFAULT NULL,
+  `weight` double DEFAULT NULL,
   `rest_seconds` int DEFAULT '60',
   `notes` text,
   `is_deleted` tinyint(1) DEFAULT '0',
@@ -389,7 +450,7 @@ CREATE TABLE `plan_details` (
 
 LOCK TABLES `plan_details` WRITE;
 /*!40000 ALTER TABLE `plan_details` DISABLE KEYS */;
-INSERT INTO `plan_details` VALUES (4,3,1,'Bench Press',3,10,50.00,90,'Tập trung vào ngực',0),(5,3,1,'Squat',4,12,60.00,120,'Tập chân',0),(6,4,2,'Treadmill',0,0,NULL,60,'Chạy 20 phút',1);
+INSERT INTO `plan_details` VALUES (4,3,1,'Bench Press',3,10,50,90,'Tập trung vào ngực',0),(5,3,1,'Squat',4,12,60,120,'Tập chân',0),(6,4,2,'Treadmill',0,0,NULL,60,'Chạy 20 phút',1);
 /*!40000 ALTER TABLE `plan_details` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -407,8 +468,8 @@ CREATE TABLE `reviews` (
   `class_id` int DEFAULT NULL,
   `rating` int DEFAULT NULL,
   `comment` text,
-  `review_type` enum('PT_TO_USER','USER_TO_PT','USER_TO_CLASS','USER_TO_GYM') NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `review_type` enum('PT_TO_USER','USER_TO_CLASS','USER_TO_GYM','USER_TO_PT') NOT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
   `is_deleted` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`review_id`),
   KEY `idx_reviewer` (`reviewer_id`),
@@ -427,7 +488,7 @@ CREATE TABLE `reviews` (
 
 LOCK TABLES `reviews` WRITE;
 /*!40000 ALTER TABLE `reviews` DISABLE KEYS */;
-INSERT INTO `reviews` VALUES (1,8,6,NULL,5,'PT Hùng rất nhiệt tình, hướng dẫn chi tiết!','USER_TO_PT','2025-07-20 05:30:00',0),(2,8,NULL,3,4,'Lớp yoga rất thư giãn, nhưng hơi đông','USER_TO_CLASS','2025-07-03 12:30:00',0);
+INSERT INTO `reviews` VALUES (1,8,6,NULL,5,'PT Hùng rất nhiệt tình, hướng dẫn chi tiết!','USER_TO_PT','2025-07-20 12:30:00.000000',0),(2,8,NULL,3,4,'Lớp yoga rất thư giãn, nhưng hơi đông','USER_TO_CLASS','2025-07-03 19:30:00.000000',0);
 /*!40000 ALTER TABLE `reviews` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -440,9 +501,10 @@ DROP TABLE IF EXISTS `trainers`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `trainers` (
   `trainer_id` int NOT NULL,
-  `specialization` varchar(100) DEFAULT NULL,
+  `specialization` varchar(255) DEFAULT NULL,
   `schedule` text,
-  `is_deleted` tinyint(1) DEFAULT '0',
+  `is_deleted` int DEFAULT NULL,
+  `experience` text,
   PRIMARY KEY (`trainer_id`),
   CONSTRAINT `trainers_ibfk_1` FOREIGN KEY (`trainer_id`) REFERENCES `users` (`user_id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -454,7 +516,7 @@ CREATE TABLE `trainers` (
 
 LOCK TABLES `trainers` WRITE;
 /*!40000 ALTER TABLE `trainers` DISABLE KEYS */;
-INSERT INTO `trainers` VALUES (6,'Tập sức mạnh','Thứ 2,4,6: 08:00-12:00, 17:00-20:00',0),(7,'Yoga và Cardio','Thứ 3,5,7: 07:00-11:00, 18:00-21:00',0);
+INSERT INTO `trainers` VALUES (6,'Tập sức mạnh','Thứ 2,4,6: 08:00-12:00, 17:00-20:00',1,NULL),(7,'Yoga và Cardio','Thứ 3,5,7: 07:00-11:00, 18:00-21:00',1,NULL),(74,'cardio','',1,NULL),(76,'strength','',1,NULL),(85,'fff','',1,NULL),(86,'','',0,NULL),(87,NULL,NULL,0,NULL),(88,'fwfw','fwf',0,NULL);
 /*!40000 ALTER TABLE `trainers` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -467,17 +529,17 @@ DROP TABLE IF EXISTS `training_classes`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `training_classes` (
   `class_id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
+  `name` varchar(255) NOT NULL,
   `description` text,
   `trainer_id` int DEFAULT NULL,
   `schedule` text,
   `max_participants` int DEFAULT NULL,
-  `price` decimal(8,2) DEFAULT '0.00',
+  `price` double DEFAULT NULL,
   `duration_minutes` int DEFAULT '60',
-  `start_time` time DEFAULT NULL,
-  `days_of_week` varchar(20) DEFAULT NULL COMMENT 'e.g., 1,3,5 for Mon,Wed,Fri',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `start_time` time(6) DEFAULT NULL,
+  `days_of_week` varchar(255) DEFAULT NULL,
+  `created_at` datetime(6) DEFAULT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
   `is_deleted` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`class_id`),
   KEY `trainer_id` (`trainer_id`),
@@ -492,7 +554,7 @@ CREATE TABLE `training_classes` (
 
 LOCK TABLES `training_classes` WRITE;
 /*!40000 ALTER TABLE `training_classes` DISABLE KEYS */;
-INSERT INTO `training_classes` VALUES (3,'Lớp Yoga Cơ Bản','Lớp yoga cho người mới bắt đầu',7,'Thứ 3,5: 18:00-19:00',20,200000.00,60,'18:00:00','3,5','2025-07-01 01:00:00','2025-07-01 01:00:00',0),(4,'Lớp Cardio Nâng Cao','Lớp cardio cường độ cao',NULL,'Thứ 2,4: 19:00-20:00',15,250000.00,60,'19:00:00','2,4','2025-07-01 01:00:00','2025-07-01 01:00:00',0);
+INSERT INTO `training_classes` VALUES (3,'Lớp Yoga Cơ Bản','Lớp yoga cho người mới bắt đầu',7,'Thứ 3,5: 18:00-19:00',20,200000,60,'18:00:00.000000','3,5','2025-07-01 08:00:00.000000','2025-07-01 08:00:00.000000',0),(4,'Lớp Cardio Nâng Cao','Lớp cardio cường độ cao',NULL,'Thứ 2,4: 19:00-20:00',15,250000,60,'19:00:00.000000','2,4','2025-07-01 08:00:00.000000','2025-07-01 08:00:00.000000',0);
 /*!40000 ALTER TABLE `training_classes` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -507,10 +569,10 @@ CREATE TABLE `training_plans` (
   `plan_id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
   `created_by` int DEFAULT NULL,
-  `plan_name` varchar(100) DEFAULT NULL,
+  `plan_name` varchar(255) DEFAULT NULL,
   `start_date` date DEFAULT NULL,
   `end_date` date DEFAULT NULL,
-  `status` enum('ACTIVE','COMPLETED','PAUSED') DEFAULT 'ACTIVE',
+  `status` enum('ACTIVE','COMPLETED','PAUSED') NOT NULL,
   `notes` text,
   `is_deleted` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`plan_id`),
@@ -541,14 +603,14 @@ DROP TABLE IF EXISTS `user_goals`;
 CREATE TABLE `user_goals` (
   `goal_id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
-  `goal_type` enum('WEIGHT_LOSS','WEIGHT_GAIN','MUSCLE_GAIN','ENDURANCE','STRENGTH','BODY_FAT_REDUCTION') NOT NULL,
-  `target_value` decimal(8,2) DEFAULT NULL,
-  `current_value` decimal(8,2) DEFAULT '0.00',
+  `goal_type` enum('BODY_FAT_REDUCTION','ENDURANCE','MUSCLE_GAIN','STRENGTH','WEIGHT_GAIN','WEIGHT_LOSS') NOT NULL,
+  `target_value` double DEFAULT NULL,
+  `current_value` double DEFAULT NULL,
   `target_date` date DEFAULT NULL,
-  `status` enum('ACTIVE','COMPLETED','PAUSED') DEFAULT 'ACTIVE',
+  `status` enum('ACTIVE','COMPLETED','PAUSED') NOT NULL,
   `notes` text,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` datetime(6) DEFAULT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
   `is_deleted` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`goal_id`),
   KEY `idx_user_status` (`user_id`,`status`),
@@ -562,7 +624,7 @@ CREATE TABLE `user_goals` (
 
 LOCK TABLES `user_goals` WRITE;
 /*!40000 ALTER TABLE `user_goals` DISABLE KEYS */;
-INSERT INTO `user_goals` VALUES (1,8,'MUSCLE_GAIN',75.00,70.00,'2025-12-31','ACTIVE','Tăng 5kg cơ bắp','2025-07-01 01:00:00','2025-07-01 01:00:00',0),(2,9,'WEIGHT_LOSS',50.00,55.00,'2025-08-31','PAUSED','Giảm 5kg','2025-06-01 01:00:00','2025-06-01 01:00:00',1);
+INSERT INTO `user_goals` VALUES (1,8,'MUSCLE_GAIN',75,70,'2025-12-31','ACTIVE','Tăng 5kg cơ bắp','2025-07-01 08:00:00.000000','2025-07-01 08:00:00.000000',0),(2,9,'WEIGHT_LOSS',50,55,'2025-08-31','PAUSED','Giảm 5kg','2025-06-01 08:00:00.000000','2025-06-01 08:00:00.000000',1);
 /*!40000 ALTER TABLE `user_goals` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -579,7 +641,7 @@ CREATE TABLE `user_memberships` (
   `package_id` int DEFAULT NULL,
   `start_date` date NOT NULL,
   `end_date` date NOT NULL,
-  `status` enum('ACTIVE','EXPIRED','CANCELLED') DEFAULT 'ACTIVE',
+  `status` enum('ACTIVE','CANCELLED','EXPIRED') NOT NULL,
   `is_deleted` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`membership_id`),
   KEY `package_id` (`package_id`),
@@ -609,24 +671,24 @@ DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
   `user_id` int NOT NULL AUTO_INCREMENT,
   `email` varchar(255) NOT NULL,
-  `phone_number` varchar(15) NOT NULL,
+  `phone_number` varchar(255) NOT NULL,
   `password_hash` varchar(255) NOT NULL,
   `role` enum('ADMIN','PT','USER') NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `gender` varchar(10) DEFAULT NULL,
+  `name` varchar(255) NOT NULL,
+  `gender` varchar(255) DEFAULT NULL,
   `birthdate` date DEFAULT NULL,
-  `height` decimal(5,2) DEFAULT NULL,
-  `weight` decimal(5,2) DEFAULT NULL,
+  `height` double DEFAULT NULL,
+  `weight` double DEFAULT NULL,
   `fitness_goal` text,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `is_deleted` tinyint(1) DEFAULT '0',
+  `created_at` datetime(6) DEFAULT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
+  `is_deleted` int NOT NULL,
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `phone_number` (`phone_number`),
   KEY `idx_email` (`email`),
   KEY `idx_phone` (`phone_number`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=89 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -635,7 +697,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (5,'admin@gym.com','0123456789','$2a$10$example.hash.here','ADMIN','Nguyễn Văn Quản Trị','Male','1985-01-01',NULL,NULL,NULL,'2025-07-01 01:00:00','2025-07-01 01:00:00',0),(6,'pt1@gym.com','0912345678','$2a$10$example.hash.here','PT','Trần Văn Hùng','Male','1990-03-15',NULL,NULL,NULL,'2025-07-01 01:00:00','2025-07-01 01:00:00',0),(7,'pt2@gym.com','0918765432','$2a$10$example.hash.here','PT','Lê Thị Mai','Female','1992-07-20',NULL,NULL,NULL,'2025-07-01 01:00:00','2025-07-01 01:00:00',0),(8,'user1@gym.com','0987654321','$2a$10$example.hash.here','USER','Nguyễn Văn An','Male','1995-05-10',170.00,70.00,'Tăng cơ bắp','2025-07-01 01:00:00','2025-07-01 01:00:00',0),(9,'user2@gym.com','0971234567','$2a$10$example.hash.here','USER','Phạm Thị Bình','Female','1998-11-25',160.00,55.00,'Giảm mỡ','2025-07-01 01:00:00','2025-07-01 01:00:00',1);
+INSERT INTO `users` VALUES (5,'admin@gym.com','0123456789','$2a$10$example.hash.here','ADMIN','Nguyễn Văn Quản Trị','Nam','1985-01-01',NULL,NULL,'','2025-07-01 08:00:00.000000','2025-07-27 05:58:20.383000',0),(6,'pt1@gym.com','0912345678','$2a$10$example.hash.here','USER','Trần Văn Hùng','Male','1990-03-15',NULL,NULL,NULL,'2025-07-01 08:00:00.000000','2025-07-01 08:00:00.000000',0),(7,'pt2@gym.com','0918765432','$2a$10$example.hash.here','USER','Lê Thị Maii','','1992-07-20',NULL,NULL,'','2025-07-01 08:00:00.000000','2025-08-01 17:41:30.337000',0),(8,'user1@gym.com','0987654321','$2a$10$example.hash.here','USER','Nguyễn Văn Anh','','1995-05-10',170,70,'Tăng cơ bắp','2025-07-01 08:00:00.000000','2025-07-28 10:25:26.815000',0),(9,'user2@gym.com','0971234567','$2a$10$example.hash.here','USER','Phạm Thị Bìnhh','','1998-11-25',160,55,'Giảm mỡ','2025-07-01 08:00:00.000000','2025-07-27 06:20:13.654000',0),(70,'danhvip83@gmail.com','0909817104','$2a$10$5rrYojrktjkKcurp4ArY0eOjZT2rdsSEAwsLr2Tw4YIMMuVmWqIOW','ADMIN','Đặng Hoàng Danh','Nam','0004-10-01',174,55,'Tăng cân tăng cơ','2025-07-27 06:00:02.690000','2025-07-28 08:51:35.767000',0),(71,'123@gmail.com','01232131231','$2a$10$En.Drd468J047DqsE4CLPeeaAO5AFWfYxKGd4LAALRx/fwUw5vvr6','PT','123','Nam','2000-07-15',NULL,NULL,'','2025-07-27 06:43:34.370000','2025-08-07 15:12:29.842000',0),(73,'111@gmail.com','0111111111','$2a$10$MEzJgS5FtsKFzKooV.fHW.uoK9S8JDYE8JFW3oRSeHGZ7hRmORYwW','USER','111','Nữ','2000-07-30',175,70,'alo','2025-08-01 18:46:35.887000','2025-08-01 18:49:13.883000',0),(74,'222@gmail.com','0222222222','123','USER','222','Nam','2000-11-05',178,77,'','2025-08-01 18:50:27.675000','2025-08-01 18:50:45.525000',0),(76,'333@gmail.com','0333333333','123','USER','333','Nữ','2000-08-07',180,80,'','2025-08-03 02:35:07.608000','2025-08-03 02:35:07.608000',0),(77,'4444@email.com','0444444444','$2a$10$ajZEJfx13ItskQ2MjnR4lOC1VWL7bSrqeZKqBkSwt0i7yvPTA62tS','USER','4444','Nam','2000-01-20',175,55,'','2025-08-06 14:26:29.203000','2025-08-06 14:26:29.204000',0),(78,'555@email.com','0555555555','$2a$10$.1BUWyiM91bs/EdHs/yGmOxsRXwkhkmBW/00ZhAd5gV/qb5dimZYm','ADMIN','555','Nam','2000-02-02',150,NULL,'','2025-08-06 14:51:04.653000','2025-08-06 14:51:04.653000',0),(80,'666@email.com','0666666666','$2a$10$aWld.etg7hA0R2QheFiqEOuJ5H6lQC0pvmUGEQOjKDyJOjPwvjSlq','PT','666','Nữ','2000-01-01',NULL,NULL,'','2025-08-07 13:57:32.873000','2025-08-07 15:08:25.178000',0),(85,'fsdfsdf@email.com','03827263478','$2a$10$R6XXHHuDSQ/As9quDcxeveN/3yd1EnZsyjv2ebA5l0ZqE4us4HaSq','PT','ffff','',NULL,NULL,NULL,'','2025-08-07 14:53:38.429000','2025-08-07 15:04:08.180000',0),(86,'ttt@email.com','03426546323','$2a$10$m3TuoSylAnmEzOTc5/shyORGCPBQwSbewckhScwpZeD1O1Za7u80C','PT','tt','',NULL,NULL,NULL,'','2025-08-07 15:13:35.915000','2025-08-07 15:13:35.915000',0),(87,'fwff23@email.com','04623734839','$2a$10$nfzpGcccEU0ClN2N6DKFVuenuB9GGrRI8ZZ.P.t5qscMDDZPiMsUi','USER','fwfw','',NULL,NULL,NULL,'','2025-08-07 15:24:04.368000','2025-08-07 15:24:44.789000',0),(88,'v83@gmail.com','0909817103','$2a$10$6AQZlUA/dwXB9ENVDz7nve.o2tzaJvg2oKnWbIeuMP2xFOICUgHIO','PT','vvv','',NULL,NULL,NULL,'','2025-08-07 15:32:23.786000','2025-08-07 15:32:23.786000',0);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -651,7 +713,7 @@ CREATE TABLE `workout_log_comments` (
   `log_id` int NOT NULL,
   `pt_id` int NOT NULL,
   `comment` text NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` datetime(6) DEFAULT NULL,
   `is_deleted` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`comment_id`),
   KEY `idx_log_id` (`log_id`),
@@ -667,7 +729,7 @@ CREATE TABLE `workout_log_comments` (
 
 LOCK TABLES `workout_log_comments` WRITE;
 /*!40000 ALTER TABLE `workout_log_comments` DISABLE KEYS */;
-INSERT INTO `workout_log_comments` VALUES (1,3,6,'Điều chỉnh tư thế vai để tránh đau. Tốt lắm!','2025-07-20 05:00:00',0),(2,4,6,'Tăng trọng lượng lên 65kg tuần tới.','2025-07-19 04:00:00',0);
+INSERT INTO `workout_log_comments` VALUES (1,3,6,'Điều chỉnh tư thế vai để tránh đau. Tốt lắm!','2025-07-20 12:00:00.000000',0),(2,4,6,'Tăng trọng lượng lên 65kg tuần tới.','2025-07-19 11:00:00.000000',0);
 /*!40000 ALTER TABLE `workout_log_comments` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -681,14 +743,14 @@ DROP TABLE IF EXISTS `workout_logs`;
 CREATE TABLE `workout_logs` (
   `log_id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
-  `exercise_name` varchar(100) DEFAULT NULL,
+  `exercise_name` varchar(255) DEFAULT NULL,
   `sets` int DEFAULT NULL,
   `reps` int DEFAULT NULL,
-  `weight` decimal(6,2) DEFAULT NULL,
+  `weight` double DEFAULT NULL,
   `duration_min` int DEFAULT NULL,
-  `calories_burned` decimal(6,2) DEFAULT NULL,
-  `notes` text COMMENT 'User notes after workout',
-  `logged_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `calories_burned` double DEFAULT NULL,
+  `notes` text,
+  `logged_at` datetime(6) DEFAULT NULL,
   `is_deleted` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`log_id`),
   KEY `idx_user_date` (`user_id`,`logged_at`),
@@ -702,7 +764,7 @@ CREATE TABLE `workout_logs` (
 
 LOCK TABLES `workout_logs` WRITE;
 /*!40000 ALTER TABLE `workout_logs` DISABLE KEYS */;
-INSERT INTO `workout_logs` VALUES (3,8,'Bench Press',3,10,50.00,30,150.00,'Cảm thấy tốt, hơi đau vai','2025-07-20 03:00:00',0),(4,8,'Squat',4,12,60.00,35,NULL,'Tập ổn, cần tăng trọng lượng','2025-07-19 02:00:00',0),(5,9,'Treadmill',0,0,NULL,20,200.00,'Chạy bộ nhẹ','2025-06-15 01:00:00',1);
+INSERT INTO `workout_logs` VALUES (3,8,'Bench Press',3,10,50,30,150,'Cảm thấy tốt, hơi đau vai','2025-07-20 10:00:00.000000',0),(4,8,'Squat',4,12,60,35,NULL,'Tập ổn, cần tăng trọng lượng','2025-07-19 09:00:00.000000',0),(5,9,'Treadmill',0,0,NULL,20,200,'Chạy bộ nhẹ','2025-06-15 08:00:00.000000',1);
 /*!40000 ALTER TABLE `workout_logs` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -715,4 +777,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-07-22  9:19:31
+-- Dump completed on 2025-08-08 13:56:53
