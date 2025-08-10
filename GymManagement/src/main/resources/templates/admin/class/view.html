@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chi tiết lớp tập</title>
+    <th:block th:replace="~{base :: head}"></th:block>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div th:replace="~{base :: header}"></div>
+    <main class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-chalkboard-teacher me-2"></i>Chi tiết lớp tập
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${success}" class="alert alert-success alert-dismissible show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span th:text="${success}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <span th:text="${error}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <!-- Class Details -->
+                        <div class="row mb-4">
+                            <div class="col-md-8">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Thông tin lớp tập</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6>Thông tin cơ bản</h6>
+                                                <p><strong>Tên lớp:</strong> <span th:text="${trainingClass.name}"></span></p>
+                                                <p><strong>Mô tả:</strong> <span th:text="${trainingClass.description}"></span></p>
+                                                <p><strong>PT:</strong> 
+                                                    <span th:if="${trainingClass.trainer}" th:text="${trainingClass.trainer.name}" class="badge bg-info"></span>
+                                                    <span th:unless="${trainingClass.trainer}" class="badge bg-warning">Chưa có PT</span>
+                                                </p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6>Lịch học</h6>
+                                                <p><strong>Lịch:</strong> <span th:text="${trainingClass.schedule}"></span></p>
+                                                <p><strong>Ngày:</strong> <span th:text="${trainingClass.daysOfWeek}"></span></p>
+                                                <p><strong>Giờ bắt đầu:</strong> <span th:text="${trainingClass.startTime}"></span></p>
+                                                <p><strong>Thời lượng:</strong> <span th:text="${trainingClass.durationMinutes} + ' phút'"></span></p>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-3">
+                                            <div class="col-md-6">
+                                                <h6>Thông tin khác</h6>
+                                                <p><strong>Giá:</strong> <span th:text="${#numbers.formatDecimal(trainingClass.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span></p>
+                                                <p><strong>Số học viên tối đa:</strong> <span th:text="${trainingClass.maxParticipants}"></span></p>
+                                                <p><strong>Đã đăng ký:</strong> <span th:text="${enrolledCount} + '/' + ${trainingClass.maxParticipants}"></span></p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6>Trạng thái</h6>
+                                                <p><strong>Ngày tạo:</strong> <span th:text="${#temporals.format(trainingClass.createdAt, 'dd/MM/yyyy HH:mm')}"></span></p>
+                                                <p><strong>Cập nhật lần cuối:</strong> <span th:text="${#temporals.format(trainingClass.updatedAt, 'dd/MM/yyyy HH:mm')}"></span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Thống kê</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>Đã đăng ký:</span>
+                                            <span class="badge bg-primary" th:text="${enrolledCount}"></span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>Còn chỗ:</span>
+                                            <span class="badge bg-success" th:text="${trainingClass.maxParticipants - enrolledCount}"></span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>Tỷ lệ đầy:</span>
+                                            <span class="badge" th:classappend="${(enrolledCount / trainingClass.maxParticipants) >= 0.8 ? 'bg-danger' : 'bg-warning'}" 
+                                                   th:text="${#numbers.formatDecimal(enrolledCount / trainingClass.maxParticipants * 100, 1, 1)} + '%'"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Assign Trainer -->
+                                <div class="card" th:if="${trainingClass.trainer == null}">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Gán PT</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <form th:action="@{/admin/classes/{id}/assign-trainer(id=${trainingClass.classId})}" method="post">
+                                            <div class="mb-3">
+                                                <label for="trainerId" class="form-label">Chọn PT</label>
+                                                <select class="form-select" id="trainerId" name="trainerId" required>
+                                                    <option value="">-- Chọn PT --</option>
+                                                    <option th:each="trainer : ${trainers}" 
+                                                            th:value="${trainer.trainerId}"
+                                                            th:text="${trainer.name}">
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-user-plus me-1"></i>Gán PT
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Enrolled Students -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Danh sách học viên đăng ký</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Học viên</th>
+                                                <th>Email</th>
+                                                <th>Ngày đăng ký</th>
+                                                <th>Điểm danh</th>
+                                                <th>Trạng thái</th>
+                                                <th>Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="enrollment : ${enrollments}">
+                                                <td th:text="${enrollment.enrollmentId}"></td>
+                                                <td>
+                                                    <strong th:text="${enrollment.user.fullName}"></strong>
+                                                    <br>
+                                                    <small class="text-muted" th:text="${enrollment.user.phone}"></small>
+                                                </td>
+                                                <td th:text="${enrollment.user.email}"></td>
+                                                <td th:text="${#temporals.format(enrollment.joinedAt, 'dd/MM/yyyy HH:mm')}"></td>
+                                                <td>
+                                                    <span th:if="${enrollment.attendance}" class="badge bg-success">
+                                                        <i class="fas fa-check"></i> Có mặt
+                                                    </span>
+                                                    <span th:unless="${enrollment.attendance}" class="badge bg-secondary">
+                                                        <i class="fas fa-times"></i> Vắng
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span th:if="${enrollment.status == T(com.dhd.gymmanagement.entity.ClassEnrollment.Status).ENROLLED}" 
+                                                          class="badge bg-primary">Đã đăng ký</span>
+                                                    <span th:if="${enrollment.status == T(com.dhd.gymmanagement.entity.ClassEnrollment.Status).COMPLETED}" 
+                                                          class="badge bg-success">Hoàn thành</span>
+                                                    <span th:if="${enrollment.status == T(com.dhd.gymmanagement.entity.ClassEnrollment.Status).CANCELLED}" 
+                                                          class="badge bg-danger">Đã hủy</span>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group" role="group">
+                                                        <!-- Attendance Toggle -->
+                                                        <form th:action="@{/admin/classes/enrollment/{enrollmentId}/attendance(enrollmentId=${enrollment.enrollmentId}, classId=${trainingClass.classId})}" 
+                                                              method="post" style="display: inline;">
+                                                            <input type="hidden" name="attendance" th:value="${!enrollment.attendance}">
+                                                            <button type="submit" class="btn btn-sm" 
+                                                                    th:classappend="${enrollment.attendance ? 'btn-outline-warning' : 'btn-outline-success'}"
+                                                                    th:title="${enrollment.attendance ? 'Đánh dấu vắng' : 'Đánh dấu có mặt'}">
+                                                                <i th:class="${enrollment.attendance ? 'fas fa-times' : 'fas fa-check'}"></i>
+                                                            </button>
+                                                        </form>
+                                                        
+                                                        <!-- Cancel Enrollment -->
+                                                        <form th:action="@{/admin/classes/enrollment/{enrollmentId}/cancel(enrollmentId=${enrollment.enrollmentId}, classId=${trainingClass.classId})}" 
+                                                              method="post" style="display: inline;">
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                                    onclick="return confirm('Bạn có chắc muốn hủy đăng ký này?')"
+                                                                    title="Hủy đăng ký">
+                                                                <i class="fas fa-user-times"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr th:if="${#lists.isEmpty(enrollments)}">
+                                                <td colspan="7" class="text-center text-muted py-4">
+                                                    <i class="fas fa-users fa-2x mb-2"></i>
+                                                    <p>Chưa có học viên nào đăng ký</p>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <a href="/admin/classes" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Quay lại
+                            </a>
+                            <a th:href="@{/admin/classes/edit/{id}(id=${trainingClass.classId})}" class="btn btn-primary ms-2">
+                                <i class="fas fa-edit me-1"></i>Chỉnh sửa
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div th:replace="~{base :: footer}"></div>
+</body>
+</html>

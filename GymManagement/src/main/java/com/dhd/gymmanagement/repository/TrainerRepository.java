@@ -20,4 +20,7 @@ public interface TrainerRepository extends JpaRepository<Trainer, Integer> {
         String name, String email, String phoneNumber);
     
     List<Trainer> findByUser_IsDeleted(Integer isDeleted);
+    
+    @Query("SELECT t FROM Trainer t WHERE t.isDeleted = 0 OR t.isDeleted IS NULL")
+    List<Trainer> findAllActive();
 }

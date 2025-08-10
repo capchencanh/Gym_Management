@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Quản lý lớp tập</title>
+    <th:block th:replace="~{base :: head}"></th:block>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div th:replace="~{base :: header}"></div>
+    <main class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-chalkboard-teacher me-2"></i>Quản lý lớp tập
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${success}" class="alert alert-success alert-dismissible show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span th:text="${success}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <span th:text="${error}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        <div class="mb-3">
+                            <a href="/admin/classes/create" class="btn btn-primary">
+                                <i class="fas fa-plus me-1"></i>Thêm lớp tập mới
+                            </a>
+                        </div>
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <form th:action="@{/admin/classes/search}" method="get" class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="name" class="form-label">Tìm kiếm</label>
+                                        <input type="text" class="form-control" id="name" name="name" 
+                                               th:value="${searchTerm}" placeholder="Nhập tên lớp tập...">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="trainer" class="form-label">Trạng thái PT</label>
+                                        <select class="form-select" id="trainer" name="trainer">
+                                            <option value="">Tất cả</option>
+                                            <option value="assigned" th:selected="${trainer == 'assigned'}">Có PT</option>
+                                            <option value="unassigned" th:selected="${trainer == 'unassigned'}">Chưa có PT</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3 d-flex align-items-end">
+                                        <button type="submit" class="btn btn-primary me-2">
+                                            <i class="fas fa-search me-1"></i>Tìm kiếm
+                                        </button>
+                                        <a href="/admin/classes" class="btn btn-secondary">
+                                            <i class="fas fa-refresh me-1"></i>Làm mới
+                                        </a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <div class="card bg-primary text-white">
+                                    <div class="card-body text-center">
+                                        <h5>Tổng số lớp</h5>
+                                        <h3 th:text="${#lists.size(classes)}">0</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-success text-white">
+                                    <div class="card-body text-center">
+                                        <h5>Có PT</h5>
+                                        <h3 th:text="${#lists.size(classes.?[trainer != null])}">0</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-warning text-white">
+                                    <div class="card-body text-center">
+                                        <h5>Chưa có PT</h5>
+                                        <h3 th:text="${#lists.size(classes.?[trainer == null])}">0</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-info text-white">
+                                    <div class="card-body text-center">
+                                        <h5>Đang hoạt động</h5>
+                                        <h3 th:text="${#lists.size(classes)}">0</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tên lớp</th>
+                                        <th>PT</th>
+                                        <th>Lịch học</th>
+                                        <th>Giá</th>
+                                        <th>Số học viên</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="class : ${classes}">
+                                        <td th:text="${class.classId}"></td>
+                                        <td>
+                                            <strong th:text="${class.name}"></strong>
+                                            <br>
+                                            <small class="text-muted" th:text="${class.description}"></small>
+                                        </td>
+                                        <td>
+                                            <span th:if="${class.trainer}" th:text="${class.trainer.name}" class="badge bg-info"></span>
+                                            <span th:unless="${class.trainer}" class="badge bg-warning">Chưa có PT</span>
+                                        </td>
+                                        <td>
+                                            <span th:text="${class.daysOfWeek}"></span>
+                                            <br>
+                                            <small class="text-muted" th:text="${class.startTime}"></small>
+                                        </td>
+                                        <td>
+                                            <span th:text="${#numbers.formatDecimal(class.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
+                                        </td>
+                                        <td>
+                                            <span th:text="${class.maxParticipants} + '/' + ${class.maxParticipants}"></span>
+                                        </td>
+                                        <td>
+                                            <span th:if="${class.trainer == null}" class="badge bg-warning">Chưa có PT</span>
+                                            <span th:else class="badge bg-success">Hoạt động</span>
+                                        </td>
+                                        <td>
+                                            <a th:href="@{/admin/classes/{id}(id=${class.classId})}" 
+                                               class="btn btn-sm btn-info me-1" title="Xem">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a th:href="@{/admin/classes/edit/{id}(id=${class.classId})}" 
+                                               class="btn btn-sm btn-warning me-1" title="Sửa">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-danger delete-btn" 
+                                                    title="Xóa"
+                                                    th:data-class-id="${class.classId}"
+                                                    th:data-class-name="${class.name}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(classes)}">
+                                        <td colspan="8" class="text-center text-muted py-4">
+                                            <i class="fas fa-chalkboard-teacher fa-2x mb-2"></i>
+                                            <p>Không có dữ liệu lớp tập</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <form id="deleteForm" method="post" style="display: none;">
+    </form>
+    <div th:replace="~{base :: footer}"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteButtons = document.querySelectorAll('.delete-btn');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const classId = this.getAttribute('data-class-id');
+                    const name = this.getAttribute('data-class-name');
+                    if (confirm(`Bạn có chắc chắn muốn xóa lớp tập "${name}"?`)) {
+                        const form = document.getElementById('deleteForm');
+                        form.action = `/admin/classes/delete/${classId}`;
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

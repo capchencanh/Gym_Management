@@ -32,6 +32,9 @@ public class ClassEnrollment {
     @Column(nullable = false)
     private Status status = Status.ENROLLED;
 
+    @Column(name = "is_deleted")
+    private Integer isDeleted = 0;
+
     public enum Status {
         ENROLLED, COMPLETED, CANCELLED
     }
@@ -50,4 +53,6 @@ public class ClassEnrollment {
     public void setCheckInTime(Timestamp checkInTime) { this.checkInTime = checkInTime; }
     public Status getStatus() { return status; }
     public void setStatus(Status status) { this.status = status; }
+    public Integer getIsDeleted() { return isDeleted; }
+    public void setIsDeleted(Integer isDeleted) { this.isDeleted = isDeleted; }
 }

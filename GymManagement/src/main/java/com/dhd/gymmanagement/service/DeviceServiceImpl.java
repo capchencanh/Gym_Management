@@ -139,11 +139,6 @@ public class DeviceServiceImpl implements DeviceService {
     }
     
     @Override
-    public List<Device> getAllDevicesForDebug() {
-        return deviceRepository.findAllDevices();
-    }
-    
-    @Override
     public List<Device> getAllDevicesForStats() {
         return deviceRepository.findAllActiveDevices();
     }
@@ -217,7 +212,7 @@ public class DeviceServiceImpl implements DeviceService {
                 }
             } catch (Exception e) {
                 System.err.println("Error deleting image from Cloudinary: " + e.getMessage());
-                // Không throw exception, chỉ log lỗi
+
             }
         }
         

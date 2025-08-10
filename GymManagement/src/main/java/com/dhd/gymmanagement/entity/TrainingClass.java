@@ -46,6 +46,9 @@ public class TrainingClass {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
+    @Column(name = "is_deleted")
+    private Integer isDeleted = 0;
+
     public Integer getClassId() { return classId; }
     public void setClassId(Integer classId) { this.classId = classId; }
     public String getName() { return name; }
@@ -70,4 +73,6 @@ public class TrainingClass {
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
     public Timestamp getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
+    public Integer getIsDeleted() { return isDeleted; }
+    public void setIsDeleted(Integer isDeleted) { this.isDeleted = isDeleted; }
 }

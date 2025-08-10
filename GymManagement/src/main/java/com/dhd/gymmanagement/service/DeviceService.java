@@ -23,8 +23,6 @@ public interface DeviceService {
     long countDevicesByStatus(Device.DeviceStatus status);
     long countTotalDevices();
     
-    List<Device> getAllDevicesForDebug();
-    
     List<Device> getAllDevicesForStats();
     
     void updateDeviceStatus(Integer deviceId, Device.DeviceStatus status);

@@ -33,4 +33,9 @@ public class Trainer {
     public void setSchedule(String schedule) { this.schedule = schedule; }
     public Integer getIsDeleted() { return isDeleted; }
     public void setIsDeleted(Integer isDeleted) { this.isDeleted = isDeleted; }
+    
+    // Helper method để lấy tên trainer
+    public String getName() {
+        return user != null ? user.getName() : "Unknown";
+    }
 }
