@@ -2,15 +2,13 @@ package com.dhd.gymmanagement.controller;
 
 import com.dhd.gymmanagement.entity.User;
 import com.dhd.gymmanagement.service.UserService;
+import com.dhd.gymmanagement.service.PasswordResetService;
 import com.dhd.gymmanagement.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.Cookie;
@@ -28,6 +26,9 @@ public class AuthController {
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+    
+    @Autowired
+    private PasswordResetService passwordResetService;
 
 
     @GetMapping("/login")
@@ -116,7 +117,7 @@ public class AuthController {
                 return "redirect:/register";
             }
 
-            // Xử lý role
+
             User.Role selectedRole = User.Role.valueOf(role);
 
             if (userService.getUserByEmail(email).isPresent()) {
@@ -142,7 +143,7 @@ public class AuthController {
                 try {
                     newUser.setBirthdate(java.sql.Date.valueOf(birthdate));
                 } catch (Exception e) {
-                    // Ignore invalid date format
+
                 }
             }
 
@@ -192,14 +193,21 @@ public class AuthController {
     @PostMapping("/forgot-password")
     public String forgotPassword(@RequestParam String email, RedirectAttributes redirectAttributes) {
         try {
-            User user = userService.getUserByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("Email không tồn tại"));
-
-            redirectAttributes.addFlashAttribute("success", 
-                "Hướng dẫn đặt lại mật khẩu đã được gửi đến email: " + email);
+            boolean emailSent = passwordResetService.sendPasswordResetEmail(email);
+            
+            if (emailSent) {
+                redirectAttributes.addFlashAttribute("message", 
+                    "Link đặt lại mật khẩu đã được gửi đến email: " + email);
+                redirectAttributes.addFlashAttribute("messageType", "success");
+            } else {
+                redirectAttributes.addFlashAttribute("message", 
+                    "Email không tồn tại trong hệ thống");
+                redirectAttributes.addFlashAttribute("messageType", "error");
+            }
             
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            redirectAttributes.addFlashAttribute("message", "Có lỗi xảy ra: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("messageType", "error");
         }
         
         return "redirect:/forgot-password";
@@ -230,5 +238,50 @@ public class AuthController {
         }
     }
 
+    @GetMapping("/reset-password")
+    public String showResetPasswordForm(@RequestParam String token, Model model) {
+        if (passwordResetService.isValidToken(token)) {
+            model.addAttribute("token", token);
+            return "reset_password";
+        } else {
+            model.addAttribute("error", "Token không hợp lệ hoặc đã hết hạn");
+            return "forgot_password";
+        }
+    }
 
+    @PostMapping("/reset-password")
+    public String processResetPassword(@RequestParam String token,
+                                     @RequestParam String password,
+                                     @RequestParam String confirmPassword,
+                                     Model model,
+                                     RedirectAttributes redirectAttributes) {
+        if (!password.equals(confirmPassword)) {
+            redirectAttributes.addFlashAttribute("message", "Mật khẩu xác nhận không khớp");
+            redirectAttributes.addFlashAttribute("messageType", "error");
+            return "redirect:/reset-password?token=" + token;
+        }
+        
+        if (password.length() < 6) {
+            redirectAttributes.addFlashAttribute("message", "Mật khẩu phải có ít nhất 6 ký tự");
+            redirectAttributes.addFlashAttribute("messageType", "error");
+            return "redirect:/reset-password?token=" + token;
+        }
+        
+        try {
+            boolean passwordReset = passwordResetService.resetPassword(token, password);
+            if (passwordReset) {
+                redirectAttributes.addFlashAttribute("message", "Đặt lại mật khẩu thành công! Vui lòng đăng nhập với mật khẩu mới");
+                redirectAttributes.addFlashAttribute("messageType", "success");
+                return "redirect:/login";
+            } else {
+                redirectAttributes.addFlashAttribute("message", "Token không hợp lệ hoặc đã hết hạn");
+                redirectAttributes.addFlashAttribute("messageType", "error");
+                return "redirect:/forgot-password";
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("message", "Có lỗi xảy ra: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("messageType", "error");
+            return "redirect:/reset-password?token=" + token;
+        }
+    }
 }
