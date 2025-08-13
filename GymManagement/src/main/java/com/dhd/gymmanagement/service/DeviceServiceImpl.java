@@ -4,6 +4,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.dhd.gymmanagement.entity.Device;
 import com.dhd.gymmanagement.repository.DeviceRepository;
+import com.dhd.gymmanagement.service.DeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,16 +37,20 @@ public class DeviceServiceImpl implements DeviceService {
     
     @Override
     public Device createDevice(Device device) {
-        device.setCreatedAt(LocalDateTime.now());
-        device.setUpdatedAt(LocalDateTime.now());
-        device.setIsDeleted(false);
+        LocalDateTime localNow = LocalDateTime.now();
+        localNow = localNow.withNano(0);
+        device.setCreatedAt(localNow);
+        device.setUpdatedAt(localNow);
+        device.setIsDeleted(0);
         return deviceRepository.save(device);
     }
     
     public Device createDeviceWithImage(Device device, MultipartFile imageFile) {
-        device.setCreatedAt(LocalDateTime.now());
-        device.setUpdatedAt(LocalDateTime.now());
-        device.setIsDeleted(false);
+        LocalDateTime localNow = LocalDateTime.now();
+        localNow = localNow.withNano(0);
+        device.setCreatedAt(localNow);
+        device.setUpdatedAt(localNow);
+        device.setIsDeleted(0);
         
         if (imageFile != null && !imageFile.isEmpty()) {
             try {
@@ -73,7 +78,10 @@ public class DeviceServiceImpl implements DeviceService {
         device.setMaintenanceDate(deviceDetails.getMaintenanceDate());
         device.setLastServiceDate(deviceDetails.getLastServiceDate());
         device.setNotes(deviceDetails.getNotes());
-        device.setUpdatedAt(LocalDateTime.now());
+        
+        LocalDateTime localNow = LocalDateTime.now();
+        localNow = localNow.withNano(0);
+        device.setUpdatedAt(localNow);
         
         return deviceRepository.save(device);
     }
@@ -89,7 +97,10 @@ public class DeviceServiceImpl implements DeviceService {
         device.setMaintenanceDate(deviceDetails.getMaintenanceDate());
         device.setLastServiceDate(deviceDetails.getLastServiceDate());
         device.setNotes(deviceDetails.getNotes());
-        device.setUpdatedAt(LocalDateTime.now());
+        
+        LocalDateTime localNow = LocalDateTime.now();
+        localNow = localNow.withNano(0);
+        device.setUpdatedAt(localNow);
         
         if (imageFile != null && !imageFile.isEmpty()) {
             try {
@@ -108,8 +119,11 @@ public class DeviceServiceImpl implements DeviceService {
     public void deleteDevice(Integer deviceId) {
         Device device = deviceRepository.findById(deviceId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy thiết bị"));
-        device.setIsDeleted(true);
-        device.setUpdatedAt(LocalDateTime.now());
+        device.setIsDeleted(1);
+        
+        LocalDateTime localNow = LocalDateTime.now();
+        localNow = localNow.withNano(0);
+        device.setUpdatedAt(localNow);
         deviceRepository.save(device);
     }
     
@@ -148,7 +162,10 @@ public class DeviceServiceImpl implements DeviceService {
         Device device = deviceRepository.findById(deviceId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy thiết bị"));
         device.setStatus(status);
-        device.setUpdatedAt(LocalDateTime.now());
+        
+        LocalDateTime localNow = LocalDateTime.now();
+        localNow = localNow.withNano(0);
+        device.setUpdatedAt(localNow);
         deviceRepository.save(device);
     }
     
@@ -160,7 +177,10 @@ public class DeviceServiceImpl implements DeviceService {
         String currentNotes = device.getNotes();
         String newNotes = currentNotes != null ? currentNotes + "\n" + note : note;
         device.setNotes(newNotes);
-        device.setUpdatedAt(LocalDateTime.now());
+        
+        LocalDateTime localNow = LocalDateTime.now();
+        localNow = localNow.withNano(0);
+        device.setUpdatedAt(localNow);
         deviceRepository.save(device);
     }
     
@@ -172,7 +192,10 @@ public class DeviceServiceImpl implements DeviceService {
         if (maintenanceDate != null && !maintenanceDate.trim().isEmpty()) {
             device.setMaintenanceDate(LocalDate.parse(maintenanceDate));
         }
-        device.setUpdatedAt(LocalDateTime.now());
+        
+        LocalDateTime localNow = LocalDateTime.now();
+        localNow = localNow.withNano(0);
+        device.setUpdatedAt(localNow);
         deviceRepository.save(device);
     }
     
@@ -187,7 +210,9 @@ public class DeviceServiceImpl implements DeviceService {
             device.setLastServiceDate(null);
         }
         
-        device.setUpdatedAt(LocalDateTime.now());
+        LocalDateTime localNow = LocalDateTime.now();
+        localNow = localNow.withNano(0);
+        device.setUpdatedAt(localNow);
         deviceRepository.save(device);
     }
     
@@ -218,7 +243,6 @@ public class DeviceServiceImpl implements DeviceService {
         
 
         device.setImage(null);
-        device.setUpdatedAt(LocalDateTime.now());
         
         return deviceRepository.save(device);
     }

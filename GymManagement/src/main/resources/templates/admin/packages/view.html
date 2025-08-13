@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chi tiết gói tập</title>
+    <th:block th:replace="~{base :: head}"></th:block>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div th:replace="~{base :: header}"></div>
+    
+    <main class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h4 class="mb-0">
+                                    <i class="fas fa-dumbbell me-2"></i>Chi tiết gói tập
+                                </h4>
+                                <p class="mb-0 mt-1">Thông tin chi tiết về gói tập</p>
+                            </div>
+                            <div>
+                                <a th:href="@{/admin/packages/edit/{id}(id=${package.packageId})}" 
+                                   class="btn btn-warning me-2">
+                                    <i class="fas fa-edit me-1"></i>Chỉnh sửa
+                                </a>
+                                <button type="button" class="btn btn-danger delete-btn"
+                                        th:attr="data-package-id=${package.packageId}, data-package-name=${package.name}">
+                                    <i class="fas fa-trash me-1"></i>Xóa
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <a href="/admin/packages" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Quay lại danh sách
+                            </a>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Thông tin cơ bản</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <table class="table table-borderless">
+                                            <tr>
+                                                <td class="fw-bold">ID:</td>
+                                                <td th:text="${package.packageId}"></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Tên gói:</td>
+                                                <td th:text="${package.name}"></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Thời hạn:</td>
+                                                <td>
+                                                    <span class="badge bg-info" th:text="${package.durationMonths + ' tháng'}"></span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Giá:</td>
+                                                <td>
+                                                    <span class="text-success fw-bold" 
+                                                          th:text="${package.price + ' VNĐ'}"></span>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Thông tin hệ thống</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <table class="table table-borderless">
+                                            <tr>
+                                                <td class="fw-bold">Ngày tạo:</td>
+                                                <td th:text="${package.createdAt != null ? package.createdAt.toString() : 'N/A'}"></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Ngày cập nhật:</td>
+                                                <td th:text="${package.updatedAt != null ? package.updatedAt.toString() : 'Chưa cập nhật'}"></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Trạng thái:</td>
+                                                <td>
+                                                    <span class="badge bg-success">Đang hoạt động</span>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Mô tả</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <p th:text="${package.description != null and package.description != '' ? package.description : 'Không có mô tả'}"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <form id="deleteForm" method="post" style="display: none;">
+    </form>
+    
+    <div th:replace="~{base :: footer}"></div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteButton = document.querySelector('.delete-btn');
+            deleteButton.addEventListener('click', function() {
+                const packageId = this.getAttribute('data-package-id');
+                const name = this.getAttribute('data-package-name');
+                if (confirm('Bạn có chắc chắn muốn xóa gói tập "' + name + '"?')) {
+                    const form = document.getElementById('deleteForm');
+                    form.action = '/admin/packages/delete/' + packageId;
+                    form.submit();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

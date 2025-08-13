@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:dt="http://www.thymeleaf.org/dialect/thymeleaf-extras-java8time">
+<head>
+    <title>Quản lý gói tập</title>
+    <th:block th:replace="~{base :: head}"></th:block>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div th:replace="~{base :: header}"></div>
+    
+    <main class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>Quản lý gói tập</h1>
+            <p>Tổng cộng <span th:text="${totalPackages}">0</span> gói tập</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h4>Danh sách gói tập</h4>
+            </div>
+            <div class="card-body">
+                <div th:if="${success}" class="alert alert-success" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span th:text="${success}"></span>
+                </div>
+                <div th:if="${error}" class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <span th:text="${error}"></span>
+                </div>
+                
+                <div class="mb-3">
+                    <a href="/admin/packages/create" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Thêm gói tập mới
+                    </a>
+                </div>
+
+                <!-- Tìm kiếm theo giá -->
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <form th:action="@{/admin/packages/search/price}" method="get" class="row g-3">
+                            <div class="col-md-4">
+                                <label for="minPrice" class="form-label">Giá tối thiểu</label>
+                                <input type="number" class="form-control" id="minPrice" name="minPrice" 
+                                       th:value="${minPrice}" placeholder="Giá tối thiểu" step="1000">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="maxPrice" class="form-label">Giá tối đa</label>
+                                <input type="number" class="form-control" id="maxPrice" name="maxPrice" 
+                                       th:value="${maxPrice}" placeholder="Giá tối đa" step="1000">
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary me-2">
+                                    <i class="fas fa-search me-1"></i>Tìm kiếm
+                                </button>
+                                <a href="/admin/packages" class="btn btn-secondary">
+                                    <i class="fas fa-refresh me-1"></i>Làm mới
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Lọc theo thời hạn -->
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <form th:action="@{/admin/packages/search/duration}" method="get" class="row g-3">
+                            <div class="col-md-6">
+                                <label for="duration" class="form-label">Thời hạn</label>
+                                <select class="form-select" id="duration" name="duration">
+                                    <option value="">Tất cả thời hạn</option>
+                                    <option value="1" th:selected="${selectedDuration != null and selectedDuration.toString() == '1'}">1 tháng</option>
+                                    <option value="3" th:selected="${selectedDuration != null and selectedDuration.toString() == '3'}">3 tháng</option>
+                                    <option value="6" th:selected="${selectedDuration != null and selectedDuration.toString() == '6'}">6 tháng</option>
+                                    <option value="12" th:selected="${selectedDuration != null and selectedDuration.toString() == '12'}">12 tháng</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary me-2">
+                                    <i class="fas fa-filter me-1"></i>Lọc theo thời hạn
+                                </button>
+                                <a href="/admin/packages" class="btn btn-secondary">
+                                    <i class="fas fa-refresh me-1"></i>Làm mới
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Bảng danh sách -->
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Tên gói</th>
+                                <th>Thời hạn</th>
+                                <th>Giá (VNĐ)</th>
+                                <th>Mô tả</th>
+                                <th>Ngày tạo</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="package : ${packages}">
+                                <td th:text="${package.packageId}"></td>
+                                <td>
+                                    <strong th:text="${package.name}"></strong>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info" th:text="${package.durationMonths + ' tháng'}"></span>
+                                </td>
+                                <td>
+                                    <span class="text-success fw-bold" 
+                                          th:text="${package.price}"></span>
+                                </td>
+                                <td>
+                                    <span th:text="${package.description}"></span>
+                                </td>
+                                <td th:text="${package.createdAt}"></td>
+                                <td>
+                                    <a th:href="@{/admin/packages/view/{id}(id=${package.packageId})}" 
+                                       class="btn btn-sm btn-info me-1" title="Xem">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a th:href="@{/admin/packages/edit/{id}(id=${package.packageId})}" 
+                                       class="btn btn-sm btn-warning me-1" title="Sửa">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-danger delete-btn" 
+                                            title="Xóa"
+                                            th:data-package-id="${package.packageId}"
+                                            th:data-package-name="${package.name}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(packages)}">
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    <i class="fas fa-dumbbell fa-2x mb-2"></i>
+                                    <p>Không có dữ liệu gói tập</p>
+                                    <small class="text-muted">Vui lòng kiểm tra kết nối database hoặc thử lại sau</small>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <form id="deleteForm" method="post" style="display: none;">
+    </form>
+    
+    <div th:replace="~{base :: footer}"></div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteButtons = document.querySelectorAll('.delete-btn');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const packageId = this.getAttribute('data-package-id');
+                    const name = this.getAttribute('data-package-name');
+                    if (confirm('Bạn có chắc chắn muốn xóa gói tập "' + name + '"?')) {
+                        const form = document.getElementById('deleteForm');
+                        form.action = '/admin/packages/delete/' + packageId;
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

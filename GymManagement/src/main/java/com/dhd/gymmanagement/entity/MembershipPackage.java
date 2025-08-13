@@ -29,6 +29,9 @@ public class MembershipPackage {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
+    @Column(name = "is_deleted", columnDefinition = "TINYINT(1) DEFAULT 0")
+    private Integer isDeleted = 0;
+
     public Integer getPackageId() { return packageId; }
     public void setPackageId(Integer packageId) { this.packageId = packageId; }
     public String getName() { return name; }
@@ -43,4 +46,6 @@ public class MembershipPackage {
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
     public Timestamp getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
+    public Integer getIsDeleted() { return isDeleted; }
+    public void setIsDeleted(Integer isDeleted) { this.isDeleted = isDeleted; }
 }

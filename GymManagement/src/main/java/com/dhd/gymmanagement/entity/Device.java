@@ -3,6 +3,7 @@ package com.dhd.gymmanagement.entity;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "devices")
@@ -42,7 +43,7 @@ public class Device {
     private LocalDateTime updatedAt;
     
     @Column(name = "is_deleted")
-    private Boolean isDeleted = false;
+    private Integer isDeleted = 0;
     
     @Column(length = 500)
     private String image;
@@ -65,9 +66,11 @@ public class Device {
     }
     
     public Device() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-        this.isDeleted = false;
+        LocalDateTime localNow = LocalDateTime.now();
+        localNow = localNow.withNano(0);
+        this.createdAt = localNow;
+        this.updatedAt = localNow;
+        this.isDeleted = 0;
     }
     
     public Integer getDeviceId() {
@@ -150,11 +153,11 @@ public class Device {
         this.updatedAt = updatedAt;
     }
     
-    public Boolean getIsDeleted() {
+    public Integer getIsDeleted() {
         return isDeleted;
     }
     
-    public void setIsDeleted(Boolean isDeleted) {
+    public void setIsDeleted(Integer isDeleted) {
         this.isDeleted = isDeleted;
     }
     
@@ -168,6 +171,8 @@ public class Device {
     
     @PreUpdate
     public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
+        LocalDateTime localNow = LocalDateTime.now();
+        localNow = localNow.withNano(0);
+        this.updatedAt = localNow;
     }
 }

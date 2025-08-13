@@ -130,4 +130,24 @@ public class UserService {
     public long countUsers() {
         return userRepository.countByIsDeleted(0);
     }
+    
+    // Methods for ProfileController
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
+    }
+    
+    public User save(User user) {
+        user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        return userRepository.save(user);
+    }
+    
+    public boolean checkPassword(User user, String password) {
+        return passwordEncoder.matches(password, user.getPasswordHash());
+    }
+    
+    public void updatePassword(User user, String newPassword) {
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        userRepository.save(user);
+    }
 }

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Quản lý gói tập</title>
+    <th:block th:replace="~{base :: head}"></th:block>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div th:replace="~{base :: header}"></div>
+    
+    <main class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-dumbbell me-2"></i>
+                            <span th:if="${package.packageId != null}">Chỉnh sửa gói tập</span>
+                            <span th:if="${package.packageId == null}">Tạo gói tập mới</span>
+                        </h4>
+                        <p class="mb-0 mt-1">
+                            <span th:if="${package.packageId != null}">Cập nhật thông tin gói tập</span>
+                            <span th:if="${package.packageId == null}">Thêm gói tập mới vào hệ thống</span>
+                        </p>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${success}" class="alert alert-success alert-dismissible show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span th:text="${success}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <span th:text="${error}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <div class="mb-3">
+                            <a href="/admin/packages" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Quay lại danh sách
+                            </a>
+                        </div>
+
+                        <form th:if="${package.packageId != null}" th:action="@{/admin/packages/edit/{id}(id=${package.packageId})}" 
+                              method="post" th:object="${package}">
+                            
+                            <!-- Package ID (hidden for edit) -->
+                            <input type="hidden" th:field="*{packageId}">
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="name" class="form-label">Tên gói tập <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="name" th:field="*{name}" 
+                                           placeholder="Nhập tên gói tập" required>
+                                    <div class="form-text">Tên gói tập phải duy nhất</div>
+                                </div>
+                                
+                                <div class="col-md-3 mb-3">
+                                    <label for="duration" class="form-label">Thời hạn (tháng) <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="duration" th:field="*{durationMonths}" required>
+                                        <option value="">Chọn thời hạn</option>
+                                        <option value="1">1 tháng</option>
+                                        <option value="3">3 tháng</option>
+                                        <option value="6">6 tháng</option>
+                                        <option value="12">12 tháng</option>
+                                        <option value="24">24 tháng</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-3 mb-3">
+                                    <label for="price" class="form-label">Giá (VNĐ) <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="price" th:field="*{price}" 
+                                           placeholder="Nhập giá" min="0" step="1000" required>
+                                    <div class="form-text">Giá tính theo VNĐ</div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <label for="description" class="form-label">Mô tả</label>
+                                    <textarea class="form-control" id="description" th:field="*{description}" 
+                                              rows="4" placeholder="Mô tả chi tiết về gói tập, quyền lợi, điều kiện..."></textarea>
+                                    <div class="form-text">Mô tả chi tiết về gói tập</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Additional Info for Edit Mode -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Ngày tạo</label>
+                                    <input type="text" class="form-control" 
+                                           th:value="${package.createdAt != null ? package.createdAt.toString() : 'N/A'}" 
+                                           readonly>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Ngày cập nhật</label>
+                                    <input type="text" class="form-control" 
+                                           th:value="${package.updatedAt != null ? package.updatedAt.toString() : 'Chưa cập nhật'}" 
+                                           readonly>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-12">
+                                    <hr class="my-4">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <a href="/admin/packages" class="btn btn-secondary">
+                                            <i class="fas fa-times me-1"></i>Hủy
+                                        </a>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save me-1"></i>Cập nhật
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+                        <form th:if="${package.packageId == null}" th:action="@{/admin/packages/create}" 
+                              method="post" th:object="${package}">
+                            
+                            <!-- Hidden field để đảm bảo isDeleted được set đúng -->
+                            <input type="hidden" th:field="*{isDeleted}" value="0">
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="name" class="form-label">Tên gói tập <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="name" th:field="*{name}" 
+                                           placeholder="Nhập tên gói tập" required>
+                                    <div class="form-text">Tên gói tập phải duy nhất</div>
+                                </div>
+                                
+                                <div class="col-md-3 mb-3">
+                                    <label for="duration" class="form-label">Thời hạn (tháng) <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="duration" th:field="*{durationMonths}" required>
+                                        <option value="">Chọn thời hạn</option>
+                                        <option value="1">1 tháng</option>
+                                        <option value="3">3 tháng</option>
+                                        <option value="6">6 tháng</option>
+                                        <option value="12">12 tháng</option>
+                                        <option value="24">24 tháng</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-3 mb-3">
+                                    <label for="price" class="form-label">Giá (VNĐ) <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="price" th:field="*{price}" 
+                                           placeholder="Nhập giá" min="0" step="1000" required>
+                                    <div class="form-text">Giá tính theo VNĐ</div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <label for="description" class="form-label">Mô tả</label>
+                                    <textarea class="form-control" id="description" th:field="*{description}" 
+                                              rows="4" placeholder="Mô tả chi tiết về gói tập, quyền lợi, điều kiện..."></textarea>
+                                    <div class="form-text">Mô tả chi tiết về gói tập</div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-12">
+                                    <hr class="my-4">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <a href="/admin/packages" class="btn btn-secondary">
+                                            <i class="fas fa-times me-1"></i>Hủy
+                                        </a>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save me-1"></i>Tạo mới
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{base :: footer}"></div>
+</body>
+</html>

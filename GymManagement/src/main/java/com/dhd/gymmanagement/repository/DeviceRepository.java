@@ -31,18 +31,18 @@ public interface DeviceRepository extends JpaRepository<Device, Integer> {
     
     long countByStatus(Device.DeviceStatus status);
     
-    @Query("SELECT d FROM Device d")
+    @Query("SELECT d FROM Device d WHERE d.isDeleted = 0")
     List<Device> findByIsDeletedFalse();
     
-    @Query("SELECT d FROM Device d")
+    @Query("SELECT d FROM Device d WHERE d.isDeleted = 0")
     List<Device> findAllActiveDevices();
     
-    @Query("SELECT COUNT(d) FROM Device d")
+    @Query("SELECT COUNT(d) FROM Device d WHERE d.isDeleted = 0")
     long countByIsDeletedFalse();
     
-    @Query("SELECT d FROM Device d WHERE d.maintenanceDate IS NOT NULL AND d.maintenanceDate <= CURRENT_DATE")
+    @Query("SELECT d FROM Device d WHERE d.isDeleted = 0 AND d.maintenanceDate IS NOT NULL AND d.maintenanceDate <= CURRENT_DATE")
     List<Device> findDevicesNeedingMaintenance();
     
-    @Query("SELECT d FROM Device d")
+    @Query("SELECT d FROM Device d WHERE d.isDeleted = 0")
     List<Device> findAllDevices();
 }

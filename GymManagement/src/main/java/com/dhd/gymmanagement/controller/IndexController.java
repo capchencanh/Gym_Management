@@ -3,6 +3,7 @@ package com.dhd.gymmanagement.controller;
 import com.dhd.gymmanagement.service.CategoryService;
 import com.dhd.gymmanagement.service.UserService;
 import com.dhd.gymmanagement.service.DeviceService;
+import com.dhd.gymmanagement.service.MembershipPackageService;
 import com.dhd.gymmanagement.entity.Device;
 import com.dhd.gymmanagement.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,9 @@ public class IndexController {
     
     @Autowired
     private DeviceService deviceService;
+    
+    @Autowired
+    private MembershipPackageService packageService;
 
     @GetMapping("/")
     public String index(Model model) {
@@ -56,11 +60,25 @@ public class IndexController {
         long ptCount = userService.getUsersByRole(User.Role.PT).size();
         long userCount = userService.getUsersByRole(User.Role.USER).size();
         long adminCount = userService.getUsersByRole(User.Role.ADMIN).size();
+        long totalPackages = packageService.countActivePackages();
+        
+        // Thống kê gói tập chi tiết
+        long activePackages = packageService.countActivePackages();
+        long totalPackageRevenue = packageService.calculateTotalRevenue();
+        long monthlyPackageRevenue = packageService.calculateMonthlyRevenue();
+        long popularPackageCount = packageService.getMostPopularPackageCount();
 
         model.addAttribute("totalUsers", totalUsers);
         model.addAttribute("totalTrainers", ptCount);
         model.addAttribute("totalClasses", 0);
         model.addAttribute("totalDevices", deviceService.countTotalDevices());
+        model.addAttribute("totalPackages", totalPackages);
+        
+        // Thêm thống kê gói tập mới
+        model.addAttribute("activePackages", activePackages);
+        model.addAttribute("totalPackageRevenue", totalPackageRevenue);
+        model.addAttribute("monthlyPackageRevenue", monthlyPackageRevenue);
+        model.addAttribute("popularPackageCount", popularPackageCount);
         
         model.addAttribute("userCount", userCount);
         model.addAttribute("ptCount", ptCount);
