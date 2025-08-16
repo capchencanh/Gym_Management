@@ -9,7 +9,7 @@ const Apis = axios.create({
     }
 });
 
-// Add request interceptor to include auth token
+
 Apis.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
@@ -23,7 +23,7 @@ Apis.interceptors.request.use(
     }
 );
 
-// Add response interceptor to handle errors
+
 Apis.interceptors.response.use(
     (response) => response,
     (error) => {
@@ -36,40 +36,40 @@ Apis.interceptors.response.use(
 );
 
 export const endpoints = {
-    // Auth endpoints
+    // Auth 
     'login': 'api/auth/login',
     'register': 'api/auth/register',
     'logout': 'api/auth/logout',
     
-    // User endpoints
+    // User 
     'users': 'api/users',
     'profile': 'api/users/profile',
-    'update-profile': 'api/users/update-profile',
+    'update-profile': 'api/users/profile',
     
-    // Categories endpoints
+    // Categories 
     'categories2': 'api/categories2',
     
-    // Workout endpoints
+    // Workout 
     'workout-logs': 'api/workout-logs',
     'workout-history': 'api/workout-logs/history',
     'schedule': 'api/schedule',
     
-    // Diet endpoints
+    // Diet 
     'diet-plans': 'api/diet-plans',
     'meal-suggestions': 'api/meals/suggestions',
     
-    // Class endpoints
+    // Class 
     'classes': 'api/classes',
     'enrollments': 'api/enrollments',
     
-    // PT Chat endpoints
+    // PT Chat 
     'pt-chat': 'api/pt-chat',
     'messages': 'api/messages',
     
-    // Notification endpoints
+    // Notification 
     'notifications': 'api/notifications',
     
-    // Goals endpoints
+    // Goals 
     'goals': 'api/goals',
     'progress': 'api/progress'
 };

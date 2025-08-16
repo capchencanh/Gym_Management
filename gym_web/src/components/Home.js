@@ -1,14 +1,24 @@
 import React from 'react';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
+import { useUser } from '../configs/UserProvider';
 
 const Home = () => {
+  const user = useUser();
+
+  const getWelcomeMessage = () => {
+    if (!user) {
+      return "Chào mừng đến với Gym Management";
+    }
+    return `Chào mừng ${user.name}!`;
+  };
+
   return (
     <Container className="mt-4">
       <Row>
         <Col>
-          <h1 className="text-center mb-4">Chào mừng đến với Gym Management</h1>
+          <h1 className="text-center mb-4">{getWelcomeMessage()}</h1>
           <p className="text-center text-muted mb-5">
-            Hệ thống quản lý gym hiện đại.
+            Hệ thống quản lý gym hiện đại
           </p>
         </Col>
       </Row>
