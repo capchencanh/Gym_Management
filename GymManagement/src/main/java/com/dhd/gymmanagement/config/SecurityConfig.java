@@ -43,12 +43,14 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/login", "/api/user").permitAll()
                 .requestMatchers("/api/upload/**").authenticated()
+                .requestMatchers("/api/workout-logs/**").authenticated()
+                .requestMatchers("/api/users/**").authenticated()
+                .requestMatchers("/api/**").authenticated()
                 .requestMatchers("/login", "/register", "/forgot-password", "/reset-password", "/", "/create-admin").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/static/**").permitAll()
-                
-                .requestMatchers("/api/**").authenticated()
                 
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 
