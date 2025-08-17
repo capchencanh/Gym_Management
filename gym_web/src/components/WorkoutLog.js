@@ -466,7 +466,7 @@ const WorkoutLog = () => {
                                                             <Form.Label>Tên bài tập</Form.Label>
                                                             <Form.Control
                                                                 type="text"
-                                                                placeholder="VD: Đi bộ dốc, Chạy..."
+                                                                placeholder="VD: Đi bộ dốc..."
                                                                 value={cardio.name}
                                                                 onChange={(e) => {
                                                                     const newCardio = [...cardioExercises];

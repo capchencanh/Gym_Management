@@ -1,112 +1,92 @@
-import React, { useState, useEffect } from 'react';
-import { Navbar, Container, Nav, NavDropdown, Button } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
-import { useUser, useDispatch } from '../../configs/UserProvider';
+import { useContext, useEffect, useState } from "react";
+import { Button, Container, Nav, Navbar, NavDropdown } from "react-bootstrap";
+import { Link, useNavigate } from "react-router-dom";
+import Apis, { endpoints } from "../../configs/Apis";
+import { MyUserContext, MyDispatchContext } from "../../configs/Contexts";
 
 const Header = () => {
     const [categories, setCategories] = useState([]);
-    const user = useUser();
-    const dispatch = useDispatch();
+    const user = useContext(MyUserContext); 
+    const dispatch = useContext(MyDispatchContext);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        setCategories([
-            { id: 1, name: 'Trang chủ', path: '/' },
-            { id: 2, name: 'Hồ sơ cá nhân', path: '/profile' },
-            { id: 3, name: 'Bài tập', path: '/workout' },
-            { id: 4, name: 'Dinh dưỡng', path: '/diet' },
-            { id: 5, name: 'Lớp tập', path: '/classes' },
-            { id: 6, name: 'Chat PT', path: '/pt-chat' }
-        ]);
-    }, []);
+    const loadCates = async () => {
+        try {
+            if (endpoints['categories2']) {
+                let res = await Apis.get(endpoints['categories2']);
+                setCategories(res.data);
+            } else {
+                setCategories([]);
+            }
+        } catch (error) {
+            setCategories([]);
+        }
+    };
 
     const handleLogout = () => {
-        dispatch({ type: 'logout' });
-        navigate('/');
+        dispatch({ type: "logout" });
+        navigate(user ? "/" : "/login");
     };
 
-
-    const getUserDisplayName = () => {
-        if (user?.name && user.name.trim()) {
-            return user.name;
-        }
-        if (user?.email) {
-            return user.email.split('@')[0]; 
-        }
-        return 'User';
-    };
+    useEffect(() => {
+        loadCates();
+    }, []);
 
     return (
-        <Navbar expand="lg" className="bg-primary shadow-sm" sticky="top" variant="dark">
+        <Navbar expand="lg" className="bg-body-tertiary shadow-sm" sticky="top">
             <Container>
-                <Navbar.Brand as={Link} to="/">
-                    <i className="fas fa-dumbbell me-2"></i>
-                    Gym Management
+                <Navbar.Brand as={Link} to={user ? "/home" : "/"}>
+                    DT's SocialNetwork
                 </Navbar.Brand>
-                
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="me-auto">
-                        <Nav.Link as={Link} to="/">Trang chủ</Nav.Link>
-                        
-                        <NavDropdown title="Danh mục" id="categories-nav-dropdown">
-                            {categories.map((category) => (
-                                <NavDropdown.Item 
-                                    as={Link} 
-                                    key={category.id} 
-                                    to={category.path}
-                                >
-                                    {category.name}
-                                </NavDropdown.Item>
-                            ))}
-                        </NavDropdown>
+                        {user && <Nav.Link as={Link} to="/home">Trang chủ</Nav.Link>}
+
+                        {categories.length > 0 && (
+                            <NavDropdown title="Danh mục" id="basic-nav-dropdown">
+                                {categories.map((c) => (
+                                    <NavDropdown.Item 
+                                        as={Link} 
+                                        key={c.id} 
+                                        to={c.path}
+                                    >
+                                        {c.name}
+                                    </NavDropdown.Item>
+                                ))}
+                            </NavDropdown>
+                        )}
                     </Nav>
-                    
+
                     <Nav>
                         {user ? (
                             <>
-                                <NavDropdown 
-                                    title={
-                                        <span>
-                                            <i className="fas fa-user me-1"></i>
-                                            {getUserDisplayName()}
-                                        </span>
-                                    } 
-                                    id="user-nav-dropdown"
-                                    align="end"
-                                >
-                                    <NavDropdown.Header>
-                                        <small className="text-muted">
-                                            <i className="fas fa-envelope me-1"></i>
-                                            {user.email}
-                                        </small>
-                                    </NavDropdown.Header>
-                                    <NavDropdown.Divider />
-                                    <NavDropdown.Item as={Link} to="/profile">
-                                        <i className="fas fa-user-cog me-2"></i>
-                                        Hồ sơ cá nhân
-                                    </NavDropdown.Item>
-                                    <NavDropdown.Item as={Link} to="/workout">
-                                        <i className="fas fa-dumbbell me-2"></i>
-                                        Ghi log bài tập
-                                    </NavDropdown.Item>
-                                    {user.fitness_goal && (
-                                        <NavDropdown.Item as={Link} to="/goals">
-                                            <i className="fas fa-bullseye me-2"></i>
-                                            Mục tiêu: {user.fitness_goal}
-                                        </NavDropdown.Item>
+                                <Nav.Link as={Link} to="/profile" className="d-flex align-items-center">
+                                    {user.avatar && (
+                                        <img
+                                            src={user.avatar}
+                                            alt={user.username || user.name}
+                                            style={{ width: "30px", height: "30px", borderRadius: "50%", marginRight: "8px" }}
+                                        />
                                     )}
-                                    <NavDropdown.Divider />
-                                    <NavDropdown.Item onClick={handleLogout}>
-                                        <i className="fas fa-sign-out-alt me-2"></i>
-                                        Đăng xuất
-                                    </NavDropdown.Item>
-                                </NavDropdown>
+                                    {user.fullName || user.username || user.name || user.email}
+                                </Nav.Link>
+                                <Nav.Link as={Link} to="/pt-management" className="d-flex align-items-center">
+                                    <i className="fas fa-user-tie me-1"></i>
+                                    Personal Trainer
+                                </Nav.Link>
+                                <Button variant="outline-danger" onClick={handleLogout} size="sm" className="ms-lg-2 align-self-center mt-2 mt-lg-0">
+                                    Đăng xuất
+                                </Button>
                             </>
                         ) : (
                             <>
-                                <Nav.Link as={Link} to="/login">Đăng nhập</Nav.Link>
-                                <Nav.Link as={Link} to="/register">Đăng ký</Nav.Link>
+                                <Nav.Link as={Link} to="/login" className="ms-lg-2">
+                                    <Button variant="outline-primary" size="sm">Đăng nhập</Button>
+                                </Nav.Link>
+                                <Nav.Link as={Link} to="/register">
+                                    <Button variant="primary" size="sm">Đăng ký</Button>
+                                </Nav.Link>
                             </>
                         )}
                     </Nav>

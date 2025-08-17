@@ -71,7 +71,18 @@ export const endpoints = {
     
     // Goals 
     'goals': 'api/goals',
-    'progress': 'api/progress'
+    'progress': 'api/progress',
+    
+    // PT Request
+    'pt-request': 'api/user/pt-request/request',
+    'pt-availability': 'api/user/pt-request/availability',
+    'pt-status': 'api/user/pt-request/status',
+    
+    // PT Training
+    'pt-sessions': 'api/pt/training/session',
+    'pt-sessions-by-trainer': 'api/pt/training/trainer',
+    'pt-sessions-by-date': 'api/pt/training/trainer/date',
+    'pt-sessions-by-user-trainer': 'api/pt/training/user'
 };
 
 export default Apis;
