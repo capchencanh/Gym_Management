@@ -69,19 +69,12 @@ public class TrainerService {
         return trainerRepository.save(trainer);
     }
     
-    public void deleteTrainer(Integer trainerId) {
-        Trainer trainer = trainerRepository.findById(trainerId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy trainer"));
-        
-        trainer.setIsDeleted(1);
-        trainerRepository.save(trainer);
-        
-        User user = trainer.getUser();
-        user.setIsDeleted(1);
-        userRepository.save(user);
-    }
-    
     public List<Trainer> getActiveTrainers() {
         return trainerRepository.findByUser_IsDeleted(0);
+    }
+    
+    // Method đơn giản để save trainer
+    public Trainer save(Trainer trainer) {
+        return trainerRepository.save(trainer);
     }
 }

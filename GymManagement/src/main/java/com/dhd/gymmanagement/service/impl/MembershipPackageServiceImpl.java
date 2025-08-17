@@ -35,9 +35,6 @@ public class MembershipPackageServiceImpl implements MembershipPackageService {
 
     @Override
     public MembershipPackage createPackage(MembershipPackage packageData) {
-        System.out.println("DEBUG: Service - Creating package: " + packageData.getName());
-        System.out.println("DEBUG: Service - Package isDeleted before: " + packageData.getIsDeleted());
-        
         // Kiểm tra tên gói tập đã tồn tại
         if (isPackageNameExists(packageData.getName())) {
             throw new RuntimeException("Tên gói tập đã tồn tại: " + packageData.getName());
@@ -52,15 +49,9 @@ public class MembershipPackageServiceImpl implements MembershipPackageService {
         packageData.setUpdatedAt(now);
         packageData.setIsDeleted(0);
         
-        System.out.println("DEBUG: Service - Package isDeleted after: " + packageData.getIsDeleted());
-        
         try {
-            MembershipPackage savedPackage = packageRepository.save(packageData);
-            System.out.println("DEBUG: Service - Package saved successfully: " + savedPackage.getPackageId());
-            return savedPackage;
+            return packageRepository.save(packageData);
         } catch (Exception e) {
-            System.err.println("DEBUG: Service - Error saving package: " + e.getMessage());
-            e.printStackTrace();
             throw e;
         }
     }

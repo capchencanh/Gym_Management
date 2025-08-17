@@ -34,6 +34,10 @@
                         <span class="stat-number" th:text="${totalDevices}">0</span>
                         <div class="stat-label">Thiết bị</div>
                     </div>
+                    <div class="stat-item">
+                        <span class="stat-number" th:text="${totalAssignments}">0</span>
+                        <div class="stat-label">Phân công PT</div>
+                    </div>
                 </div>
 
                 <!-- Actions Section -->
@@ -64,6 +68,10 @@
                             <span class="action-text">Thanh toán</span>
                             <i class="fas fa-chevron-right"></i>
                         </a>
+                        <a href="/admin/pt-assignments" class="action-link">
+                            <span class="action-text">Quản lý phân công PT</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -76,6 +84,7 @@
                             <li><a href="/admin/users/create">Thêm người dùng mới</a></li>
                             <li><a href="/admin/classes/new">Tạo lớp học mới</a></li>
                             <li><a href="/admin/packages/new">Thêm gói tập</a></li>
+                            <li><a href="/admin/pt-assignments/create">Tạo phân công PT mới</a></li>
                             <li><a href="/admin/reports">Xem báo cáo</a></li>
                         </ul>
                     </div>
@@ -111,6 +120,28 @@
                     <div class="detail-item">
                         <span class="detail-number" th:text="${activeDevices}">0</span>
                         <div class="detail-label">Thiết bị đang sử dụng</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="detail-card">
+                <h3>Thống kê phân công PT</h3>
+                <div class="detail-content">
+                    <div class="detail-item">
+                        <span class="detail-number" th:text="${pendingAssignments}">0</span>
+                        <div class="detail-label">Đang chờ phân công</div>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-number" th:text="${activeAssignments}">0</span>
+                        <div class="detail-label">Đang hoạt động</div>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-number" th:text="${completedAssignments}">0</span>
+                        <div class="detail-label">Đã hoàn thành</div>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-number" th:text="${totalAssignments}">0</span>
+                        <div class="detail-label">Tổng cộng</div>
                     </div>
                 </div>
             </div>

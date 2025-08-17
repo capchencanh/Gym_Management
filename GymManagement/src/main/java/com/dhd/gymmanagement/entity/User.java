@@ -3,6 +3,7 @@ package com.dhd.gymmanagement.entity;
 import jakarta.persistence.*;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -53,6 +54,12 @@ public class User {
     @Column(name = "is_deleted", nullable = false)
     private int isDeleted = 0;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<UserAvailability> availabilities = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<PTAssignment> ptAssignments = new ArrayList<>();
+
     public Integer getUserId() { return userId; }
     public void setUserId(Integer userId) { this.userId = userId; }
     public String getEmail() { return email; }
@@ -81,6 +88,12 @@ public class User {
     public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
     public int getIsDeleted() { return isDeleted; }
     public void setIsDeleted(int isDeleted) { this.isDeleted = isDeleted; }
+
+    public List<UserAvailability> getAvailabilities() { return availabilities; }
+    public void setAvailabilities(List<UserAvailability> availabilities) { this.availabilities = availabilities; }
+    
+    public List<PTAssignment> getPtAssignments() { return ptAssignments; }
+    public void setPtAssignments(List<PTAssignment> ptAssignments) { this.ptAssignments = ptAssignments; }
 
     public enum Role {
         ADMIN, PT, USER

@@ -1,6 +1,8 @@
 package com.dhd.gymmanagement.entity;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "trainers")
@@ -23,6 +25,9 @@ public class Trainer {
     @Column(name = "is_deleted")
     private Integer isDeleted = 0;
 
+    @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<PTAssignment> assignments = new ArrayList<>();
+
     public Integer getTrainerId() { return trainerId; }
     public void setTrainerId(Integer trainerId) { this.trainerId = trainerId; }
     public User getUser() { return user; }
@@ -33,6 +38,9 @@ public class Trainer {
     public void setSchedule(String schedule) { this.schedule = schedule; }
     public Integer getIsDeleted() { return isDeleted; }
     public void setIsDeleted(Integer isDeleted) { this.isDeleted = isDeleted; }
+    
+    public List<PTAssignment> getAssignments() { return assignments; }
+    public void setAssignments(List<PTAssignment> assignments) { this.assignments = assignments; }
     
     // Helper method để lấy tên trainer
     public String getName() {

@@ -12,6 +12,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.dhd.gymmanagement.repository.UserRepository;
 
 @Controller
 @RequestMapping("/admin/trainers")
@@ -22,6 +23,9 @@ public class AdminTrainerController {
     
     @Autowired
     private UserService userService;
+    
+    @Autowired
+    private UserRepository userRepository;
     
     @GetMapping
     public String listTrainers(Model model, 
@@ -51,9 +55,12 @@ public class AdminTrainerController {
             trainers.add(trainer);
         }
         
-        long totalTrainers = ptUsers.size();
-        long activeTrainers = totalTrainers;
-        long inactiveTrainers = 0;
+        // Tính toán số lượng trainer
+        long activeTrainers = ptUsers.size(); // Số trainer đang hiển thị (đã filter is_deleted = 0)
+        
+        // Đếm tổng số trainer (cả active và deleted)
+        long totalTrainers = userService.countUsersByRole(User.Role.PT);
+        long inactiveTrainers = totalTrainers - activeTrainers; // Số trainer đã bị xóa
         
         model.addAttribute("trainers", trainers);
         model.addAttribute("keyword", keyword);
@@ -257,11 +264,7 @@ public class AdminTrainerController {
                 throw new RuntimeException("User này không phải là trainer");
             }
             
-            try {
-                trainerService.deleteTrainer(id);
-            } catch (Exception e) {
-            }
-            
+
             userService.deleteUser(id);
             
             redirectAttributes.addFlashAttribute("success", "Xóa trainer thành công!");

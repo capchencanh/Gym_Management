@@ -22,6 +22,12 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     
     List<User> findByRole(User.Role role);
     
+    @Query("SELECT u FROM User u WHERE u.role = :role AND u.isDeleted = 0")
+    List<User> findByRoleAndIsDeletedFalse(@Param("role") User.Role role);
+    
+    @Query("SELECT u FROM User u WHERE u.role = :role AND u.isDeleted = 0 AND (u.name LIKE %:keyword% OR u.email LIKE %:keyword% OR u.phoneNumber LIKE %:keyword%)")
+    List<User> findByRoleAndKeywordAndIsDeletedFalse(@Param("role") User.Role role, @Param("keyword") String keyword);
+    
     @Query("SELECT u FROM User u WHERE u.name LIKE %:keyword% OR u.email LIKE %:keyword% OR u.phoneNumber LIKE %:keyword%")
     List<User> findByKeyword(@Param("keyword") String keyword);
     
@@ -31,4 +37,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     List<User> findAllByIsDeleted(int isDeleted);
     
     long countByIsDeleted(int isDeleted);
+    
+    long countByRole(User.Role role);
+    
+    long countByRoleAndIsDeletedFalse(User.Role role);
 }

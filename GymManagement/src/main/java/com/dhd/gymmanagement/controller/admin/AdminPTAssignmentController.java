@@ -1,0 +1,165 @@
+package com.dhd.gymmanagement.controller.admin;
+
+import com.dhd.gymmanagement.entity.*;
+import com.dhd.gymmanagement.service.*;
+import com.dhd.gymmanagement.dto.TrainingSessionDTO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.List;
+import java.util.ArrayList;
+
+@Controller
+@RequestMapping("/admin/pt-assignments")
+public class AdminPTAssignmentController {
+    
+    @Autowired
+    private PTAssignmentService ptAssignmentService;
+    
+    @Autowired
+    private UserService userService;
+    
+    @Autowired
+    private TrainerService trainerService;
+    
+    @Autowired
+    private TrainingSessionService trainingSessionService;
+    
+
+    @GetMapping
+    public String listPendingAssignments(Model model) {
+        List<PTAssignment> pendingAssignments = ptAssignmentService.getPendingAssignments();
+        List<Trainer> availableTrainers = trainerService.getActiveTrainers();
+        
+        model.addAttribute("pendingAssignments", pendingAssignments);
+        model.addAttribute("availableTrainers", availableTrainers);
+        
+        return "admin/pt-assignment/list";
+    }
+    
+
+    @GetMapping("/create")
+    public String createAssignmentForm(Model model) {
+        List<User> users = userService.getUsersByRole(User.Role.USER);
+        List<Trainer> trainers = trainerService.getActiveTrainers();
+        
+        model.addAttribute("users", users);
+        model.addAttribute("trainers", trainers);
+        
+        return "admin/pt-assignment/form";
+    }
+    
+
+                @PostMapping("/create")
+                public String createAssignment(@RequestParam Integer userId,
+                                             @RequestParam Integer trainerId,
+                                             RedirectAttributes redirectAttributes) {
+                    try {
+                        User user = userService.getUserById(userId).orElse(null);
+                        Trainer trainer = trainerService.getTrainerById(trainerId).orElse(null);
+
+                        if (user != null && trainer != null) {
+                            PTAssignment assignment = ptAssignmentService.createAssignment(user, trainer);
+                            redirectAttributes.addFlashAttribute("success", "Tạo assignment thành công! PT sẽ lên lịch tập sau.");
+                        } else {
+                            redirectAttributes.addFlashAttribute("error", "Không tìm thấy user hoặc trainer!");
+                        }
+                    } catch (Exception e) {
+                        redirectAttributes.addFlashAttribute("error", "Lỗi khi tạo assignment: " + e.getMessage());
+                    }
+
+                    return "redirect:/admin/pt-assignments";
+                }
+    
+
+                @GetMapping("/assign/{assignmentId}")
+                public String showAssignForm(@PathVariable Integer assignmentId, Model model) {
+                    PTAssignment assignment = ptAssignmentService.getAssignmentById(assignmentId);
+                    List<Trainer> availableTrainers = trainerService.getActiveTrainers();
+                    
+                    if (assignment != null) {
+                        model.addAttribute("assignment", assignment);
+                        model.addAttribute("availableTrainers", availableTrainers);
+                        return "admin/pt-assignment/assign-form";
+                    }
+                    
+                    return "redirect:/admin/pt-assignments?error=assignment_not_found";
+                }
+                
+
+                @PostMapping("/assign/{assignmentId}")
+                public String assignPT(@PathVariable Integer assignmentId,
+                                      @RequestParam Integer trainerId,
+                                      RedirectAttributes redirectAttributes) {
+                    try {
+                        PTAssignment assignment = ptAssignmentService.getAssignmentById(assignmentId);
+                        Trainer trainer = trainerService.getTrainerById(trainerId).orElse(null);
+
+                        if (assignment != null && trainer != null) {
+                            assignment.setTrainer(trainer);
+                            assignment.setStatus(PTAssignment.Status.ASSIGNED);
+                            ptAssignmentService.updateAssignment(assignment);
+
+                            redirectAttributes.addFlashAttribute("success", "Phân công PT thành công! PT sẽ lên lịch tập sau.");
+                        }
+                    } catch (Exception e) {
+                        redirectAttributes.addFlashAttribute("error", "Lỗi khi phân công PT: " + e.getMessage());
+                    }
+
+                    return "redirect:/admin/pt-assignments";
+                }
+    
+
+                @GetMapping("/view/{assignmentId}")
+                public String viewAssignment(@PathVariable Integer assignmentId, Model model) {
+                    PTAssignment assignment = ptAssignmentService.getAssignmentById(assignmentId);
+                    List<UserAvailability> userAvailabilities = userService.getUserAvailabilities(assignment.getUser().getUserId());
+                    
+                    // Lấy sessions nếu đã có trainer
+                    List<TrainingSessionDTO> sessions = new ArrayList<>();
+                    if (assignment.getTrainer() != null) {
+                        sessions = trainingSessionService.getSessionsByUserAndTrainer(
+                            assignment.getUser().getUserId(), 
+                            assignment.getTrainer().getTrainerId()
+                        );
+                    }
+
+                    model.addAttribute("assignment", assignment);
+                    model.addAttribute("userAvailabilities", userAvailabilities);
+                    model.addAttribute("sessions", sessions);
+
+                    return "admin/pt-assignment/view";
+                }
+    
+
+    @PostMapping("/status/{assignmentId}")
+    public String changeStatus(@PathVariable Integer assignmentId,
+                              @RequestParam PTAssignment.Status status,
+                              RedirectAttributes redirectAttributes) {
+        try {
+            ptAssignmentService.changeStatus(assignmentId, status);
+            redirectAttributes.addFlashAttribute("success", "Cập nhật trạng thái thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi cập nhật trạng thái: " + e.getMessage());
+        }
+        
+        return "redirect:/admin/pt-assignments";
+    }
+    
+
+    @PostMapping("/delete/{assignmentId}")
+    public String deleteAssignment(@PathVariable Integer assignmentId,
+                                 RedirectAttributes redirectAttributes) {
+        try {
+            ptAssignmentService.deleteAssignment(assignmentId);
+            redirectAttributes.addFlashAttribute("success", "Xóa assignment thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi xóa assignment: " + e.getMessage());
+        }
+        
+        return "redirect:/admin/pt-assignments";
+    }
+}

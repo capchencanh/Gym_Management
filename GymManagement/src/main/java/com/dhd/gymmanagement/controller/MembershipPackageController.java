@@ -49,18 +49,10 @@ public class MembershipPackageController {
     public String createPackage(@ModelAttribute MembershipPackage packageData, 
                                RedirectAttributes redirectAttributes) {
         try {
-            System.out.println("DEBUG: Package data received: " + packageData);
-            System.out.println("DEBUG: Package name: " + packageData.getName());
-            System.out.println("DEBUG: Package duration: " + packageData.getDurationMonths());
-            System.out.println("DEBUG: Package price: " + packageData.getPrice());
-            System.out.println("DEBUG: Package isDeleted: " + packageData.getIsDeleted());
-            
             packageService.createPackage(packageData);
             redirectAttributes.addFlashAttribute("success", "Tạo gói tập thành công!");
             return "redirect:/admin/packages";
         } catch (Exception e) {
-            System.err.println("DEBUG: Error creating package: " + e.getMessage());
-            e.printStackTrace();
             redirectAttributes.addFlashAttribute("error", "Lỗi tạo gói tập: " + e.getMessage());
             redirectAttributes.addFlashAttribute("package", packageData);
             return "redirect:/admin/packages/create";
@@ -154,20 +146,13 @@ public class MembershipPackageController {
 
     @GetMapping("/search/duration")
     public String searchByDuration(@RequestParam Integer duration, Model model) {
-        System.out.println("DEBUG: Searching by duration: " + duration);
-        
         List<MembershipPackage> packages = packageService.findPackagesByDuration(duration);
-        System.out.println("DEBUG: Found packages: " + packages.size());
         
         model.addAttribute("packages", packages);
         model.addAttribute("selectedDuration", duration);
         model.addAttribute("totalPackages", packages.size());
-        
-
         model.addAttribute("minPrice", null);
         model.addAttribute("maxPrice", null);
-        
-        System.out.println("DEBUG: Model attributes set - selectedDuration: " + duration + ", totalPackages: " + packages.size());
         
         return "admin/packages/list";
     }

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chi tiết Assignment</title>
+    <th:block th:replace="~{base :: head}"></th:block>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div th:replace="~{base :: header}"></div>
+    <main class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-eye me-2"></i>Chi tiết Assignment
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Thông tin User</h5>
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td><strong>Tên:</strong></td>
+                                        <td th:text="${assignment.user.name}"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Email:</strong></td>
+                                        <td th:text="${assignment.user.email}"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Số điện thoại:</strong></td>
+                                        <td th:text="${assignment.user.phoneNumber}"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Mục tiêu:</strong></td>
+                                        <td th:text="${assignment.user.fitnessGoal}"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Thông tin Assignment</h5>
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td><strong>Trạng thái:</strong></td>
+                                        <td>
+                                            <span th:if="${assignment.status == 'PENDING'}" 
+                                                  class="badge bg-warning">Chờ phân công</span>
+                                            <span th:if="${assignment.status == 'ASSIGNED'}" 
+                                                  class="badge bg-success">Đã phân công</span>
+                                            <span th:if="${assignment.status == 'ACTIVE'}" 
+                                                  class="badge bg-primary">Đang hoạt động</span>
+                                            <span th:if="${assignment.status == 'COMPLETED'}" 
+                                                  class="badge bg-secondary">Hoàn thành</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Ngày tạo:</strong></td>
+                                        <td th:text="${#dates.format(assignment.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Ngày cập nhật:</strong></td>
+                                        <td th:text="${#dates.format(assignment.updatedAt, 'dd/MM/yyyy HH:mm')}"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h5>Thời gian rảnh của User</h5>
+                                <div class="row">
+                                    <div th:each="availability : ${assignment.user.availabilities}" 
+                                         class="col-md-3 mb-2">
+                                        <div class="card">
+                                            <div class="card-body text-center">
+                                                <h6 class="card-title" th:text="${availability.dayOfWeek}"></h6>
+                                                <p class="card-text">
+                                                    <span th:text="${availability.startTime}"></span> - 
+                                                    <span th:text="${availability.endTime}"></span>
+                                                </p>
+                                                <span th:if="${availability.isAvailable}" 
+                                                      class="badge bg-success">Có sẵn</span>
+                                                <span th:unless="${availability.isAvailable}" 
+                                                      class="badge bg-danger">Không có sẵn</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h5>Lịch tập</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>Ngày</th>
+                                                <th>Thời gian</th>
+                                                <th>Trạng thái</th>
+                                                <th>Ghi chú</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="session : ${sessions}">
+                                                <td th:text="${#dates.format(session.sessionDate, 'dd/MM/yyyy')}"></td>
+                                                <td th:text="${session.startTime + ' - ' + session.endTime}"></td>
+                                                <td>
+                                                    <span th:if="${session.status == 'SCHEDULED'}" 
+                                                          class="badge bg-warning">Đã lên lịch</span>
+                                                    <span th:if="${session.status == 'IN_PROGRESS'}" 
+                                                          class="badge bg-primary">Đang diễn ra</span>
+                                                    <span th:if="${session.status == 'COMPLETED'}" 
+                                                          class="badge bg-success">Hoàn thành</span>
+                                                    <span th:if="${session.status == 'CANCELLED'}" 
+                                                          class="badge bg-danger">Hủy bỏ</span>
+                                                </td>
+                                                <td th:text="${session.notes}"></td>
+                                            </tr>
+                                            <tr th:if="${#lists.isEmpty(sessions)}">
+                                                <td colspan="4" class="text-center text-muted">
+                                                    <i class="fas fa-calendar fa-2x mb-2"></i>
+                                                    <p>Chưa có lịch tập nào</p>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-12 text-center">
+                                <a href="/admin/pt-assignments" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-1"></i>Quay lại
+                                </a>
+                                <a th:href="@{/admin/pt-assignments/assign/{id}(id=${assignment.assignmentId})}" 
+                                   class="btn btn-primary me-2">
+                                    <i class="fas fa-user-tie me-1"></i>Phân công PT
+                                </a>
+                                <button type="button" class="btn btn-warning me-2" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#statusModal">
+                                    <i class="fas fa-edit me-1"></i>Thay đổi trạng thái
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Modal thay đổi trạng thái -->
+    <div class="modal fade" id="statusModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Thay đổi trạng thái assignment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form th:action="@{/admin/pt-assignments/status/{id}(id=${assignment.assignmentId})}" method="post">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Trạng thái mới:</label>
+                            <select class="form-select" id="status" name="status" required>
+                                <option value="PENDING">Chờ phân công</option>
+                                <option value="ASSIGNED">Đã phân công</option>
+                                <option value="ACTIVE">Đang hoạt động</option>
+                                <option value="COMPLETED">Hoàn thành</option>
+                                <option value="CANCELLED">Hủy bỏ</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-warning">Cập nhật</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div th:replace="~{base :: footer}"></div>
+</body>
+</html>

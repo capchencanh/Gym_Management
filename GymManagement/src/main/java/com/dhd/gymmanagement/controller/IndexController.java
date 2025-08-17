@@ -4,6 +4,7 @@ import com.dhd.gymmanagement.service.CategoryService;
 import com.dhd.gymmanagement.service.UserService;
 import com.dhd.gymmanagement.service.DeviceService;
 import com.dhd.gymmanagement.service.MembershipPackageService;
+import com.dhd.gymmanagement.service.PTAssignmentService;
 import com.dhd.gymmanagement.entity.Device;
 import com.dhd.gymmanagement.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,9 @@ public class IndexController {
     
     @Autowired
     private MembershipPackageService packageService;
+    
+    @Autowired
+    private PTAssignmentService ptAssignmentService;
 
     @GetMapping("/")
     public String index(Model model) {
@@ -62,7 +66,7 @@ public class IndexController {
         long adminCount = userService.getUsersByRole(User.Role.ADMIN).size();
         long totalPackages = packageService.countActivePackages();
         
-        // Thống kê gói tập chi tiết
+
         long activePackages = packageService.countActivePackages();
         long totalPackageRevenue = packageService.calculateTotalRevenue();
         long monthlyPackageRevenue = packageService.calculateMonthlyRevenue();
@@ -74,7 +78,7 @@ public class IndexController {
         model.addAttribute("totalDevices", deviceService.countTotalDevices());
         model.addAttribute("totalPackages", totalPackages);
         
-        // Thêm thống kê gói tập mới
+
         model.addAttribute("activePackages", activePackages);
         model.addAttribute("totalPackageRevenue", totalPackageRevenue);
         model.addAttribute("monthlyPackageRevenue", monthlyPackageRevenue);
@@ -84,6 +88,12 @@ public class IndexController {
         model.addAttribute("ptCount", ptCount);
         model.addAttribute("activeClasses", 0);
         model.addAttribute("activeDevices", deviceService.countDevicesByStatus(Device.DeviceStatus.IN_USE));
+        
+
+        model.addAttribute("totalAssignments", ptAssignmentService.countTotalAssignments());
+        model.addAttribute("pendingAssignments", ptAssignmentService.countPendingAssignments());
+        model.addAttribute("activeAssignments", ptAssignmentService.countActiveAssignments());
+        model.addAttribute("completedAssignments", ptAssignmentService.countCompletedAssignments());
         
         model.addAttribute("categories", categoryService.getAllCategories());
         return "admin/dashboard";

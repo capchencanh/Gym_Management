@@ -80,8 +80,15 @@ public class AuthController {
             }
             
 
-            // Tất cả role đều dùng chung dashboard admin
-            return "redirect:/admin";
+
+            switch (user.getRole()) {
+                case ADMIN:
+                    return "redirect:/admin";
+                case PT:
+                    return "redirect:/pt/dashboard";
+                default:
+                    return "redirect:/"; // User thường
+            }
 
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());

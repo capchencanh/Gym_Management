@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Quản lý phân công PT</title>
+    <th:block th:replace="~{base :: head}"></th:block>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div th:replace="~{base :: header}"></div>
+    <main class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-users me-2"></i>Quản lý phân công PT
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${success}" class="alert alert-success alert-dismissible show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span th:text="${success}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <span th:text="${error}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <a href="/admin/pt-assignments/create" class="btn btn-success">
+                                <i class="fas fa-plus me-1"></i>Tạo assignment mới
+                            </a>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Mục tiêu</th>
+                                        <th>Thời gian rảnh</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="assignment : ${pendingAssignments}">
+                                        <td>
+                                            <strong th:text="${assignment.user.name}"></strong><br>
+                                            <small th:text="${assignment.user.email}"></small>
+                                        </td>
+                                        <td th:text="${assignment.user.fitnessGoal}"></td>
+                                        <td>
+                                            <!-- Hiển thị thời gian rảnh -->
+                                            <span th:each="availability : ${assignment.user.availabilities}" 
+                                                  class="badge bg-info me-1">
+                                                <span th:text="${availability.dayOfWeek}"></span>
+                                                <span th:text="${availability.startTime}"></span>-
+                                                <span th:text="${availability.endTime}"></span>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span th:if="${assignment.status == 'PENDING'}" 
+                                                  class="badge bg-warning">Chờ phân công</span>
+                                            <span th:if="${assignment.status == 'ASSIGNED'}" 
+                                                  class="badge bg-success">Đã phân công</span>
+                                            <span th:if="${assignment.status == 'ACTIVE'}" 
+                                                  class="badge bg-primary">Đang hoạt động</span>
+                                            <span th:if="${assignment.status == 'COMPLETED'}" 
+                                                  class="badge bg-secondary">Hoàn thành</span>
+                                        </td>
+                                        <td>
+                                            <a th:href="@{/admin/pt-assignments/view/{id}(id=${assignment.assignmentId})}" 
+                                               class="btn btn-sm btn-info me-1" title="Xem">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-primary me-1" 
+                                                    data-bs-toggle="modal" 
+                                                    th:data-bs-target="'#assignModal' + ${assignment.assignmentId}"
+                                                    title="Phân công PT">
+                                                <i class="fas fa-user-tie"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-warning me-1" 
+                                                    data-bs-toggle="modal" 
+                                                    th:data-bs-target="'#statusModal' + ${assignment.assignmentId}"
+                                                    title="Thay đổi trạng thái">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-danger delete-btn" 
+                                                    title="Xóa"
+                                                    th:data-assignment-id="${assignment.assignmentId}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(pendingAssignments)}">
+                                        <td colspan="5" class="text-center text-muted py-4">
+                                            <i class="fas fa-users fa-2x mb-2"></i>
+                                            <p>Không có assignment nào</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Modal phân công PT -->
+    <div th:each="assignment : ${pendingAssignments}" 
+         th:id="'assignModal' + ${assignment.assignmentId}" 
+         class="modal fade" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Phân công PT cho <span th:text="${assignment.user.name}"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form th:action="@{/admin/pt-assignments/assign/{id}(id=${assignment.assignmentId})}" method="post">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="trainerId" class="form-label">Chọn PT:</label>
+                            <select class="form-select" id="trainerId" name="trainerId" required>
+                                <option value="">-- Chọn PT --</option>
+                                <option th:each="trainer : ${availableTrainers}" 
+                                        th:value="${trainer.trainerId}" 
+                                        th:text="${trainer.user.name + ' - ' + trainer.specialization}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="weeks" class="form-label">Số tuần lịch tập:</label>
+                            <input type="number" class="form-control" id="weeks" name="weeks" 
+                                   value="4" min="1" max="12" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary">Phân công</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal thay đổi trạng thái -->
+    <div th:each="assignment : ${pendingAssignments}" 
+         th:id="'statusModal' + ${assignment.assignmentId}" 
+         class="modal fade" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Thay đổi trạng thái cho <span th:text="${assignment.user.name}"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form th:action="@{/admin/pt-assignments/status/{id}(id=${assignment.assignmentId})}" method="post">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Trạng thái mới:</label>
+                            <select class="form-select" id="status" name="status" required>
+                                <option value="PENDING">Chờ phân công</option>
+                                <option value="ASSIGNED">Đã phân công</option>
+                                <option value="ACTIVE">Đang hoạt động</option>
+                                <option value="COMPLETED">Hoàn thành</option>
+                                <option value="CANCELLED">Hủy bỏ</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-warning">Cập nhật</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <form id="deleteForm" method="post" style="display: none;">
+    </form>
+    
+    <div th:replace="~{base :: footer}"></div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteButtons = document.querySelectorAll('.delete-btn');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const assignmentId = this.getAttribute('data-assignment-id');
+                    if (confirm('Bạn có chắc chắn muốn xóa assignment này?')) {
+                        const form = document.getElementById('deleteForm');
+                        form.action = `/admin/pt-assignments/delete/${assignmentId}`;
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

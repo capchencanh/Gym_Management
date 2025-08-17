@@ -1,14 +1,20 @@
 package com.dhd.gymmanagement.service;
 
 import com.dhd.gymmanagement.entity.User;
+import com.dhd.gymmanagement.entity.UserAvailability;
 import com.dhd.gymmanagement.repository.UserRepository;
+import com.dhd.gymmanagement.repository.UserAvailabilityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.DayOfWeek;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
+import com.dhd.gymmanagement.entity.Trainer;
+import com.dhd.gymmanagement.repository.TrainerRepository;
 
 @Service
 public class UserService {
@@ -18,6 +24,12 @@ public class UserService {
     
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+    
+    @Autowired
+    private TrainerRepository trainerRepository;
+    
+    @Autowired
+    private UserAvailabilityRepository userAvailabilityRepository;
     
     public List<User> getAllUsers() {
         return userRepository.findAllByIsDeleted(0);
@@ -36,7 +48,7 @@ public class UserService {
     }
     
     public List<User> getUsersByRole(User.Role role) {
-        return userRepository.findByRole(role);
+        return userRepository.findByRoleAndIsDeletedFalse(role);
     }
     
     public List<User> searchUsers(String keyword) {
@@ -44,7 +56,7 @@ public class UserService {
     }
     
     public List<User> searchUsersByRole(User.Role role, String keyword) {
-        return userRepository.findByRoleAndKeyword(role, keyword);
+        return userRepository.findByRoleAndKeywordAndIsDeletedFalse(role, keyword);
     }
     
     public User createUser(User user) {
@@ -100,6 +112,19 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
         user.setIsDeleted(1);
         userRepository.save(user);
+        
+
+        if (user.getRole() == User.Role.PT) {
+            try {
+                Trainer trainer = trainerRepository.findById(userId).orElse(null);
+                if (trainer != null) {
+                    trainer.setIsDeleted(1);
+                    trainerRepository.save(trainer);
+                }
+            } catch (Exception e) {
+
+            }
+        }
     }
     
     public boolean changePassword(Integer userId, String oldPassword, String newPassword) {
@@ -131,7 +156,17 @@ public class UserService {
         return userRepository.countByIsDeleted(0);
     }
     
-    // Methods for ProfileController
+    public long countUsersByRole(User.Role role) {
+
+        return userRepository.countByRole(role);
+    }
+    
+    public long countActiveUsersByRole(User.Role role) {
+
+        return userRepository.countByRoleAndIsDeletedFalse(role);
+    }
+    
+
     public User findByEmail(String email) {
         return userRepository.findByEmail(email).orElse(null);
     }
@@ -150,4 +185,60 @@ public class UserService {
         user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         userRepository.save(user);
     }
+    
+
+    public UserAvailability createUserAvailability(Integer userId, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
+        User user = getUserById(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+        
+        UserAvailability availability = new UserAvailability();
+        availability.setUser(user);
+        availability.setDayOfWeek(dayOfWeek);
+        availability.setStartTime(startTime);
+        availability.setEndTime(endTime);
+        availability.setIsAvailable(true);
+        
+        return userAvailabilityRepository.save(availability);
+    }
+    
+
+    public List<UserAvailability> getUserAvailabilities(Integer userId) {
+        return userAvailabilityRepository.findByUserId(userId);
+    }
+    
+
+    public UserAvailability updateUserAvailability(Integer availabilityId, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime, Boolean isAvailable) {
+        UserAvailability availability = userAvailabilityRepository.findById(availabilityId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy availability"));
+        
+        availability.setDayOfWeek(dayOfWeek);
+        availability.setStartTime(startTime);
+        availability.setEndTime(endTime);
+        availability.setIsAvailable(isAvailable);
+        
+        return userAvailabilityRepository.save(availability);
+    }
+    
+
+    public void deleteUserAvailability(Integer availabilityId) {
+        UserAvailability availability = userAvailabilityRepository.findById(availabilityId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy availability"));
+        
+        availability.setIsDeleted(1);
+        userAvailabilityRepository.save(availability);
+    }
+    
+
+    public Trainer findTrainerByEmail(String email) {
+        User user = userRepository.findByEmail(email).orElse(null);
+        
+        if (user == null || user.getIsDeleted() == 1 || !User.Role.PT.equals(user.getRole())) {
+            return null;
+        }
+        
+
+        return trainerRepository.findById(user.getUserId()).orElse(null);
+    }
+    
+
 }

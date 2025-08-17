@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Thống kê PT</title>
+    <th:block th:replace="~{base :: head}"></th:block>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div th:replace="~{base :: header}"></div>
+    <main class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-chart-bar me-2"></i>Thống kê PT
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-12 text-end">
+                                <a th:href="@{/pt/dashboard(trainerId=${trainerId})}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-1"></i>Quay lại Dashboard
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <div class="card bg-primary text-white text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-users fa-2x mb-2"></i>
+                                        <h3 class="card-title" th:text="${activeAssignments}"></h3>
+                                        <p class="card-text">User đang được phân công</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="card bg-success text-white text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-calendar-check fa-2x mb-2"></i>
+                                        <h3 class="card-title" th:text="${totalSessions}"></h3>
+                                        <p class="card-text">Tổng số session</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="card bg-warning text-white text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-check-circle fa-2x mb-2"></i>
+                                        <h3 class="card-title" th:text="${completedSessions}"></h3>
+                                        <p class="card-text">Session hoàn thành</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="card bg-danger text-white text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-times-circle fa-2x mb-2"></i>
+                                        <h3 class="card-title" th:text="${cancelledSessions}"></h3>
+                                        <p class="card-text">Session bị hủy</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-percentage me-2"></i>Tỷ lệ hoàn thành
+                                        </h5>
+                                    </div>
+                                    <div class="card-body text-center">
+                                        <div th:if="${totalSessions > 0}">
+                                            <div class="progress mb-3" style="height: 30px;">
+                                                <div class="progress-bar bg-success" role="progressbar" 
+                                                     th:style="'width: ' + ${(completedSessions * 100.0 / totalSessions)} + '%'"
+                                                     th:aria-valuenow="${completedSessions}" 
+                                                     th:aria-valuemin="0" 
+                                                     th:aria-valuemax="${totalSessions}">
+                                                    <span th:text="${#numbers.formatDecimal(completedSessions * 100.0 / totalSessions, 1, 1)} + '%'"></span>
+                                                </div>
+                                            </div>
+                                            <p class="text-muted">
+                                                <span th:text="${completedSessions}"></span> / <span th:text="${totalSessions}"></span> session
+                                            </p>
+                                        </div>
+                                        <div th:unless="${totalSessions > 0}">
+                                            <p class="text-muted">Chưa có session nào</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-calendar-week me-2"></i>Thống kê theo tuần
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row text-center">
+                                            <div class="col-6">
+                                                <h4 class="text-primary" th:text="${activeAssignments}"></h4>
+                                                <p class="text-muted">User hiện tại</p>
+                                            </div>
+                                            <div class="col-6">
+                                                <h4 class="text-success" th:text="${completedSessions}"></h4>
+                                                <p class="text-muted">Session hoàn thành</p>
+                                            </div>
+                                        </div>
+                                        <div class="row text-center mt-3">
+                                            <div class="col-6">
+                                                <h4 class="text-warning" th:text="${totalSessions - completedSessions - cancelledSessions}"></h4>
+                                                <p class="text-muted">Session đang chờ</p>
+                                            </div>
+                                            <div class="col-6">
+                                                <h4 class="text-danger" th:text="${cancelledSessions}"></h4>
+                                                <p class="text-muted">Session hủy</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-chart-line me-2"></i>Biểu đồ thống kê
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="statsChart" width="400" height="200"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-lightbulb me-2"></i>Gợi ý cải thiện
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6><i class="fas fa-arrow-up text-success me-2"></i>Điểm mạnh:</h6>
+                                                <ul class="list-unstyled">
+                                                    <li th:if="${completedSessions > 0}">
+                                                        <i class="fas fa-check text-success me-2"></i>
+                                                        Tỷ lệ hoàn thành session tốt
+                                                    </li>
+                                                    <li th:if="${activeAssignments > 0}">
+                                                        <i class="fas fa-check text-success me-2"></i>
+                                                        Có nhiều user được phân công
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6><i class="fas fa-arrow-down text-warning me-2"></i>Cần cải thiện:</h6>
+                                                <ul class="list-unstyled">
+                                                    <li th:if="${cancelledSessions > 0}">
+                                                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                                                        Giảm số session bị hủy
+                                                    </li>
+                                                    <li th:if="${totalSessions == 0}">
+                                                        <i class="fas fa-info-circle text-info me-2"></i>
+                                                        Tăng số lượng session
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <div th:replace="~{base :: footer}"></div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('statsChart').getContext('2d');
+            const statsChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Hoàn thành', 'Đang chờ', 'Hủy bỏ'],
+                    datasets: [{
+                        data: [
+                            [[${completedSessions}]],
+                            [[${totalSessions - completedSessions - cancelledSessions}]],
+                            [[${cancelledSessions}]]
+                        ],
+                        backgroundColor: [
+                            '#28a745',
+                            '#ffc107',
+                            '#dc3545'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Phân bố trạng thái session'
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
