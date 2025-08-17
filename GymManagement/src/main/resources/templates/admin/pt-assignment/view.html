@@ -106,20 +106,20 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr th:each="session : ${sessions}">
-                                                <td th:text="${#dates.format(session.sessionDate, 'dd/MM/yyyy')}"></td>
-                                                <td th:text="${session.startTime + ' - ' + session.endTime}"></td>
+                                            <tr th:each="trainingSession : ${sessions}">
+                                                <td th:text="${#dates.format(trainingSession.sessionDate, 'dd/MM/yyyy')}"></td>
+                                                <td th:text="${trainingSession.startTime + ' - ' + trainingSession.endTime}"></td>
                                                 <td>
-                                                    <span th:if="${session.status == 'SCHEDULED'}" 
+                                                    <span th:if="${trainingSession.status == 'SCHEDULED'}" 
                                                           class="badge bg-warning">Đã lên lịch</span>
-                                                    <span th:if="${session.status == 'IN_PROGRESS'}" 
+                                                    <span th:if="${trainingSession.status == 'IN_PROGRESS'}" 
                                                           class="badge bg-primary">Đang diễn ra</span>
-                                                    <span th:if="${session.status == 'COMPLETED'}" 
+                                                    <span th:if="${trainingSession.status == 'COMPLETED'}" 
                                                           class="badge bg-success">Hoàn thành</span>
-                                                    <span th:if="${session.status == 'CANCELLED'}" 
+                                                    <span th:if="${trainingSession.status == 'CANCELLED'}" 
                                                           class="badge bg-danger">Hủy bỏ</span>
                                                 </td>
-                                                <td th:text="${session.notes}"></td>
+                                                <td th:text="${trainingSession.notes}"></td>
                                             </tr>
                                             <tr th:if="${#lists.isEmpty(sessions)}">
                                                 <td colspan="4" class="text-center text-muted">

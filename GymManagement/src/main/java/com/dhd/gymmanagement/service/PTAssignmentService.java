@@ -70,6 +70,11 @@ public class PTAssignmentService {
     }
     
 
+    public List<PTAssignment> getAllAssignments() {
+        return ptAssignmentRepository.findAll();
+    }
+    
+
     public PTAssignment updateAssignment(PTAssignment assignment) {
         assignment.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         return ptAssignmentRepository.save(assignment);
@@ -93,7 +98,7 @@ public class PTAssignmentService {
             if (assignment.getTrainer() != null && 
                 assignment.getTrainer().getTrainerId().equals(trainerId)) {
                 
-                // Cập nhật từ PENDING hoặc ASSIGNED -> ACTIVE
+
                 if (assignment.getStatus() == PTAssignment.Status.PENDING || 
                     assignment.getStatus() == PTAssignment.Status.ASSIGNED) {
                     assignment.setStatus(newStatus);

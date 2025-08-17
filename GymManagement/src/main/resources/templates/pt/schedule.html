@@ -50,41 +50,41 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr th:each="session : ${sessions}">
+                                    <tr th:each="trainingSession : ${sessions}">
                                         <td>
-                                            <strong th:text="${session.startTime + ' - ' + session.endTime}"></strong>
+                                            <strong th:text="${trainingSession.startTime + ' - ' + trainingSession.endTime}"></strong>
                                         </td>
                                         <td>
-                                            <strong th:text="${session.assignment.user.name}"></strong><br>
-                                            <small th:text="${session.assignment.user.email}"></small>
+                                            <strong th:text="${trainingSession.userName}"></strong><br>
+                                            <small th:text="${trainingSession.userEmail}"></small>
                                         </td>
-                                        <td>
-                                            <span th:if="${session.status == 'SCHEDULED'}" 
-                                                  class="badge bg-warning">Đã lên lịch</span>
-                                            <span th:if="${session.status == 'IN_PROGRESS'}" 
-                                                  class="badge bg-primary">Đang diễn ra</span>
-                                            <span th:if="${session.status == 'COMPLETED'}" 
-                                                  class="badge bg-success">Hoàn thành</span>
-                                            <span th:if="${session.status == 'CANCELLED'}" 
-                                                  class="badge bg-danger">Hủy bỏ</span>
-                                            <span th:if="${session.status == 'NO_SHOW'}" 
-                                                  class="badge bg-secondary">Không tham gia</span>
+                                                                                 <td>
+                                             <span th:if="${trainingSession.status.name() == 'SCHEDULED'}" 
+                                                   class="badge bg-warning">Đã lên lịch</span>
+                                             <span th:if="${trainingSession.status.name() == 'IN_PROGRESS'}" 
+                                                   class="badge bg-primary">Đang diễn ra</span>
+                                             <span th:if="${trainingSession.status.name() == 'COMPLETED'}" 
+                                                   class="badge bg-success">Hoàn thành</span>
+                                             <span th:if="${trainingSession.status.name() == 'CANCELLED'}" 
+                                                   class="badge bg-danger">Hủy bỏ</span>
+                                             <span th:if="${trainingSession.status.name() == 'NO_SHOW'}" 
+                                                   class="badge bg-secondary">Không tham gia</span>
                                         </td>
-                                        <td th:text="${session.notes}"></td>
+                                        <td th:text="${trainingSession.notes}"></td>
                                         <td>
                                             <button type="button" class="btn btn-sm btn-outline-primary me-1"
                                                     data-bs-toggle="modal" 
-                                                    th:data-bs-target="'#statusModal' + ${session.sessionId}"
+                                                    th:data-bs-target="'#statusModal' + ${trainingSession.sessionId}"
                                                     title="Thay đổi trạng thái">
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                             <button type="button" class="btn btn-sm btn-outline-info me-1"
                                                     data-bs-toggle="modal" 
-                                                    th:data-bs-target="'#notesModal' + ${session.sessionId}"
+                                                    th:data-bs-target="'#notesModal' + ${trainingSession.sessionId}"
                                                     title="Thêm ghi chú">
                                                 <i class="fas fa-sticky-note"></i>
                                             </button>
-                                            <a th:href="@{/pt/dashboard/assignment/{id}(id=${session.assignment.assignmentId})}" 
+                                            <a th:href="@{/pt/dashboard/assignment/{id}(id=${trainingSession.userId})}" 
                                                class="btn btn-sm btn-outline-secondary"
                                                title="Xem chi tiết">
                                                 <i class="fas fa-eye"></i>
@@ -150,8 +150,8 @@
     </main>
     
     <!-- Modal thay đổi trạng thái session -->
-    <div th:each="session : ${sessions}" 
-         th:id="'statusModal' + ${session.sessionId}" 
+    <div th:each="trainingSession : ${sessions}" 
+         th:id="'statusModal' + ${trainingSession.sessionId}" 
          class="modal fade" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -159,7 +159,7 @@
                     <h5 class="modal-title">Thay đổi trạng thái session</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form th:action="@{/pt/dashboard/session/status/{id}(id=${session.sessionId})}" method="post">
+                <form th:action="@{/pt/dashboard/session/status/{id}(id=${trainingSession.sessionId})}" method="post">
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="status" class="form-label">Trạng thái mới:</label>
@@ -183,8 +183,8 @@
     </div>
     
     <!-- Modal thêm ghi chú -->
-    <div th:each="session : ${sessions}" 
-         th:id="'notesModal' + ${session.sessionId}" 
+    <div th:each="trainingSession : ${sessions}" 
+         th:id="'notesModal' + ${trainingSession.sessionId}" 
          class="modal fade" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -192,12 +192,12 @@
                     <h5 class="modal-title">Thêm ghi chú cho session</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form th:action="@{/pt/dashboard/session/notes/{id}(id=${session.sessionId})}" method="post">
+                <form th:action="@{/pt/dashboard/session/notes/{id}(id=${trainingSession.sessionId})}" method="post">
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="notes" class="form-label">Ghi chú:</label>
                             <textarea class="form-control" id="notes" name="notes" rows="3" 
-                                      th:text="${session.notes}"></textarea>
+                                      th:text="${trainingSession.notes}"></textarea>
                         </div>
                         <input type="hidden" name="trainerId" th:value="${trainerId}">
                     </div>

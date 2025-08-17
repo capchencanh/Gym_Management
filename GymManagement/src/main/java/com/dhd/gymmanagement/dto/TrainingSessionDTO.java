@@ -11,6 +11,7 @@ public class TrainingSessionDTO {
     private Integer sessionId;
     private Integer userId;
     private String userName;
+    private String userEmail;
     private Integer trainerId;
     private String trainerName;
     private Date sessionDate;
@@ -35,6 +36,7 @@ public class TrainingSessionDTO {
             User user = session.getUser();
             this.userId = user.getUserId();
             this.userName = user.getName();
+            this.userEmail = user.getEmail();
         }
 
         if (session.getTrainer() != null) {
@@ -57,6 +59,9 @@ public class TrainingSessionDTO {
 
     public String getUserName() { return userName; }
     public void setUserName(String userName) { this.userName = userName; }
+    
+    public String getUserEmail() { return userEmail; }
+    public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
 
     public Integer getTrainerId() { return trainerId; }
     public void setTrainerId(Integer trainerId) { this.trainerId = trainerId; }

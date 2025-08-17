@@ -30,11 +30,32 @@ public class AdminPTAssignmentController {
     
 
     @GetMapping
-    public String listPendingAssignments(Model model) {
-        List<PTAssignment> pendingAssignments = ptAssignmentService.getPendingAssignments();
+    public String listAllAssignments(Model model) {
+        List<PTAssignment> allAssignments = ptAssignmentService.getAllAssignments();
         List<Trainer> availableTrainers = trainerService.getActiveTrainers();
         
+
+        List<PTAssignment> pendingAssignments = allAssignments.stream()
+            .filter(a -> a.getStatus() == PTAssignment.Status.PENDING)
+            .collect(java.util.stream.Collectors.toList());
+            
+        List<PTAssignment> assignedAssignments = allAssignments.stream()
+            .filter(a -> a.getStatus() == PTAssignment.Status.ASSIGNED)
+            .collect(java.util.stream.Collectors.toList());
+            
+        List<PTAssignment> activeAssignments = allAssignments.stream()
+            .filter(a -> a.getStatus() == PTAssignment.Status.ACTIVE)
+            .collect(java.util.stream.Collectors.toList());
+            
+        List<PTAssignment> completedAssignments = allAssignments.stream()
+            .filter(a -> a.getStatus() == PTAssignment.Status.COMPLETED)
+            .collect(java.util.stream.Collectors.toList());
+        
+        model.addAttribute("allAssignments", allAssignments);
         model.addAttribute("pendingAssignments", pendingAssignments);
+        model.addAttribute("assignedAssignments", assignedAssignments);
+        model.addAttribute("activeAssignments", activeAssignments);
+        model.addAttribute("completedAssignments", completedAssignments);
         model.addAttribute("availableTrainers", availableTrainers);
         
         return "admin/pt-assignment/list";
@@ -118,7 +139,7 @@ public class AdminPTAssignmentController {
                     PTAssignment assignment = ptAssignmentService.getAssignmentById(assignmentId);
                     List<UserAvailability> userAvailabilities = userService.getUserAvailabilities(assignment.getUser().getUserId());
                     
-                    // Lấy sessions nếu đã có trainer
+
                     List<TrainingSessionDTO> sessions = new ArrayList<>();
                     if (assignment.getTrainer() != null) {
                         sessions = trainingSessionService.getSessionsByUserAndTrainer(

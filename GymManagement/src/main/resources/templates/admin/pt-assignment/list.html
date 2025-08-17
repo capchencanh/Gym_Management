@@ -35,22 +35,65 @@
                             </a>
                         </div>
                         
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>User</th>
-                                        <th>Mục tiêu</th>
-                                        <th>Thời gian rảnh</th>
-                                        <th>Trạng thái</th>
-                                        <th>Thao tác</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:each="assignment : ${pendingAssignments}">
+                        <!-- Tabs để phân loại assignments -->
+                        <ul class="nav nav-tabs mb-3" id="assignmentTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab">
+                                    Tất cả (<span th:text="${#lists.size(allAssignments)}">0</span>)
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
+                                    Chờ phân công (<span th:text="${#lists.size(pendingAssignments)}">0</span>)
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="assigned-tab" data-bs-toggle="tab" data-bs-target="#assigned" type="button" role="tab">
+                                    Đã phân công (<span th:text="${#lists.size(assignedAssignments)}">0</span>)
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab">
+                                    Đang hoạt động (<span th:text="${#lists.size(activeAssignments)}">0</span>)
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button" role="tab">
+                                    Hoàn thành (<span th:text="${#lists.size(completedAssignments)}">0</span>)
+                                </button>
+                            </li>
+                        </ul>
+                        
+                        <!-- Tab content -->
+                        <div class="tab-content" id="assignmentTabContent">
+                            <!-- Tab Tất cả -->
+                            <div class="tab-pane fade show active" id="all" role="tabpanel">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>User</th>
+                                                <th>PT</th>
+                                                <th>Mục tiêu</th>
+                                                <th>Thời gian rảnh</th>
+                                                <th>Trạng thái</th>
+                                                <th>Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="assignment : ${allAssignments}">
                                         <td>
                                             <strong th:text="${assignment.user.name}"></strong><br>
                                             <small th:text="${assignment.user.email}"></small>
+                                        </td>
+                                        <td>
+                                            <span th:if="${assignment.trainer != null}">
+                                                <strong th:text="${assignment.trainer.user.name}"></strong><br>
+                                                <small th:text="${assignment.trainer.specialization}"></small>
+                                            </span>
+                                            <span th:if="${assignment.trainer == null}" class="text-muted">
+                                                Chưa phân công
+                                            </span>
                                         </td>
                                         <td th:text="${assignment.user.fitnessGoal}"></td>
                                         <td>
@@ -100,6 +143,207 @@
                                         <td colspan="5" class="text-center text-muted py-4">
                                             <i class="fas fa-users fa-2x mb-2"></i>
                                             <p>Không có assignment nào</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Chờ phân công -->
+                    <div class="tab-pane fade" id="pending" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Mục tiêu</th>
+                                        <th>Thời gian rảnh</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="assignment : ${pendingAssignments}">
+                                        <td>
+                                            <strong th:text="${assignment.user.name}"></strong><br>
+                                            <small th:text="${assignment.user.email}"></small>
+                                        </td>
+                                        <td th:text="${assignment.user.fitnessGoal}"></td>
+                                        <td>
+                                            <span th:each="availability : ${assignment.user.availabilities}" 
+                                                  class="badge bg-info me-1">
+                                                <span th:text="${availability.dayOfWeek}"></span>
+                                                <span th:text="${availability.startTime}"></span>-
+                                                <span th:text="${availability.endTime}"></span>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-warning">Chờ phân công</span>
+                                        </td>
+                                        <td>
+                                            <a th:href="@{/admin/pt-assignments/assign/{id}(id=${assignment.assignmentId})}" 
+                                               class="btn btn-sm btn-primary me-1" title="Phân công PT">
+                                                <i class="fas fa-user-tie"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-warning me-1" 
+                                                    data-bs-toggle="modal" 
+                                                    th:data-bs-target="'#statusModal' + ${assignment.assignmentId}"
+                                                    title="Thay đổi trạng thái">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-danger delete-btn" 
+                                                    title="Xóa"
+                                                    th:data-assignment-id="${assignment.assignmentId}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(pendingAssignments)}">
+                                        <td colspan="5" class="text-center text-muted py-4">
+                                            <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                                            Không có assignment nào đang chờ phân công
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Đã phân công -->
+                    <div class="tab-pane fade" id="assigned" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>User</th>
+                                        <th>PT</th>
+                                        <th>Mục tiêu</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="assignment : ${assignedAssignments}">
+                                        <td>
+                                            <strong th:text="${assignment.user.name}"></strong><br>
+                                            <small th:text="${assignment.user.email}"></small>
+                                        </td>
+                                        <td>
+                                            <strong th:text="${assignment.trainer.user.name}"></strong><br>
+                                            <small th:text="${assignment.trainer.specialization}"></small>
+                                        </td>
+                                        <td th:text="${assignment.user.fitnessGoal}"></td>
+                                        <td>
+                                            <span class="badge bg-info">Đã phân công</span>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-warning me-1" 
+                                                    data-bs-toggle="modal" 
+                                                    th:data-bs-target="'#statusModal' + ${assignment.assignmentId}"
+                                                    title="Thay đổi trạng thái">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(assignedAssignments)}">
+                                        <td colspan="5" class="text-center text-muted py-4">
+                                            <i class="fas fa-user-check fa-2x mb-2"></i><br>
+                                            Không có assignment nào đã phân công
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Đang hoạt động -->
+                    <div class="tab-pane fade" id="active" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>User</th>
+                                        <th>PT</th>
+                                        <th>Mục tiêu</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="assignment : ${activeAssignments}">
+                                        <td>
+                                            <strong th:text="${assignment.user.name}"></strong><br>
+                                            <small th:text="${assignment.user.email}"></small>
+                                        </td>
+                                        <td>
+                                            <strong th:text="${assignment.trainer.user.name}"></strong><br>
+                                            <small th:text="${assignment.trainer.specialization}"></small>
+                                        </td>
+                                        <td th:text="${assignment.user.fitnessGoal}"></td>
+                                        <td>
+                                            <span class="badge bg-primary">Đang hoạt động</span>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-warning me-1" 
+                                                    data-bs-toggle="modal" 
+                                                    th:data-bs-target="'#statusModal' + ${assignment.assignmentId}"
+                                                    title="Thay đổi trạng thái">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(activeAssignments)}">
+                                        <td colspan="5" class="text-center text-muted py-4">
+                                            <i class="fas fa-play-circle fa-2x mb-2"></i><br>
+                                            Không có assignment nào đang hoạt động
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Hoàn thành -->
+                    <div class="tab-pane fade" id="completed" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>User</th>
+                                        <th>PT</th>
+                                        <th>Mục tiêu</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="assignment : ${completedAssignments}">
+                                        <td>
+                                            <strong th:text="${assignment.user.name}"></strong><br>
+                                            <small th:text="${assignment.user.email}"></small>
+                                        </td>
+                                        <td>
+                                            <strong th:text="${assignment.trainer.user.name}"></strong><br>
+                                            <small th:text="${assignment.trainer.specialization}"></small>
+                                        </td>
+                                        <td th:text="${assignment.user.fitnessGoal}"></td>
+                                        <td>
+                                            <span class="badge bg-secondary">Hoàn thành</span>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-warning me-1" 
+                                                    data-bs-toggle="modal" 
+                                                    th:data-bs-target="'#statusModal' + ${assignment.assignmentId}"
+                                                    title="Thay đổi trạng thái">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(completedAssignments)}">
+                                        <td colspan="5" class="text-center text-muted py-4">
+                                            <i class="fas fa-check-circle fa-2x mb-2"></i><br>
+                                            Không có assignment nào hoàn thành
                                         </td>
                                     </tr>
                                 </tbody>

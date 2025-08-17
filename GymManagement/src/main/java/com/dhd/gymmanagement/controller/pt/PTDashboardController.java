@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/pt/dashboard")
@@ -121,7 +122,11 @@ public class PTDashboardController {
             sessionDate = Date.valueOf(LocalDate.now());
         }
         
-        List<TrainingSession> sessions = trainingSessionService.getSessionsByTrainerAndDate(trainerId, sessionDate);
+        // Lấy sessions và chuyển thành DTO để tránh circular reference
+        List<TrainingSession> rawSessions = trainingSessionService.getSessionsByTrainerAndDate(trainerId, sessionDate);
+        List<TrainingSessionDTO> sessions = rawSessions.stream()
+            .map(TrainingSessionDTO::new)
+            .collect(Collectors.toList());
         
         model.addAttribute("sessions", sessions);
         model.addAttribute("sessionDate", sessionDate);
@@ -143,6 +148,29 @@ public class PTDashboardController {
             redirectAttributes.addFlashAttribute("error", "Lỗi khi cập nhật trạng thái: " + e.getMessage());
         }
         
+        // Redirect về trang assignment detail thay vì dashboard
+        // Cần lấy assignmentId từ session để redirect về đúng trang
+        // Sử dụng service method có sẵn
+        try {
+            // Lấy session từ service để tìm assignment
+            List<PTAssignment> allAssignments = ptAssignmentService.getAllAssignments();
+            for (PTAssignment assignment : allAssignments) {
+                if (assignment.getUser() != null && assignment.getTrainer() != null) {
+                    List<TrainingSessionDTO> sessions = trainingSessionService.getSessionsByUserAndTrainer(
+                        assignment.getUser().getUserId(), 
+                        assignment.getTrainer().getTrainerId()
+                    );
+                    for (TrainingSessionDTO sessionDTO : sessions) {
+                        if (sessionDTO.getSessionId().equals(sessionId)) {
+                            return "redirect:/pt/dashboard/assignment/" + assignment.getAssignmentId();
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Nếu có lỗi, fallback về dashboard
+        }
+        
         return "redirect:/pt/dashboard?trainerId=" + trainerId;
     }
     
@@ -157,6 +185,27 @@ public class PTDashboardController {
             redirectAttributes.addFlashAttribute("success", "Cập nhật ghi chú thành công!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Lỗi khi cập nhật ghi chú: " + e.getMessage());
+        }
+        
+        // Redirect về trang assignment detail thay vì dashboard
+        try {
+            // Lấy session từ service để tìm assignment
+            List<PTAssignment> allAssignments = ptAssignmentService.getAllAssignments();
+            for (PTAssignment assignment : allAssignments) {
+                if (assignment.getUser() != null && assignment.getTrainer() != null) {
+                    List<TrainingSessionDTO> sessions = trainingSessionService.getSessionsByUserAndTrainer(
+                        assignment.getUser().getUserId(), 
+                        assignment.getTrainer().getTrainerId()
+                    );
+                    for (TrainingSessionDTO sessionDTO : sessions) {
+                        if (sessionDTO.getSessionId().equals(sessionId)) {
+                            return "redirect:/pt/dashboard/assignment/" + assignment.getAssignmentId();
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Nếu có lỗi, fallback về dashboard
         }
         
         return "redirect:/pt/dashboard?trainerId=" + trainerId;

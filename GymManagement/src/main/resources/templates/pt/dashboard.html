@@ -57,29 +57,29 @@
                             <div class="col-md-6">
                                 <h5><i class="fas fa-calendar-day me-2"></i>Lịch tập hôm nay</h5>
                                 <div class="list-group">
-                                    <div th:each="session : ${todaySessions}" 
+                                    <div th:each="trainingSession : ${todaySessions}" 
                                          class="list-group-item">
                                         <div class="d-flex w-100 justify-content-between">
-                                            <h6 class="mb-1" th:text="${session.assignment.user.name}"></h6>
-                                            <small th:text="${session.startTime + ' - ' + session.endTime}"></small>
+                                            <h6 class="mb-1" th:text="${trainingSession.user.name}"></h6>
+                                            <small th:text="${trainingSession.startTime + ' - ' + trainingSession.endTime}"></small>
                                         </div>
-                                        <p class="mb-1" th:text="${session.notes}"></p>
+                                        <p class="mb-1" th:text="${trainingSession.notes}"></p>
                                         <div class="d-flex justify-content-between align-items-center">
-                                            <span th:if="${session.status == 'SCHEDULED'}" 
+                                            <span th:if="${trainingSession.status == 'SCHEDULED'}" 
                                                   class="badge bg-warning">Đã lên lịch</span>
-                                            <span th:if="${session.status == 'IN_PROGRESS'}" 
+                                            <span th:if="${trainingSession.status == 'IN_PROGRESS'}" 
                                                   class="badge bg-primary">Đang diễn ra</span>
-                                            <span th:if="${session.status == 'COMPLETED'}" 
+                                            <span th:if="${trainingSession.status == 'COMPLETED'}" 
                                                   class="badge bg-success">Hoàn thành</span>
                                             <div>
                                                 <button type="button" class="btn btn-sm btn-outline-primary me-1"
                                                         data-bs-toggle="modal" 
-                                                        th:data-bs-target="'#statusModal' + ${session.sessionId}">
+                                                        th:data-bs-target="'#statusModal' + ${trainingSession.sessionId}">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
                                                 <button type="button" class="btn btn-sm btn-outline-info"
                                                         data-bs-toggle="modal" 
-                                                        th:data-bs-target="'#notesModal' + ${session.sessionId}">
+                                                        th:data-bs-target="'#notesModal' + ${trainingSession.sessionId}">
                                                     <i class="fas fa-sticky-note"></i>
                                                 </button>
                                             </div>
@@ -108,20 +108,20 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr th:each="session : ${upcomingSessions}">
-                                                <td th:text="${#dates.format(session.sessionDate, 'dd/MM/yyyy')}"></td>
-                                                <td th:text="${session.startTime + ' - ' + session.endTime}"></td>
-                                                <td th:text="${session.assignment.user.name}"></td>
+                                            <tr th:each="trainingSession : ${upcomingSessions}">
+                                                <td th:text="${#dates.format(trainingSession.sessionDate, 'dd/MM/yyyy')}"></td>
+                                                <td th:text="${trainingSession.startTime + ' - ' + trainingSession.endTime}"></td>
+                                                <td th:text="${trainingSession.user.name}"></td>
                                                 <td>
-                                                    <span th:if="${session.status == 'SCHEDULED'}" 
+                                                    <span th:if="${trainingSession.status == 'SCHEDULED'}" 
                                                           class="badge bg-warning">Đã lên lịch</span>
-                                                    <span th:if="${session.status == 'IN_PROGRESS'}" 
+                                                    <span th:if="${trainingSession.status == 'IN_PROGRESS'}" 
                                                           class="badge bg-primary">Đang diễn ra</span>
-                                                    <span th:if="${session.status == 'COMPLETED'}" 
+                                                    <span th:if="${trainingSession.status == 'COMPLETED'}" 
                                                           class="badge bg-success">Hoàn thành</span>
                                                 </td>
                                                 <td>
-                                                    <a th:href="@{/pt/dashboard/assignment/{id}(id=${session.assignment.assignmentId})}" 
+                                                    <a th:href="@{/pt/dashboard/assignment/{id}(id=${trainingSession.user.userId})}" 
                                                        class="btn btn-sm btn-info me-1">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
@@ -158,8 +158,8 @@
     </main>
     
     <!-- Modal thay đổi trạng thái session -->
-    <div th:each="session : ${todaySessions}" 
-         th:id="'statusModal' + ${session.sessionId}" 
+    <div th:each="trainingSession : ${todaySessions}" 
+         th:id="'statusModal' + ${trainingSession.sessionId}" 
          class="modal fade" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -167,7 +167,7 @@
                     <h5 class="modal-title">Thay đổi trạng thái session</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form th:action="@{/pt/dashboard/session/status/{id}(id=${session.sessionId})}" method="post">
+                <form th:action="@{/pt/dashboard/session/status/{id}(id=${trainingSession.sessionId})}" method="post">
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="status" class="form-label">Trạng thái mới:</label>
@@ -191,8 +191,8 @@
     </div>
     
     <!-- Modal thêm ghi chú -->
-    <div th:each="session : ${todaySessions}" 
-         th:id="'notesModal' + ${session.sessionId}" 
+    <div th:each="trainingSession : ${todaySessions}" 
+         th:id="'notesModal' + ${trainingSession.sessionId}" 
          class="modal fade" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -200,12 +200,12 @@
                     <h5 class="modal-title">Thêm ghi chú cho session</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form th:action="@{/pt/dashboard/session/notes/{id}(id=${session.sessionId})}" method="post">
+                <form th:action="@{/pt/dashboard/session/notes/{id}(id=${trainingSession.sessionId})}" method="post">
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="notes" class="form-label">Ghi chú:</label>
                             <textarea class="form-control" id="notes" name="notes" rows="3" 
-                                      th:text="${session.notes}"></textarea>
+                                      th:text="${trainingSession.notes}"></textarea>
                         </div>
                         <input type="hidden" name="trainerId" th:value="${trainerId}">
                     </div>

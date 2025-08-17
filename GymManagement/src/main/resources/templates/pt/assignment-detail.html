@@ -124,14 +124,16 @@
                                                  <td th:text="${#dates.format(trainingSession.sessionDate, 'dd/MM/yyyy')}"></td>
                                                  <td th:text="${trainingSession.startTime + ' - ' + trainingSession.endTime}"></td>
                                                  <td>
-                                                     <span th:if="${trainingSession.status == 'SCHEDULED'}" 
+                                                     <span th:if="${trainingSession.status.name() == 'SCHEDULED'}" 
                                                            class="badge bg-warning">Đã lên lịch</span>
-                                                     <span th:if="${trainingSession.status == 'IN_PROGRESS'}" 
+                                                     <span th:if="${trainingSession.status.name() == 'IN_PROGRESS'}" 
                                                            class="badge bg-primary">Đang diễn ra</span>
-                                                     <span th:if="${trainingSession.status == 'COMPLETED'}" 
+                                                     <span th:if="${trainingSession.status.name() == 'COMPLETED'}" 
                                                            class="badge bg-success">Hoàn thành</span>
-                                                     <span th:if="${trainingSession.status == 'CANCELLED'}" 
+                                                     <span th:if="${trainingSession.status.name() == 'CANCELLED'}" 
                                                            class="badge bg-danger">Hủy bỏ</span>
+                                                     <span th:if="${trainingSession.status.name() == 'NO_SHOW'}" 
+                                                           class="badge bg-secondary">Không tham gia</span>
                                                  </td>
                                                  <td th:text="${trainingSession.notes}"></td>
                                                  <td>
