@@ -1,21 +1,72 @@
 import React, { useState, useEffect } from 'react';
 import PTRequestForm from './PTRequestForm';
 import PTStatusDisplay from './PTStatusDisplay';
+import Chat from './Chat';
 import './PTManagement.css';
 
 const PTManagement = ({ userId }) => {
     const [activeTab, setActiveTab] = useState('request');
     const [hasPTRequest, setHasPTRequest] = useState(false);
+    const [ptAssignment, setPtAssignment] = useState(null);
+    const [showChat, setShowChat] = useState(false);
 
     useEffect(() => {
-        // Kiểm tra xem user đã có yêu cầu PT chưa
-        checkExistingPTRequest();
+        if (userId) {
+            // Kiểm tra xem user đã có yêu cầu PT chưa
+            checkExistingPTRequest();
+            // Kiểm tra xem user đã được phân công PT chưa
+            checkPTAssignment();
+        }
     }, [userId]);
+
+
 
     const checkExistingPTRequest = async () => {
         // Logic kiểm tra sẽ được implement sau
         // Tạm thời để false
         setHasPTRequest(false);
+    };
+
+    const checkPTAssignment = async () => {
+        if (!userId) {
+            console.log('User ID is undefined, skipping PT assignment check');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/pt-assignments/user/${userId}`);
+            
+            if (response.ok) {
+                const data = await response.json();
+                
+                if (data && data.length > 0) {
+                    const activeAssignment = data.find(assignment => {
+                        const status = assignment.status || 
+                                     assignment.assignmentStatus || 
+                                     assignment.ptAssignmentStatus ||
+                                     assignment.statusEnum;
+                        
+                        return status === 'ACTIVE' || 
+                               status === 'ASSIGNED' || 
+                               status === 'PENDING';
+                    });
+                    
+                    if (activeAssignment) {
+                        const ptAssignmentData = {
+                            id: activeAssignment.assignmentId,
+                            status: activeAssignment.status,
+                            trainerId: activeAssignment.trainerId,
+                            trainerName: activeAssignment.trainerName,
+                            userId: activeAssignment.userId
+                        };
+                        
+                        setPtAssignment(ptAssignmentData);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error checking PT assignment:', error);
+        }
     };
 
     const handleTabChange = (tab) => {
@@ -62,6 +113,16 @@ const PTManagement = ({ userId }) => {
                     <i className="fas fa-info-circle"></i>
                     Trạng thái
                 </button>
+                {ptAssignment && (
+                    <button
+                        className={`tab-button ${activeTab === 'chat' ? 'active' : ''}`}
+                        onClick={() => handleTabChange('chat')}
+                    >
+                        <i className="fas fa-comments"></i>
+                        Liên hệ PT
+                    </button>
+                )}
+
             </div>
 
             <div className="pt-content">
@@ -74,6 +135,16 @@ const PTManagement = ({ userId }) => {
 
                 {activeTab === 'status' && (
                     <PTStatusDisplay userId={userId} />
+                )}
+
+                {activeTab === 'chat' && ptAssignment && (
+                    <Chat 
+                        isOpen={true}
+                        onClose={() => handleTabChange('request')}
+                        currentUserId={userId}
+                        receiverId={ptAssignment.trainerId}
+                        receiverName={ptAssignment.trainerName}
+                    />
                 )}
 
                 {activeTab === 'request' && hasPTRequest && (
