@@ -50,7 +50,6 @@ public class TrainingClassService {
             trainingClass.setPrice(trainingClassData.getPrice());
             trainingClass.setDurationMinutes(trainingClassData.getDurationMinutes());
             trainingClass.setStartTime(trainingClassData.getStartTime());
-            trainingClass.setDaysOfWeek(trainingClassData.getDaysOfWeek());
             trainingClass.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
             trainingClass.setTrainer(trainingClassData.getTrainer());
             
@@ -81,6 +80,10 @@ public class TrainingClassService {
 
     public List<TrainingClass> getClassesWithoutTrainer() {
         return trainingClassRepository.findClassesWithoutTrainer();
+    }
+
+    public List<TrainingClass> getClassesWithTrainer() {
+        return trainingClassRepository.findClassesWithTrainer();
     }
 
     public boolean assignTrainerToClass(Integer classId, Integer trainerId) {

@@ -1,18 +1,22 @@
 package com.dhd.gymmanagement.controller.admin;
 
+import com.dhd.gymmanagement.dto.AdminClassDTO;
 import com.dhd.gymmanagement.entity.ClassEnrollment;
 import com.dhd.gymmanagement.entity.TrainingClass;
 import com.dhd.gymmanagement.entity.Trainer;
 import com.dhd.gymmanagement.repository.TrainerRepository;
 import com.dhd.gymmanagement.service.ClassEnrollmentService;
 import com.dhd.gymmanagement.service.TrainingClassService;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.ArrayList;
 
 @Controller
 @RequestMapping("/admin/classes")
@@ -31,7 +35,16 @@ public class AdminClassController {
     @GetMapping
     public String listClasses(Model model) {
         List<TrainingClass> classes = trainingClassService.getAllClasses();
-        model.addAttribute("classes", classes);
+        
+
+        List<AdminClassDTO> classDTOs = classes.stream().map(trainingClass -> {
+            AdminClassDTO dto = new AdminClassDTO(trainingClass);
+            Long enrolledCount = classEnrollmentService.getEnrolledCountByClass(trainingClass.getClassId());
+            dto.setCurrentEnrollmentCount(enrolledCount != null ? enrolledCount.intValue() : 0);
+            return dto;
+        }).collect(Collectors.toList());
+        
+        model.addAttribute("classes", classDTOs);
         return "admin/class/list";
     }
 
@@ -49,16 +62,26 @@ public class AdminClassController {
     public String createClass(@ModelAttribute TrainingClass trainingClass, 
                            @RequestParam(required = false) Integer trainerId,
                            RedirectAttributes redirectAttributes) {
-        if (trainerId != null) {
-            trainerRepository.findById(trainerId).ifPresent(trainingClass::setTrainer);
+        try {
+            if (trainerId != null) {
+                trainerRepository.findById(trainerId).ifPresent(trainingClass::setTrainer);
+            }
+            
+
+            if (trainingClass.getStartTime() == null || trainingClass.getStartTime().trim().isEmpty()) {
+                trainingClass.setStartTime("00:00");
+            }
+            
+            TrainingClass savedClass = trainingClassService.createClass(trainingClass);
+            if (savedClass != null) {
+                redirectAttributes.addFlashAttribute("success", "Tạo lớp tập thành công!");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra khi tạo lớp tập!");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
         }
         
-        TrainingClass savedClass = trainingClassService.createClass(trainingClass);
-        if (savedClass != null) {
-            redirectAttributes.addFlashAttribute("success", "Tạo lớp tập thành công!");
-        } else {
-            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra khi tạo lớp tập!");
-        }
         return "redirect:/admin/classes";
     }
 
@@ -82,16 +105,26 @@ public class AdminClassController {
                            @ModelAttribute TrainingClass trainingClass,
                            @RequestParam(required = false) Integer trainerId,
                            RedirectAttributes redirectAttributes) {
-        if (trainerId != null) {
-            trainerRepository.findById(trainerId).ifPresent(trainingClass::setTrainer);
+        try {
+            if (trainerId != null) {
+                trainerRepository.findById(trainerId).ifPresent(trainingClass::setTrainer);
+            }
+            
+
+            if (trainingClass.getStartTime() == null || trainingClass.getStartTime().trim().isEmpty()) {
+                trainingClass.setStartTime("00:00");
+            }
+            
+            TrainingClass updatedClass = trainingClassService.updateClass(id, trainingClass);
+            if (updatedClass != null) {
+                redirectAttributes.addFlashAttribute("success", "Cập nhật lớp tập thành công!");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra khi cập nhật lớp tập!");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
         }
         
-        TrainingClass updatedClass = trainingClassService.updateClass(id, trainingClass);
-        if (updatedClass != null) {
-            redirectAttributes.addFlashAttribute("success", "Cập nhật lớp tập thành công!");
-        } else {
-            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra khi cập nhật lớp tập!");
-        }
         return "redirect:/admin/classes";
     }
 
@@ -109,14 +142,15 @@ public class AdminClassController {
 
 
     @GetMapping("/{id}")
+    @Transactional(readOnly = true)
     public String viewClass(@PathVariable Integer id, Model model) {
         TrainingClass trainingClass = trainingClassService.getClassById(id);
         if (trainingClass == null) {
             return "redirect:/admin/classes";
         }
         
-        List<ClassEnrollment> enrollments = classEnrollmentService.getEnrolledUsersByClass(id);
-        Long enrolledCount = trainingClassService.getEnrolledCount(id);
+        List<ClassEnrollment> enrollments = classEnrollmentService.getAllEnrollmentsByClass(id);
+        Long enrolledCount = classEnrollmentService.getEnrolledCountByClass(id);
         List<Trainer> trainers = trainerRepository.findAllActive();
         
         model.addAttribute("trainingClass", trainingClass);
@@ -142,10 +176,62 @@ public class AdminClassController {
 
 
     @GetMapping("/search")
-    public String searchClasses(@RequestParam String name, Model model) {
-        List<TrainingClass> classes = trainingClassService.searchClassesByName(name);
-        model.addAttribute("classes", classes);
-        model.addAttribute("searchTerm", name);
+    public String searchClasses(@RequestParam(required = false) String name, 
+                              @RequestParam(required = false) String trainer,
+                              Model model) {
+        try {
+
+            if ((name == null || name.trim().isEmpty()) && (trainer == null || trainer.trim().isEmpty())) {
+                return "redirect:/admin/classes";
+            }
+            
+            List<TrainingClass> classes;
+            
+            if (name != null && !name.trim().isEmpty()) {
+
+                classes = trainingClassService.searchClassesByName(name);
+                
+
+                if ("assigned".equals(trainer)) {
+                    classes = classes.stream()
+                        .filter(tc -> tc.getTrainer() != null)
+                        .collect(Collectors.toList());
+                } else if ("unassigned".equals(trainer)) {
+                    classes = classes.stream()
+                        .filter(tc -> tc.getTrainer() == null)
+                        .collect(Collectors.toList());
+                }
+            } else if ("assigned".equals(trainer)) {
+
+                classes = trainingClassService.getClassesWithTrainer();
+            } else if ("unassigned".equals(trainer)) {
+
+                classes = trainingClassService.getClassesWithoutTrainer();
+            } else {
+
+                classes = trainingClassService.getAllClasses();
+            }
+            
+
+            List<AdminClassDTO> classDTOs = classes.stream().map(trainingClass -> {
+                AdminClassDTO dto = new AdminClassDTO(trainingClass);
+                Long enrolledCount = classEnrollmentService.getEnrolledCountByClass(trainingClass.getClassId());
+                dto.setCurrentEnrollmentCount(enrolledCount != null ? enrolledCount.intValue() : 0);
+                return dto;
+            }).collect(Collectors.toList());
+            
+            model.addAttribute("classes", classDTOs);
+            model.addAttribute("searchTerm", name != null ? name : "");
+            model.addAttribute("trainer", trainer);
+            
+        } catch (Exception e) {
+
+            model.addAttribute("error", "Có lỗi xảy ra trong quá trình tìm kiếm: " + e.getMessage());
+            model.addAttribute("classes", new ArrayList<>());
+            model.addAttribute("searchTerm", name != null ? name : "");
+            model.addAttribute("trainer", trainer);
+        }
+        
         return "admin/class/list";
     }
 
@@ -153,7 +239,16 @@ public class AdminClassController {
     @GetMapping("/without-trainer")
     public String classesWithoutTrainer(Model model) {
         List<TrainingClass> classes = trainingClassService.getClassesWithoutTrainer();
-        model.addAttribute("classes", classes);
+        
+
+        List<AdminClassDTO> classDTOs = classes.stream().map(trainingClass -> {
+            AdminClassDTO dto = new AdminClassDTO(trainingClass);
+            Long enrolledCount = classEnrollmentService.getEnrolledCountByClass(trainingClass.getClassId());
+            dto.setCurrentEnrollmentCount(enrolledCount != null ? enrolledCount.intValue() : 0);
+            return dto;
+        }).collect(Collectors.toList());
+        
+        model.addAttribute("classes", classDTOs);
         return "admin/class/list";
     }
 

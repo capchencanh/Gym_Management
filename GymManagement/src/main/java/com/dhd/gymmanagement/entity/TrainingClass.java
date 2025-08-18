@@ -1,7 +1,6 @@
 package com.dhd.gymmanagement.entity;
 
 import jakarta.persistence.*;
-import java.sql.Time;
 import java.sql.Timestamp;
 
 @Entity
@@ -35,7 +34,7 @@ public class TrainingClass {
     private Integer durationMinutes = 60;
 
     @Column(name = "start_time")
-    private Time startTime;
+    private String startTime;
 
     @Column(name = "days_of_week")
     private String daysOfWeek;
@@ -65,8 +64,8 @@ public class TrainingClass {
     public void setPrice(Double price) { this.price = price; }
     public Integer getDurationMinutes() { return durationMinutes; }
     public void setDurationMinutes(Integer durationMinutes) { this.durationMinutes = durationMinutes; }
-    public Time getStartTime() { return startTime; }
-    public void setStartTime(Time startTime) { this.startTime = startTime; }
+    public String getStartTime() { return startTime; }
+    public void setStartTime(String startTime) { this.startTime = startTime; }
     public String getDaysOfWeek() { return daysOfWeek; }
     public void setDaysOfWeek(String daysOfWeek) { this.daysOfWeek = daysOfWeek; }
     public Timestamp getCreatedAt() { return createdAt; }

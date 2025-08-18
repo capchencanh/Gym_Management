@@ -115,6 +115,10 @@ public class ClassEnrollmentService {
     public List<ClassEnrollment> getEnrolledUsersByClass(Integer classId) {
         return classEnrollmentRepository.findEnrolledUsersByClassId(classId);
     }
+    
+    public List<ClassEnrollment> getAllEnrollmentsByClass(Integer classId) {
+        return classEnrollmentRepository.findAllEnrollmentsByClassId(classId);
+    }
 
     public Long getEnrolledCountByClass(Integer classId) {
         return classEnrollmentRepository.countEnrolledUsersByClassId(classId);

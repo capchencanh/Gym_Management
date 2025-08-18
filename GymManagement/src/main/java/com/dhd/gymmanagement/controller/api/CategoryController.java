@@ -1,5 +1,6 @@
 package com.dhd.gymmanagement.controller.api;
 
+import com.dhd.gymmanagement.dto.CategoryDTO;
 import com.dhd.gymmanagement.entity.Category;
 import com.dhd.gymmanagement.entity.Category2;
 import com.dhd.gymmanagement.service.CategoryService;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -26,8 +28,12 @@ public class CategoryController {
     private CategoryService2 categoryService2;
     
     @GetMapping("/categories")
-    public ResponseEntity<List<Category>> list() {
-        return new ResponseEntity<>(categoryService.getAllCategories(), HttpStatus.OK);
+    public ResponseEntity<List<CategoryDTO>> list() {
+        List<Category> categories = categoryService.getAllCategories();
+        List<CategoryDTO> categoryDTOs = categories.stream()
+            .map(CategoryDTO::new)
+            .collect(Collectors.toList());
+        return new ResponseEntity<>(categoryDTOs, HttpStatus.OK);
     }
     
     @GetMapping("/categories2")

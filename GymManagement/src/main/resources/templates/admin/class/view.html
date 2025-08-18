@@ -43,14 +43,13 @@
                                                 <p><strong>Tên lớp:</strong> <span th:text="${trainingClass.name}"></span></p>
                                                 <p><strong>Mô tả:</strong> <span th:text="${trainingClass.description}"></span></p>
                                                 <p><strong>PT:</strong> 
-                                                    <span th:if="${trainingClass.trainer}" th:text="${trainingClass.trainer.name}" class="badge bg-info"></span>
-                                                    <span th:unless="${trainingClass.trainer}" class="badge bg-warning">Chưa có PT</span>
+                                                    <span th:if="${trainingClass.trainer != null and trainingClass.trainer.user != null}" th:text="${trainingClass.trainer.user.name}" class="badge bg-info"></span>
+                                                    <span th:unless="${trainingClass.trainer != null and trainingClass.trainer.user != null}" class="badge bg-warning">Chưa có PT</span>
                                                 </p>
                                             </div>
                                             <div class="col-md-6">
                                                 <h6>Lịch học</h6>
                                                 <p><strong>Lịch:</strong> <span th:text="${trainingClass.schedule}"></span></p>
-                                                <p><strong>Ngày:</strong> <span th:text="${trainingClass.daysOfWeek}"></span></p>
                                                 <p><strong>Giờ bắt đầu:</strong> <span th:text="${trainingClass.startTime}"></span></p>
                                                 <p><strong>Thời lượng:</strong> <span th:text="${trainingClass.durationMinutes} + ' phút'"></span></p>
                                             </div>
@@ -58,14 +57,13 @@
                                         <div class="row mt-3">
                                             <div class="col-md-6">
                                                 <h6>Thông tin khác</h6>
-                                                <p><strong>Giá:</strong> <span th:text="${#numbers.formatDecimal(trainingClass.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span></p>
                                                 <p><strong>Số học viên tối đa:</strong> <span th:text="${trainingClass.maxParticipants}"></span></p>
                                                 <p><strong>Đã đăng ký:</strong> <span th:text="${enrolledCount} + '/' + ${trainingClass.maxParticipants}"></span></p>
                                             </div>
                                             <div class="col-md-6">
                                                 <h6>Trạng thái</h6>
-                                                <p><strong>Ngày tạo:</strong> <span th:text="${#temporals.format(trainingClass.createdAt, 'dd/MM/yyyy HH:mm')}"></span></p>
-                                                <p><strong>Cập nhật lần cuối:</strong> <span th:text="${#temporals.format(trainingClass.updatedAt, 'dd/MM/yyyy HH:mm')}"></span></p>
+                                                <p><strong>Ngày tạo:</strong> <span th:text="${trainingClass.createdAt != null ? trainingClass.createdAt : 'N/A'}"></span></p>
+                                                <p><strong>Cập nhật lần cuối:</strong> <span th:text="${trainingClass.updatedAt != null ? trainingClass.updatedAt : 'N/A'}"></span></p>
                                             </div>
                                         </div>
                                     </div>
@@ -143,26 +141,26 @@
                                             <tr th:each="enrollment : ${enrollments}">
                                                 <td th:text="${enrollment.enrollmentId}"></td>
                                                 <td>
-                                                    <strong th:text="${enrollment.user.fullName}"></strong>
+                                                    <strong th:text="${enrollment.user.name}"></strong>
                                                     <br>
-                                                    <small class="text-muted" th:text="${enrollment.user.phone}"></small>
+                                                    <small class="text-muted" th:text="${enrollment.user.phoneNumber}"></small>
                                                 </td>
                                                 <td th:text="${enrollment.user.email}"></td>
-                                                <td th:text="${#temporals.format(enrollment.joinedAt, 'dd/MM/yyyy HH:mm')}"></td>
+                                                <td th:text="${enrollment.joinedAt != null ? enrollment.joinedAt : 'N/A'}"></td>
                                                 <td>
-                                                    <span th:if="${enrollment.attendance}" class="badge bg-success">
+                                                    <span th:if="${enrollment.attendance != null and enrollment.attendance}" class="badge bg-success">
                                                         <i class="fas fa-check"></i> Có mặt
                                                     </span>
-                                                    <span th:unless="${enrollment.attendance}" class="badge bg-secondary">
+                                                    <span th:unless="${enrollment.attendance != null and enrollment.attendance}" class="badge bg-secondary">
                                                         <i class="fas fa-times"></i> Vắng
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <span th:if="${enrollment.status == T(com.dhd.gymmanagement.entity.ClassEnrollment.Status).ENROLLED}" 
+                                                    <span th:if="${enrollment.status != null and enrollment.status.name() == 'ENROLLED'}" 
                                                           class="badge bg-primary">Đã đăng ký</span>
-                                                    <span th:if="${enrollment.status == T(com.dhd.gymmanagement.entity.ClassEnrollment.Status).COMPLETED}" 
+                                                    <span th:if="${enrollment.status != null and enrollment.status.name() == 'COMPLETED'}" 
                                                           class="badge bg-success">Hoàn thành</span>
-                                                    <span th:if="${enrollment.status == T(com.dhd.gymmanagement.entity.ClassEnrollment.Status).CANCELLED}" 
+                                                    <span th:if="${enrollment.status != null and enrollment.status.name() == 'CANCELLED'}" 
                                                           class="badge bg-danger">Đã hủy</span>
                                                 </td>
                                                 <td>
@@ -170,12 +168,12 @@
                                                         <!-- Attendance Toggle -->
                                                         <form th:action="@{/admin/classes/enrollment/{enrollmentId}/attendance(enrollmentId=${enrollment.enrollmentId}, classId=${trainingClass.classId})}" 
                                                               method="post" style="display: inline;">
-                                                            <input type="hidden" name="attendance" th:value="${!enrollment.attendance}">
-                                                            <button type="submit" class="btn btn-sm" 
-                                                                    th:classappend="${enrollment.attendance ? 'btn-outline-warning' : 'btn-outline-success'}"
-                                                                    th:title="${enrollment.attendance ? 'Đánh dấu vắng' : 'Đánh dấu có mặt'}">
-                                                                <i th:class="${enrollment.attendance ? 'fas fa-times' : 'fas fa-check'}"></i>
-                                                            </button>
+                                                                                                                         <input type="hidden" name="attendance" th:value="${enrollment.attendance != null and enrollment.attendance ? 'false' : 'true'}">
+                                                             <button type="submit" class="btn btn-sm" 
+                                                                     th:classappend="${enrollment.attendance != null and enrollment.attendance ? 'btn-outline-warning' : 'btn-outline-success'}"
+                                                                     th:title="${enrollment.attendance != null and enrollment.attendance ? 'Đánh dấu vắng' : 'Đánh dấu có mặt'}">
+                                                                 <i th:class="${enrollment.attendance != null and enrollment.attendance ? 'fas fa-times' : 'fas fa-check'}"></i>
+                                                             </button>
                                                         </form>
                                                         
                                                         <!-- Cancel Enrollment -->
