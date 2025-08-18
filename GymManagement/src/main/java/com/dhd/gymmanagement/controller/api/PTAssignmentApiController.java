@@ -3,6 +3,7 @@ package com.dhd.gymmanagement.controller.api;
 import com.dhd.gymmanagement.entity.PTAssignment;
 import com.dhd.gymmanagement.entity.User;
 import com.dhd.gymmanagement.entity.Trainer;
+import com.dhd.gymmanagement.dto.PTAssignmentDTO;
 import com.dhd.gymmanagement.service.PTAssignmentService;
 import com.dhd.gymmanagement.service.UserService;
 import com.dhd.gymmanagement.service.TrainerService;
@@ -103,8 +104,8 @@ public class PTAssignmentApiController {
 
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<PTAssignment>> getAssignmentsByUser(@PathVariable Integer userId) {
-        List<PTAssignment> assignments = ptAssignmentService.getAssignmentsByUser(userId);
+    public ResponseEntity<List<PTAssignmentDTO>> getAssignmentsByUser(@PathVariable Integer userId) {
+        List<PTAssignmentDTO> assignments = ptAssignmentService.getAssignmentsByUserAsDTO(userId);
         return ResponseEntity.ok(assignments);
     }
 }

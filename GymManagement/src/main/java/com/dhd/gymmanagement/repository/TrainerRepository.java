@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TrainerRepository extends JpaRepository<Trainer, Integer> {
@@ -23,4 +24,7 @@ public interface TrainerRepository extends JpaRepository<Trainer, Integer> {
     
     @Query("SELECT t FROM Trainer t WHERE t.isDeleted = 0 OR t.isDeleted IS NULL")
     List<Trainer> findAllActive();
+    
+    @Query("SELECT t FROM Trainer t JOIN t.user u WHERE u.email = :email AND (t.isDeleted = 0 OR t.isDeleted IS NULL)")
+    Optional<Trainer> findByUserEmail(String email);
 }
