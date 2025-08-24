@@ -10,8 +10,6 @@ import Register from "./components/Register";
 import PTManagement from "./components/PTManagement";
 import { UserProvider } from "./configs/UserProvider";
 import { MyUserContext } from "./configs/Contexts";
-import ClassList from "./components/ClassList";
-
 
 const AppContent = () => {
   const user = useContext(MyUserContext);
@@ -27,7 +25,6 @@ const AppContent = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/workout" element={<WorkoutLog />} />
-          <Route path="/classes" element={<ClassList />} />
           <Route path="/pt-management" element={<PTManagement userId={user?.id} />} />
         </Routes>
       </main>

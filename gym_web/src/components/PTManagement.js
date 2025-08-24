@@ -3,69 +3,45 @@ import PTRequestForm from './PTRequestForm';
 import PTStatusDisplay from './PTStatusDisplay';
 import Chat from './Chat';
 import './PTManagement.css';
+import Apis, { endpoints } from '../configs/Apis'; 
 
 const PTManagement = ({ userId }) => {
-    const [activeTab, setActiveTab] = useState('request');
+    const [activeTab, setActiveTab] = useState('status'); 
     const [hasPTRequest, setHasPTRequest] = useState(false);
     const [ptAssignment, setPtAssignment] = useState(null);
-    const [showChat, setShowChat] = useState(false);
+    const [loading, setLoading] = useState(true); 
 
     useEffect(() => {
         if (userId) {
-            // Kiểm tra xem user đã có yêu cầu PT chưa
-            checkExistingPTRequest();
-            // Kiểm tra xem user đã được phân công PT chưa
             checkPTAssignment();
+        } else {
+            setLoading(false);
         }
     }, [userId]);
 
-
-
-    const checkExistingPTRequest = async () => {
-        // Logic kiểm tra sẽ được implement sau
-        // Tạm thời để false
-        setHasPTRequest(false);
-    };
-
     const checkPTAssignment = async () => {
-        if (!userId) {
-            console.log('User ID is undefined, skipping PT assignment check');
-            return;
-        }
-        
+        setLoading(true);
         try {
-            const response = await fetch(`/api/pt-assignments/user/${userId}`);
+          
+           const response = await Apis.get(`${endpoints['pt-status']}/${userId}`);
             
-            if (response.ok) {
-                const data = await response.json();
-                
-                if (data && data.length > 0) {
-                    const activeAssignment = data.find(assignment => {
-                        const status = assignment.status || 
-                                     assignment.assignmentStatus || 
-                                     assignment.ptAssignmentStatus ||
-                                     assignment.statusEnum;
-                        
-                        return status === 'ACTIVE' || 
-                               status === 'ASSIGNED' || 
-                               status === 'PENDING';
-                    });
-                    
-                    if (activeAssignment) {
-                        const ptAssignmentData = {
-                            id: activeAssignment.assignmentId,
-                            status: activeAssignment.status,
-                            trainerId: activeAssignment.trainerId,
-                            trainerName: activeAssignment.trainerName,
-                            userId: activeAssignment.userId
-                        };
-                        
-                        setPtAssignment(ptAssignmentData);
-                    }
+            if (response.data && response.data.length > 0) {
+              
+                const assignment = response.data.find(a => a.status === 'ACTIVE' || a.status === 'PENDING');
+                if (assignment) {
+                    setPtAssignment(assignment);
+                    setHasPTRequest(true);
+                } else {
+                    setHasPTRequest(false); 
                 }
+            } else {
+                setHasPTRequest(false);
             }
         } catch (error) {
             console.error('Error checking PT assignment:', error);
+            setHasPTRequest(false);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -74,15 +50,17 @@ const PTManagement = ({ userId }) => {
     };
 
     const handlePTRequestSubmitted = () => {
-        setHasPTRequest(true);
-        setActiveTab('status');
+        checkPTAssignment(); 
     };
+
+    if (loading) {
+        return <div className="pt-management-container"><p>Đang tải dữ liệu...</p></div>;
+    }
 
     if (!userId) {
         return (
             <div className="pt-management-container">
                 <div className="no-user-message">
-                    <i className="fas fa-user-lock text-muted"></i>
                     <h3>Vui lòng đăng nhập</h3>
                     <p>Bạn cần đăng nhập để sử dụng tính năng Personal Trainer</p>
                 </div>
@@ -98,31 +76,29 @@ const PTManagement = ({ userId }) => {
             </div>
 
             <div className="pt-tabs">
+                 
                 <button
                     className={`tab-button ${activeTab === 'request' ? 'active' : ''}`}
                     onClick={() => handleTabChange('request')}
                     disabled={hasPTRequest}
                 >
-                    <i className="fas fa-plus-circle"></i>
-                    Yêu cầu PT
+                    <i className="fas fa-plus-circle"></i> Yêu cầu PT
                 </button>
                 <button
                     className={`tab-button ${activeTab === 'status' ? 'active' : ''}`}
                     onClick={() => handleTabChange('status')}
+                    disabled={!hasPTRequest}
                 >
-                    <i className="fas fa-info-circle"></i>
-                    Trạng thái
+                    <i className="fas fa-info-circle"></i> Trạng thái
                 </button>
-                {ptAssignment && (
+                {ptAssignment && ptAssignment.status === 'ACTIVE' && (
                     <button
                         className={`tab-button ${activeTab === 'chat' ? 'active' : ''}`}
                         onClick={() => handleTabChange('chat')}
                     >
-                        <i className="fas fa-comments"></i>
-                        Liên hệ PT
+                        <i className="fas fa-comments"></i> Liên hệ PT
                     </button>
                 )}
-
             </div>
 
             <div className="pt-content">
@@ -133,81 +109,51 @@ const PTManagement = ({ userId }) => {
                     />
                 )}
 
-                {activeTab === 'status' && (
-                    <PTStatusDisplay userId={userId} />
+                {activeTab === 'status' && hasPTRequest && (
+                  
+                    <PTStatusDisplay ptAssignment={ptAssignment} onRefresh={checkPTAssignment} />
                 )}
 
                 {activeTab === 'chat' && ptAssignment && (
                     <Chat 
                         isOpen={true}
-                        onClose={() => handleTabChange('request')}
+                        onClose={() => handleTabChange('status')}
                         currentUserId={userId}
-                        receiverId={ptAssignment.trainerId}
-                        receiverName={ptAssignment.trainerName}
+                        receiverId={ptAssignment.trainer_id}
+                        receiverName={ptAssignment.trainer_name}
                     />
                 )}
 
-                {activeTab === 'request' && hasPTRequest && (
-                    <div className="pt-already-requested">
+                 {}
+                 {(activeTab === 'request' || !hasPTRequest) && hasPTRequest && (
+                     <div className="pt-already-requested">
                         <div className="info-card">
-                            <i className="fas fa-check-circle text-success"></i>
-                            <h3>Đã gửi yêu cầu PT</h3>
-                            <p>Bạn đã gửi yêu cầu thuê Personal Trainer.</p>
-                            <p>Hãy chuyển sang tab "Trạng thái" để theo dõi tiến trình.</p>
-                            <button 
-                                className="btn btn-primary"
+                             <h3>Đã gửi yêu cầu PT</h3>
+                             <p>Hãy chuyển sang tab "Trạng thái" để theo dõi tiến trình.</p>
+                             <button 
+                                 className="btn btn-primary"
                                 onClick={() => handleTabChange('status')}
                             >
-                                <i className="fas fa-eye"></i> Xem trạng thái
+                                Xem trạng thái
                             </button>
                         </div>
                     </div>
                 )}
-            </div>
-
-            <div className="pt-info-section">
-                <div className="info-grid">
-                    <div className="info-card">
-                        <div className="info-icon">
-                            <i className="fas fa-clock text-primary"></i>
-                        </div>
-                        <h4>Quy trình yêu cầu</h4>
-                        <ol>
-                            <li>Chọn thời gian rảnh trong tuần</li>
-                            <li>Nhập ghi chú yêu cầu</li>
-                            <li>Gửi yêu cầu</li>
-                            <li>Admin xem xét và phân công</li>
-                            <li>PT liên hệ để lên lịch tập</li>
-                        </ol>
-                    </div>
-
-                    <div className="info-card">
-                        <div className="info-icon">
-                            <i className="fas fa-calendar-alt text-success"></i>
-                        </div>
-                        <h4>Lợi ích của PT</h4>
-                        <ul>
-                            <li>Lịch tập cá nhân hóa</li>
-                            <li>Hướng dẫn chuyên nghiệp</li>
-                            <li>Theo dõi tiến độ tập luyện</li>
-                            <li>Động viên và hỗ trợ</li>
-                            <li>Đạt mục tiêu nhanh chóng</li>
-                        </ul>
-                    </div>
-
-                    <div className="info-card">
-                        <div className="info-icon">
-                            <i className="fas fa-question-circle text-info"></i>
-                        </div>
-                        <h4>Hỗ trợ</h4>
-                        <p>Nếu bạn có câu hỏi về dịch vụ PT, vui lòng liên hệ:</p>
-                        <div className="contact-info">
-                            <p><i className="fas fa-phone"></i> Hotline: 1900-xxxx</p>
-                            <p><i className="fas fa-envelope"></i> Email: support@gym.com</p>
-                            <p><i className="fas fa-comments"></i> Chat trực tuyến</p>
+                 
+                 {activeTab === 'status' && !hasPTRequest && (
+                     <div className="pt-already-requested">
+                        <div className="info-card">
+                             <h3>Chưa có yêu cầu PT</h3>
+                             <p>Hãy chuyển sang tab "Yêu cầu PT" để bắt đầu.</p>
+                             <button 
+                                 className="btn btn-primary"
+                                onClick={() => handleTabChange('request')}
+                            >
+                                Gửi yêu cầu
+                            </button>
                         </div>
                     </div>
-                </div>
+                 )}
             </div>
         </div>
     );

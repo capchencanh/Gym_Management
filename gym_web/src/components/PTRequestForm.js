@@ -33,7 +33,7 @@ const PTRequestForm = ({ userId }) => {
         }
     }, [userId]);
 
-                    // Kiểm tra trạng thái yêu cầu PT
+                   
                 const checkPTRequestStatus = async () => {
                     try {
                         const response = await Apis.get(`${endpoints['pt-status']}/${userId}`);
@@ -45,7 +45,7 @@ const PTRequestForm = ({ userId }) => {
                     }
                 };
 
-                    // Load thời gian rảnh của user
+                  
                 const loadUserAvailabilities = async () => {
                     try {
                         const response = await Apis.get(`${endpoints['pt-availability']}/${userId}`);
@@ -78,7 +78,7 @@ const PTRequestForm = ({ userId }) => {
         setAvailabilities(newAvailabilities);
     };
 
-                    // Lưu thời gian rảnh
+                   
                 const saveAvailabilities = async () => {
                     setLoading(true);
                     try {
@@ -100,7 +100,7 @@ const PTRequestForm = ({ userId }) => {
                     }
                 };
 
-                    // Gửi yêu cầu PT
+                   
                 const submitPTRequest = async () => {
                     if (!requestNotes.trim()) {
                         setMessage('Vui lòng nhập ghi chú yêu cầu!');
@@ -125,7 +125,7 @@ const PTRequestForm = ({ userId }) => {
                     }
                 };
 
-    // Nếu đã có yêu cầu PT
+    
     if (ptRequestStatus) {
         return (
             <div className="pt-request-status">
