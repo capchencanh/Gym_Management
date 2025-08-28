@@ -20,6 +20,14 @@
             font-size: 1.4rem;
             letter-spacing: -0.5px;
         }
+
+        .navbar-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 8px;
+        }
         
         .navbar-nav .nav-link {
             color: #333333 !important;
@@ -102,10 +110,14 @@
                             <a class="nav-link" href="/admin">Dashboard</a>
                         </li>
                         <li class="nav-item dropdown" th:if="${session.user}">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" 
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button"
                                data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-user me-1"></i>
-                                <span th:text="${session.userName}">User</span>
+
+                                <img th:if="${session.user.avatarUrl != null}" th:src="${session.user.avatarUrl}" alt="Avatar" class="navbar-avatar">
+
+                                <i th:if="${session.user.avatarUrl == null}" class="fas fa-user me-2"></i>
+
+                                <span th:text="${session.user.name}">User</span>
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li><a class="dropdown-item" href="/profile">

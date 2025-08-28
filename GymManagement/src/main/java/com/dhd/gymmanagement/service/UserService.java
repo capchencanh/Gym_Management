@@ -7,7 +7,11 @@ import com.dhd.gymmanagement.repository.UserAvailabilityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import java.util.Map;
 import java.sql.Timestamp;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
@@ -30,6 +34,9 @@ public class UserService {
     
     @Autowired
     private UserAvailabilityRepository userAvailabilityRepository;
+
+    @Autowired
+    private Cloudinary cloudinary;
     
     public List<User> getAllUsers() {
         return userRepository.findAllByIsDeleted(0);
@@ -226,6 +233,50 @@ public class UserService {
         
         availability.setIsDeleted(1);
         userAvailabilityRepository.save(availability);
+    }
+
+    public void updateAvatar(String email, MultipartFile avatarFile) throws IOException {
+        // Tìm user bằng email
+        User user = findByEmail(email);
+        if (user == null) {
+            throw new RuntimeException("Không tìm thấy người dùng với email: " + email);
+        }
+
+
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+
+
+            if (user.getAvatarUrl() != null && user.getAvatarUrl().contains("cloudinary.com")) {
+                try {
+
+                    String[] urlParts = user.getAvatarUrl().split("/");
+                    String fileName = urlParts[urlParts.length - 1];
+                    String publicId = "user_avatars/" + fileName.substring(0, fileName.lastIndexOf("."));
+
+
+                    cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+                } catch (Exception e) {
+                    System.err.println("Không thể xóa ảnh đại diện cũ: " + e.getMessage());
+                }
+            }
+
+
+            Map uploadResult = cloudinary.uploader().upload(avatarFile.getBytes(),
+                    ObjectUtils.asMap(
+                            "resource_type", "auto",
+                            "folder", "user_avatars"
+                    ));
+
+            String newAvatarUrl = (String) uploadResult.get("secure_url");
+
+
+            user.setAvatarUrl(newAvatarUrl);
+
+
+            save(user);
+        } else {
+            throw new RuntimeException("Tập tin ảnh không được để trống.");
+        }
     }
     
 

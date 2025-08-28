@@ -17,6 +17,9 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(name = "avatar_url")
+    private String avatarUrl;
+
     @Column(name = "phone_number", nullable = false, unique = true)
     private String phoneNumber;
 
@@ -88,6 +91,14 @@ public class User {
     public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
     public int getIsDeleted() { return isDeleted; }
     public void setIsDeleted(int isDeleted) { this.isDeleted = isDeleted; }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
 
     public List<UserAvailability> getAvailabilities() { return availabilities; }
     public void setAvailabilities(List<UserAvailability> availabilities) { this.availabilities = availabilities; }
