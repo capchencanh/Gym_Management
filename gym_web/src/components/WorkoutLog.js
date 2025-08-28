@@ -15,6 +15,7 @@ const WorkoutLog = () => {
     }, [user, navigate]);
 
     const [workoutData, setWorkoutData] = useState({
+        session_name: '',
         date: new Date().toISOString().split('T')[0],
         workoutType: 'strength', 
         notes: ''
@@ -57,62 +58,54 @@ const WorkoutLog = () => {
         }
     };
 
-    const formatWorkoutHistoryFromDB = (dbData) => {
-        const sessions = {};
+   // Trong file WorkoutLog.js
+// DÁN VÀO ĐÚNG VỊ TRÍ CỦA HÀM CŨ
+const formatWorkoutHistoryFromDB = (dbData) => {
+    const sessions = {};
+    
+    dbData.forEach(log => {
+        const sessionKey = `${log.session_date}_${log.session_name || 'Buổi tập'}`;
         
-        dbData.forEach(log => {
-            const sessionKey = `${log.session_date}_${log.workout_type}`;
-            
-            if (!sessions[sessionKey]) {
-                sessions[sessionKey] = {
-                    id: log.log_id,
-                    date: log.session_date,
-                    type: log.workout_type,
-                    exercises: [],
-                    notes: log.notes
-                };
-            }
-            
-            if (log.workout_type === 'strength') {
-                let exercise = sessions[sessionKey].exercises.find(ex => 
-                    ex.name === log.exercise_name && ex.exercise_order === log.exercise_order
-                );
-                
-                if (!exercise) {
-                    exercise = {
-                        name: log.exercise_name,
-                        sets: []
-                    };
-                    sessions[sessionKey].exercises.push(exercise);
-                }
-                
-                if (log.set_number) {
-                    exercise.sets.push({
-                        set: log.set_number,
-                        weight: log.weight_kg,
-                        reps: log.reps,
-                        rest: log.rest_seconds
-                    });
-                }
-            } else {
-                let exercise = sessions[sessionKey].exercises.find(ex => 
-                    ex.name === log.exercise_name && ex.exercise_order === log.exercise_order
-                );
-                
-                if (!exercise) {
-                    exercise = {
-                        name: log.exercise_name,
-                        duration: log.duration_minutes,
-                        calories: log.calories_burned,
-                        intensity: log.intensity
-                    };
-                    sessions[sessionKey].exercises.push(exercise);
-                }
-            }
-        });
+        if (!sessions[sessionKey]) {
+            sessions[sessionKey] = {
+                id: sessionKey,
+                date: log.session_date,
+                name: log.session_name || 'Buổi tập chung',
+                exercises: [],
+                notes: log.notes
+            };
+        }
         
-        return Object.values(sessions);
-    };
+        let exercise = sessions[sessionKey].exercises.find(ex => ex.name === log.exercise_name);
+        
+        if (!exercise) {
+            exercise = {
+                name: log.exercise_name,
+                type: log.workout_type,
+                sets: [],
+                duration: log.workout_type === 'cardio' ? log.duration_minutes : null,
+                calories: log.workout_type === 'cardio' ? log.calories_burned : null,
+                comments: [] // Thêm mảng comments cho mỗi bài tập
+            };
+            sessions[sessionKey].exercises.push(exercise);
+        }
+        
+        // Gộp comment từ các log vào chung một bài tập
+        if (log.comments && log.comments.length > 0) {
+            exercise.comments.push(...log.comments);
+        }
+        
+        if (log.workout_type === 'strength' && log.set_number) {
+            exercise.sets.push({
+                set: log.set_number,
+                weight: log.weight_kg,
+                reps: log.reps,
+            });
+        }
+    });
+    
+    return Object.values(sessions).sort((a, b) => new Date(b.date) - new Date(a.date));
+};
 
     const addStrengthExercise = () => {
         const newExercise = {
@@ -321,30 +314,41 @@ const WorkoutLog = () => {
                             <h5>Thông tin buổi tập</h5>
                         </Card.Header>
                         <Card.Body>
-                            <Row>
-                                <Col md={6}>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Ngày tập</Form.Label>
-                                        <Form.Control
-                                            type="date"
-                                            value={workoutData.date}
-                                            onChange={(e) => setWorkoutData({...workoutData, date: e.target.value})}
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col md={6}>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Loại bài tập</Form.Label>
-                                        <Form.Select
-                                            value={workoutData.workoutType}
-                                            onChange={(e) => setWorkoutData({...workoutData, workoutType: e.target.value})}
-                                        >
-                                            <option value="strength">Tập tạ (Strength)</option>
-                                            <option value="cardio">Cardio</option>
-                                        </Form.Select>
-                                    </Form.Group>
-                                </Col>
-                            </Row>
+                           <Row>
+    <Col md={4}>
+        <Form.Group className="mb-3">
+            <Form.Label>Tên buổi tập</Form.Label>
+            <Form.Control 
+                type="text" 
+                placeholder="VD: Ngày tập ngực..." 
+                value={workoutData.session_name} 
+                onChange={(e) => setWorkoutData({...workoutData, session_name: e.target.value})} 
+            />
+        </Form.Group>
+    </Col>
+    <Col md={4}>
+        <Form.Group className="mb-3">
+            <Form.Label>Ngày tập</Form.Label>
+            <Form.Control
+                type="date"
+                value={workoutData.date}
+                onChange={(e) => setWorkoutData({...workoutData, date: e.target.value})}
+            />
+        </Form.Group>
+    </Col>
+    <Col md={4}>
+        <Form.Group className="mb-3">
+            <Form.Label>Loại bài tập</Form.Label>
+            <Form.Select
+                value={workoutData.workoutType}
+                onChange={(e) => setWorkoutData({...workoutData, workoutType: e.target.value})}
+            >
+                <option value="strength">Tập tạ (Strength)</option>
+                <option value="cardio">Cardio</option>
+            </Form.Select>
+        </Form.Group>
+    </Col>
+</Row>
 
                             {workoutData.workoutType === 'strength' ? (
                                 <div>
@@ -592,62 +596,73 @@ const WorkoutLog = () => {
                             </div>
                         </Card.Header>
                         <Card.Body>
-                            {loading ? (
-                                <div className="text-center py-4">
-                                    <Spinner animation="border" role="status">
-                                        <span className="visually-hidden">Đang tải...</span>
-                                    </Spinner>
-                                    <p className="mt-2 text-muted">Đang tải lịch sử bài tập...</p>
-                                </div>
-                            ) : workoutHistory.length === 0 ? (
-                                <div className="text-center py-4 text-muted">
-                                    <i className="fas fa-history fa-2x mb-2"></i>
-                                    <p>Chưa có lịch sử bài tập nào</p>
-                                </div>
-                            ) : (
-                                workoutHistory.map(workout => (
-                                    <div key={workout.id} className="mb-3 p-3 border rounded">
-                                        <div className="d-flex justify-content-between align-items-center mb-2">
-                                            <h6 className="mb-0">{workout.date}</h6>
-                                            <Badge bg={workout.type === 'strength' ? 'primary' : 'success'}>
-                                                {workout.type === 'strength' ? 'Tạ' : 'Cardio'}
-                                            </Badge>
-                                        </div>
-                                        
-                                        {workout.type === 'strength' ? (
-                                            <div>
-                                                {workout.exercises.map((exercise, index) => (
-                                                    <div key={index} className="mb-2">
-                                                        <strong>{exercise.name}</strong>
-                                                        <div className="text-muted small">
-                                                            {exercise.sets.length} sets
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <div>
-                                                {workout.exercises.map((cardio, index) => (
-                                                    <div key={index} className="mb-2">
-                                                        <strong>{cardio.name}</strong>
-                                                        <div className="text-muted small">
-                                                            {cardio.duration} phút
-                                                            {cardio.calories && ` • ${cardio.calories} cal`}
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
-                                        
-                                        {workout.notes && (
-                                            <div className="text-muted small mt-2">
-                                                <i className="fas fa-comment me-1"></i>
-                                                {workout.notes}
-                                            </div>
-                                        )}
+                          <Card.Body style={{maxHeight: '80vh', overflowY: 'auto'}}>
+    {loading ? (
+        <div className="text-center py-5"><Spinner animation="border" /><p className="mt-2">Đang tải...</p></div>
+    ) : workoutHistory.length === 0 ? (
+        <div className="text-center text-muted py-5"><i className="fas fa-history fa-2x mb-2"></i><p>Chưa có lịch sử bài tập nào</p></div>
+    ) : (
+        <div>
+            {workoutHistory.map(session => (
+                <Card key={session.id} className="mb-3 workout-session-card">
+                    <Card.Header className="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 className="mb-0">{session.name}</h6>
+                            <small className="text-muted">{new Date(session.date).toLocaleDateString('vi-VN')}</small>
+                        </div>
+                        {session.exercises.length > 0 && 
+                            <Badge bg={session.exercises[0].type === 'strength' ? 'primary' : 'success'}>
+                                {session.exercises[0].type === 'strength' ? 'Tạ' : 'Cardio'}
+                            </Badge>
+                        }
+                    </Card.Header>
+                    <Card.Body>
+                        {session.exercises.map((exercise, index) => (
+                            <div key={index} className="exercise-details mb-2">
+                                <strong><i className={`fas ${exercise.type === 'strength' ? 'fa-dumbbell' : 'fa-running'} me-2`}></i>{exercise.name}</strong>
+                                {exercise.type === 'strength' ? (
+                                    <Table striped bordered size="sm" className="mt-1 mb-0">
+                                        <thead><tr><th>Set</th><th>Kg</th><th>Reps</th></tr></thead>
+                                        <tbody>
+                                            {exercise.sets.map((set, setIndex) => (
+                                                <tr key={setIndex}><td>{set.set}</td><td>{set.weight}</td><td>{set.reps}</td></tr>
+                                            ))}
+                                        </tbody>
+                                    </Table>
+                                ) : (
+                                    <div className="cardio-info mt-1 text-muted">
+                                        <span><i className="fas fa-clock me-1"></i> {exercise.duration || 0} phút</span>
+                                        <span className="ms-3"><i className="fas fa-fire me-1"></i> {exercise.calories || 0} cal</span>
                                     </div>
-                                ))
-                            )}
+                                )}
+                                {exercise.comments && exercise.comments.length > 0 && (
+    <div className="pt-comments-section mt-2">
+        {exercise.comments.map((comment, cIndex) => (
+            <div key={cIndex} className="pt-comment">
+                <p className="comment-text mb-0">
+                    <i className="fas fa-comment-dots text-primary me-2"></i>
+                    {comment.comment}
+                </p>
+                <small className="comment-meta text-muted">
+                    - PT {comment.pt_name} lúc {comment.created_at}
+                </small>
+            </div>
+        ))}
+    </div>
+)}
+                            </div>
+                        ))}
+                        {session.notes && (
+                            <div className="session-notes border-top pt-2 mt-2">
+                                <p className="mb-0"><strong><i className="fas fa-sticky-note me-2"></i>Ghi chú:</strong> <span className="text-muted fst-italic">{session.notes}</span></p>
+                            </div>
+                        )}
+                    </Card.Body>
+                </Card>
+            ))}
+        </div>
+    )}
+</Card.Body>
                         </Card.Body>
                     </Card>
                 </Col>
