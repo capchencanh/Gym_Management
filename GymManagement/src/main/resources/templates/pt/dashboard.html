@@ -47,6 +47,10 @@
                                         <div class="float-end">
                                             <a th:href="@{/pt/dashboard/assignment/{id}(id=${assignment.assignmentId})}" 
                                                class="btn btn-sm btn-primary me-1">Xem chi tiết</a>
+                                            <a th:href="@{/pt/dashboard/client/{userId}/logs(userId=${assignment.user.userId})}"
+                                               class="btn btn-sm btn-info me-1">
+                                                <i class="fas fa-clipboard-list"></i> Xem Log
+                                            </a>
                                             <a th:href="@{/pt/chat}" 
                                                class="btn btn-sm btn-success">
                                                 <i class="fas fa-comments me-1"></i>Chat với User
@@ -151,7 +155,7 @@
                                    class="btn btn-success btn-lg me-3">
                                     <i class="fas fa-comments me-2"></i>Chat với User
                                 </a>
-                                <a th:href="@{/pt/dashboard/schedule(trainerId=${trainerId})}" 
+                                <a th:href="@{/pt/dashboard/schedule(trainerId=${trainerId})}"
                                    class="btn btn-primary me-2">
                                     <i class="fas fa-calendar-alt me-1"></i>Xem lịch chi tiết
                                 </a>
@@ -200,8 +204,7 @@
         </div>
     </div>
     
-    <!-- Modal thêm ghi chú -->
-    <div th:each="trainingSession : ${todaySessions}" 
+    <div th:each="trainingSession : ${todaySessions}"
          th:id="'notesModal' + ${trainingSession.sessionId}" 
          class="modal fade" tabindex="-1">
         <div class="modal-dialog">

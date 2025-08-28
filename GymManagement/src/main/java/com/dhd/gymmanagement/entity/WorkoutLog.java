@@ -3,6 +3,8 @@ package com.dhd.gymmanagement.entity;
 import jakarta.persistence.*;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -67,8 +69,14 @@ public class WorkoutLog {
     @Column
     private Intensity intensity = Intensity.medium;
 
+    @Column(name = "session_name", length = 255)
+    private String sessionName;
+
     @Column(columnDefinition = "text")
     private String notes;
+
+    @Transient
+    private List<WorkoutLogComment> comments;
 
     @Column(name = "created_at")
     @JsonProperty("created_at")
@@ -87,6 +95,14 @@ public class WorkoutLog {
     }
 
     // Getters and Setters
+
+    public String getSessionName() {
+        return sessionName;
+    }
+
+    public void setSessionName(String sessionName) {
+        this.sessionName = sessionName;
+    }
     public Integer getLogId() { return logId; }
     public void setLogId(Integer logId) { this.logId = logId; }
     
@@ -137,4 +153,12 @@ public class WorkoutLog {
     
     public Integer getIsDeleted() { return isDeleted; }
     public void setIsDeleted(Integer isDeleted) { this.isDeleted = isDeleted; }
+
+    public List<WorkoutLogComment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<WorkoutLogComment> comments) {
+        this.comments = comments;
+    }
 }

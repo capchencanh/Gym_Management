@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.sql.Date;
-
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class WorkoutLogResponseDTO {
 
@@ -14,6 +15,9 @@ public class WorkoutLogResponseDTO {
 
     @JsonProperty("user_id")
     private Integer userId;
+
+    @JsonProperty("session_name")
+    private String sessionName;
 
     @JsonProperty("session_date")
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -49,6 +53,9 @@ public class WorkoutLogResponseDTO {
 
     private String notes;
 
+    @JsonProperty("comments")
+    private List<CommentResponseDTO> comments;
+
 
     public WorkoutLogResponseDTO() {
     }
@@ -57,6 +64,7 @@ public class WorkoutLogResponseDTO {
     public WorkoutLogResponseDTO(WorkoutLog entity) {
         this.logId = entity.getLogId();
         this.userId = entity.getUserId();
+        this.sessionName = entity.getSessionName();
         this.sessionDate = entity.getSessionDate();
         this.workoutType = (entity.getWorkoutType() != null) ? entity.getWorkoutType().name() : null;
         this.exerciseName = entity.getExerciseName();
@@ -69,6 +77,13 @@ public class WorkoutLogResponseDTO {
         this.caloriesBurned = entity.getCaloriesBurned();
         this.intensity = (entity.getIntensity() != null) ? entity.getIntensity().name() : null;
         this.notes = entity.getNotes();
+
+
+        if (entity.getComments() != null) {
+            this.comments = entity.getComments().stream()
+                    .map(CommentResponseDTO::new)
+                    .collect(Collectors.toList());
+        }
     }
 
     // --- Getters and Setters ---
@@ -87,6 +102,14 @@ public class WorkoutLogResponseDTO {
 
     public void setUserId(Integer userId) {
         this.userId = userId;
+    }
+
+    public String getSessionName() {
+        return sessionName;
+    }
+
+    public void setSessionName(String sessionName) {
+        this.sessionName = sessionName;
     }
 
     public Date getSessionDate() {
@@ -183,5 +206,13 @@ public class WorkoutLogResponseDTO {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public List<CommentResponseDTO> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<CommentResponseDTO> comments) {
+        this.comments = comments;
     }
 }

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Log Bài Tập Của Khách Hàng</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <style>
+        body { background-color: #f4f7f6; }
+        .log-date-header {
+            color: #4a6a8a;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .comment-box { margin-top: 15px; }
+        .comment-list { list-style: none; padding-left: 0; margin-top: 15px; }
+        .comment-item {
+            background: #e9ecef;
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #007bff;
+        }
+        .comment-item p { margin-bottom: 5px; }
+        .comment-item small { color: #6c757d; font-style: italic; }
+    </style>
+</head>
+<body>
+<div class="container mt-4 mb-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>
+            <i class="fas fa-clipboard-list text-primary"></i>
+            Log bài tập của <strong th:text="${client.name}">Tên Khách Hàng</strong>
+        </h3>
+        <a th:if="${assignment != null}" th:href="@{/pt/dashboard/assignment/{id}(id=${assignment.assignmentId})}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại chi tiết
+        </a>
+    </div>
+
+    <div th:each="sessionEntry : ${sessions}">
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0" th:text="${sessionEntry.value[0].sessionName != null && !sessionEntry.value[0].sessionName.isEmpty() ? sessionEntry.value[0].sessionName : 'Buổi tập chung'}">Tên Buổi Tập</h5>
+                <small class="text-muted" th:text="${#temporals.format(sessionEntry.value[0].sessionDate.toLocalDate(), 'EEEE, dd MMMM yyyy', #locale.forLanguageTag('vi-VN'))}"></small>
+            </div>
+
+            <div th:each="log : ${sessionEntry.value}" class="card-body border-bottom">
+                <div class="d-flex justify-content-between align-items-center">
+                    <strong>
+                        <i th:classappend="${log.workoutType.name() == 'STRENGTH' ? 'fas fa-dumbbell' : 'fas fa-running'}" class="me-2"></i>
+                        <span th:text="${log.exerciseName}">Tên bài tập</span>
+                    </strong>
+                    <th:block th:switch="${log.workoutType.name()}">
+                        <span th:case="'STRENGTH'" class="badge badge-primary">Tập tạ</span>
+                        <span th:case="'CARDIO'" class="badge badge-success">Cardio</span>
+                    </th:block>
+                </div>
+
+                <ul class="list-unstyled mt-2 pl-3">
+                    <li th:if="${log.setNumber != null}"><small><strong>Set:</strong> <span th:text="${log.setNumber}"></span></small></li>
+                    <li th:if="${log.reps != null}"><small><strong>Reps:</strong> <span th:text="${log.reps}"></span></small></li>
+                    <li th:if="${log.weightKg != null}"><small><strong>Weight:</strong> <span th:text="${log.weightKg} + ' kg'"></span></small></li>
+                    <li th:if="${log.durationMinutes != null}"><small><strong>Thời gian:</strong> <span th:text="${log.durationMinutes} + ' phút'"></span></small></li>
+                </ul>
+
+                <div class="comment-box">
+                    <h6><i class="fas fa-comments text-muted"></i> Nhận xét</h6>
+                    <ul class="comment-list" th:id="'comment-list-' + ${log.logId}">
+                        <li th:each="comment : ${log.comments}" class="comment-item">
+                            <p class="mb-1" th:text="${comment.comment}"></p>
+                            <small>Bởi <strong th:text="${comment.pt.name}"></strong> lúc <span th:text="${#temporals.format(comment.createdAt.toLocalDateTime(), 'HH:mm dd/MM/yyyy')}"></span></small>
+                        </li>
+                    </ul>
+
+                    <form class="comment-form mt-2" th:attr="data-log-id=${log.logId}">
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="comment" placeholder="Viết nhận xét..."/>
+                            <input type="hidden" name="ptId" th:value="${currentPt.userId}" />
+                            <div class="input-group-append">
+                                <button type="submit" class="btn btn-outline-primary"><i class="fas fa-paper-plane"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card-footer bg-light" th:if="${sessionEntry.value[0].notes != null and !sessionEntry.value[0].notes.isEmpty()}">
+                <strong><i class="fas fa-sticky-note"></i> Ghi chú của User:</strong>
+                <em class="text-muted" th:text="${sessionEntry.value[0].notes}"></em>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${sessions.isEmpty()}" class="text-center mt-5">
+        <p class="text-muted">Khách hàng này chưa có log bài tập nào.</p>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.comment-form').forEach(form => {
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const logId = this.getAttribute('data-log-id');
+                const commentText = this.querySelector('input[name="comment"]').value;
+                const ptId = this.querySelector('input[name="ptId"]').value;
+
+                if (!commentText.trim()) { return; }
+
+                fetch('/api/pt/comments', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ logId: logId, ptId: ptId, comment: commentText })
+                })
+                    .then(response => {
+                        if (!response.ok) { throw new Error('Gửi thất bại!'); }
+                        return response.json();
+                    })
+                    .then(data => {
+                        const commentList = document.getElementById('comment-list-' + logId);
+                        const newCommentItem = document.createElement('li');
+                        newCommentItem.className = 'comment-item';
+                        newCommentItem.innerHTML = `<p class="mb-1">${data.comment}</p><small>Bởi <strong>${data.ptName}</strong> lúc <span>${data.createdAt}</span></small>`;
+                        commentList.appendChild(newCommentItem);
+                        this.querySelector('input[name="comment"]').value = '';
+                    })
+                    .catch(error => {
+                        console.error('Lỗi:', error);
+                        alert(error.message);
+                    });
+            });
+        });
+    });
+</script>
+</body>
+</html>

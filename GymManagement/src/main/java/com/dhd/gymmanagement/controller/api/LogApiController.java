@@ -1,10 +1,12 @@
 package com.dhd.gymmanagement.controller.api;
 
-import com.dhd.gymmanagement.dto.WorkoutLogDTO;
+import com.dhd.gymmanagement.dto.CreateWorkoutLogDTO;
 import com.dhd.gymmanagement.dto.WorkoutLogResponseDTO;
 import com.dhd.gymmanagement.entity.User;
 import com.dhd.gymmanagement.entity.WorkoutLog;
+import com.dhd.gymmanagement.entity.WorkoutLogComment;
 import com.dhd.gymmanagement.service.UserService;
+import com.dhd.gymmanagement.service.WorkoutLogCommentService;
 import com.dhd.gymmanagement.service.WorkoutLogService;
 import com.dhd.gymmanagement.utils.JwtUtils;
 import org.slf4j.Logger;
@@ -33,11 +35,14 @@ public class LogApiController {
     @Autowired
     private UserService userService;
 
+
+    @Autowired
+    private WorkoutLogCommentService workoutLogCommentService;
+
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getUserWorkoutLogs(@PathVariable Integer userId,
                                                 @RequestHeader("Authorization") String authorizationHeader) {
         try {
-
             if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ");
             }
@@ -52,10 +57,14 @@ public class LogApiController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Không có quyền truy cập dữ liệu này");
             }
 
-
             List<WorkoutLog> logs = workoutLogService.findByUserId(userId);
 
-            // Convert to Response DTOs
+            // Gắn comment vào mỗi log trước khi chuyển đổi sang DTO
+            logs.forEach(log -> {
+                List<WorkoutLogComment> comments = workoutLogCommentService.getCommentsByLogId(log.getLogId());
+                log.setComments(comments);
+            });
+
             List<WorkoutLogResponseDTO> logDTOs = logs.stream()
                     .map(WorkoutLogResponseDTO::new)
                     .collect(Collectors.toList());
@@ -70,10 +79,9 @@ public class LogApiController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createWorkoutLog(@RequestBody WorkoutLogDTO createDTO,
+    public ResponseEntity<?> createWorkoutLog(@RequestBody CreateWorkoutLogDTO createDTO,
                                               @RequestHeader("Authorization") String authorizationHeader) {
         try {
-
             if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ");
             }
@@ -88,9 +96,7 @@ public class LogApiController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User không tồn tại");
             }
 
-
             WorkoutLog workoutLog = createDTO.toEntity();
-
 
             if (workoutLog.getSessionDate() == null) {
                 workoutLog.setSessionDate(new Date(System.currentTimeMillis()));
@@ -108,10 +114,7 @@ public class LogApiController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("exercise_name không được để trống");
             }
 
-
             WorkoutLog savedLog = workoutLogService.save(workoutLog);
-
-
             WorkoutLogResponseDTO responseDTO = new WorkoutLogResponseDTO(savedLog);
             return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
 
@@ -126,7 +129,6 @@ public class LogApiController {
     public ResponseEntity<?> getWorkoutLog(@PathVariable Integer logId,
                                            @RequestHeader("Authorization") String authorizationHeader) {
         try {
-
             if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ");
             }
@@ -141,7 +143,6 @@ public class LogApiController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy workout log");
             }
 
-
             String tokenEmail = (String) claims.get("email");
             User tokenUser = userService.getUserByEmail(tokenEmail).orElse(null);
             if (tokenUser == null || !tokenUser.getUserId().equals(log.getUserId())) {
@@ -149,7 +150,9 @@ public class LogApiController {
             }
 
 
-            // Convert to Response DTO
+            List<WorkoutLogComment> comments = workoutLogCommentService.getCommentsByLogId(log.getLogId());
+            log.setComments(comments);
+
             WorkoutLogResponseDTO responseDTO = new WorkoutLogResponseDTO(log);
             return ResponseEntity.ok(responseDTO);
 
@@ -163,9 +166,7 @@ public class LogApiController {
     @DeleteMapping("/{logId}")
     public ResponseEntity<?> deleteWorkoutLog(@PathVariable Integer logId,
                                               @RequestHeader("Authorization") String authorizationHeader) {
-
         try {
-
             if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ");
             }

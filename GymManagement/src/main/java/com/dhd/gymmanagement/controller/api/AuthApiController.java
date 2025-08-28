@@ -48,8 +48,7 @@ public class AuthApiController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Mật khẩu không đúng");
             }
 
-            // Cho phép tất cả role đăng nhập
-            // Không cần kiểm tra role nữa
+
 
             // Tạo JWT token
             String jwtToken = JwtUtils.generateToken(
@@ -84,7 +83,7 @@ public class AuthApiController {
             String password = (String) registerRequest.get("password");
             String phoneNumber = (String) registerRequest.get("phoneNumber");
 
-            // Validation
+
             if (name == null || email == null || password == null) {
                 return ResponseEntity.badRequest().body("Tên, email và mật khẩu không được để trống");
             }
@@ -93,26 +92,26 @@ public class AuthApiController {
                 return ResponseEntity.badRequest().body("Mật khẩu phải có ít nhất 6 ký tự");
             }
 
-            // Kiểm tra email đã tồn tại
+
             if (userService.getUserByEmail(email).isPresent()) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("Email đã tồn tại trong hệ thống");
             }
 
-            // Kiểm tra số điện thoại đã tồn tại (nếu có)
+
             if (phoneNumber != null && !phoneNumber.trim().isEmpty()) {
                 if (userService.getUserByPhoneNumber(phoneNumber).isPresent()) {
                     return ResponseEntity.status(HttpStatus.CONFLICT).body("Số điện thoại đã tồn tại trong hệ thống");
                 }
             }
 
-            // Tạo user mới
+
             User newUser = new User();
             newUser.setName(name);
             newUser.setEmail(email);
             newUser.setPasswordHash(passwordEncoder.encode(password));
             newUser.setPhoneNumber(phoneNumber);
-            newUser.setRole(User.Role.USER); // Mặc định là USER role
-            newUser.setIsDeleted(0); // Không bị xóa
+            newUser.setRole(User.Role.USER);
+            newUser.setIsDeleted(0);
 
             userService.createUser(newUser);
 

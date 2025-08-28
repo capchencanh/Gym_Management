@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.sql.Date;
 
-public class WorkoutLogDTO {
+public class CreateWorkoutLogDTO {
     
     @JsonProperty("user_id")
     private Integer userId;
