@@ -8,13 +8,14 @@ import com.dhd.gymmanagement.entity.WorkoutLogComment;
 import com.dhd.gymmanagement.service.UserService;
 import com.dhd.gymmanagement.service.WorkoutLogCommentService;
 import com.dhd.gymmanagement.service.WorkoutLogService;
-import com.dhd.gymmanagement.utils.JwtUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.sql.Date;
 import java.util.HashMap;
@@ -40,18 +41,13 @@ public class LogApiController {
     private WorkoutLogCommentService workoutLogCommentService;
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getUserWorkoutLogs(@PathVariable Integer userId,
-                                                @RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<?> getUserWorkoutLogs(@PathVariable Integer userId) {
         try {
-            if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ");
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || authentication.getName() == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Chưa xác thực");
             }
-            String token = authorizationHeader.substring(7);
-            Map<String, Object> claims = JwtUtils.validateTokenAndGetClaims(token);
-            if (claims == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ hoặc đã hết hạn");
-            }
-            String tokenEmail = (String) claims.get("email");
+            String tokenEmail = authentication.getName();
             User tokenUser = userService.getUserByEmail(tokenEmail).orElse(null);
             if (tokenUser == null || !tokenUser.getUserId().equals(userId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Không có quyền truy cập dữ liệu này");
@@ -59,7 +55,6 @@ public class LogApiController {
 
             List<WorkoutLog> logs = workoutLogService.findByUserId(userId);
 
-            // Gắn comment vào mỗi log trước khi chuyển đổi sang DTO
             logs.forEach(log -> {
                 List<WorkoutLogComment> comments = workoutLogCommentService.getCommentsByLogId(log.getLogId());
                 log.setComments(comments);
@@ -79,18 +74,13 @@ public class LogApiController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createWorkoutLog(@RequestBody CreateWorkoutLogDTO createDTO,
-                                              @RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<?> createWorkoutLog(@RequestBody CreateWorkoutLogDTO createDTO) {
         try {
-            if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ");
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || authentication.getName() == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Chưa xác thực");
             }
-            String token = authorizationHeader.substring(7);
-            Map<String, Object> claims = JwtUtils.validateTokenAndGetClaims(token);
-            if (claims == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ hoặc đã hết hạn");
-            }
-            String tokenEmail = (String) claims.get("email");
+            String tokenEmail = authentication.getName();
             User tokenUser = userService.getUserByEmail(tokenEmail).orElse(null);
             if (tokenUser == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User không tồn tại");
@@ -126,24 +116,17 @@ public class LogApiController {
     }
 
     @GetMapping("/{logId}")
-    public ResponseEntity<?> getWorkoutLog(@PathVariable Integer logId,
-                                           @RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<?> getWorkoutLog(@PathVariable Integer logId) {
         try {
-            if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ");
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || authentication.getName() == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Chưa xác thực");
             }
-            String token = authorizationHeader.substring(7);
-            Map<String, Object> claims = JwtUtils.validateTokenAndGetClaims(token);
-            if (claims == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ hoặc đã hết hạn");
-            }
-
             WorkoutLog log = workoutLogService.findById(logId).orElse(null);
             if (log == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy workout log");
             }
-
-            String tokenEmail = (String) claims.get("email");
+            String tokenEmail = authentication.getName();
             User tokenUser = userService.getUserByEmail(tokenEmail).orElse(null);
             if (tokenUser == null || !tokenUser.getUserId().equals(log.getUserId())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Không có quyền truy cập log này");
@@ -164,22 +147,17 @@ public class LogApiController {
     }
 
     @DeleteMapping("/{logId}")
-    public ResponseEntity<?> deleteWorkoutLog(@PathVariable Integer logId,
-                                              @RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<?> deleteWorkoutLog(@PathVariable Integer logId) {
         try {
-            if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ");
-            }
-            String token = authorizationHeader.substring(7);
-            Map<String, Object> claims = JwtUtils.validateTokenAndGetClaims(token);
-            if (claims == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ hoặc đã hết hạn");
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || authentication.getName() == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Chưa xác thực");
             }
             WorkoutLog log = workoutLogService.findById(logId).orElse(null);
             if (log == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy workout log");
             }
-            String tokenEmail = (String) claims.get("email");
+            String tokenEmail = authentication.getName();
             User tokenUser = userService.getUserByEmail(tokenEmail).orElse(null);
             if (tokenUser == null || !tokenUser.getUserId().equals(log.getUserId())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Không có quyền xóa log này");

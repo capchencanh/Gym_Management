@@ -52,6 +52,10 @@ public class UserPTRequestApiController {
             String startTimeStr = (String) request.get("startTime");
             String endTimeStr = (String) request.get("endTime");
 
+            if (dayOfWeekStr == null || startTimeStr == null || endTimeStr == null) {
+                return ResponseEntity.badRequest().body("Thiếu dữ liệu: dayOfWeek/startTime/endTime");
+            }
+
             DayOfWeek dayOfWeek = DayOfWeek.valueOf(dayOfWeekStr.toUpperCase());
             LocalTime startTime = LocalTime.parse(startTimeStr);
             LocalTime endTime = LocalTime.parse(endTimeStr);
@@ -79,6 +83,10 @@ public class UserPTRequestApiController {
             String startTimeStr = (String) request.get("startTime");
             String endTimeStr = (String) request.get("endTime");
             Boolean isAvailable = (Boolean) request.get("isAvailable");
+
+            if (dayOfWeekStr == null || startTimeStr == null || endTimeStr == null) {
+                return ResponseEntity.badRequest().body("Thiếu dữ liệu: dayOfWeek/startTime/endTime");
+            }
 
             DayOfWeek dayOfWeek = DayOfWeek.valueOf(dayOfWeekStr.toUpperCase());
             LocalTime startTime = LocalTime.parse(startTimeStr);

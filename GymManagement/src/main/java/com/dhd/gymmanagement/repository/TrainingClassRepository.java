@@ -14,7 +14,7 @@ public interface TrainingClassRepository extends JpaRepository<TrainingClass, In
     @Query("SELECT tc FROM TrainingClass tc WHERE tc.isDeleted = 0")
     List<TrainingClass> findAllActive();
     
-    @Query("SELECT tc FROM TrainingClass tc LEFT JOIN FETCH tc.trainer t LEFT JOIN FETCH t.user WHERE tc.isDeleted = 0")
+    @Query("SELECT tc FROM TrainingClass tc LEFT JOIN FETCH tc.trainer t LEFT JOIN FETCH t.user u WHERE tc.isDeleted = 0")
     List<TrainingClass> findAllActiveWithTrainerAndUser();
     
     @Query("SELECT tc FROM TrainingClass tc WHERE tc.isDeleted = 0 AND tc.trainer.trainerId = :trainerId")
@@ -29,6 +29,6 @@ public interface TrainingClassRepository extends JpaRepository<TrainingClass, In
     @Query("SELECT tc FROM TrainingClass tc WHERE tc.isDeleted = 0 AND tc.trainer IS NOT NULL")
     List<TrainingClass> findClassesWithTrainer();
     
-    @Query("SELECT COUNT(ce) FROM ClassEnrollment ce WHERE ce.trainingClass.classId = :classId AND ce.isDeleted = 0 AND ce.status = 'ENROLLED'")
+    @Query("SELECT COUNT(ce) FROM ClassEnrollment ce WHERE ce.trainingClass.classId = :classId AND (ce.isDeleted = 0 OR ce.isDeleted IS NULL)")
     Long countEnrolledUsers(@Param("classId") Integer classId);
 }

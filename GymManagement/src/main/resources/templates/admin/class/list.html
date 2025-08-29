@@ -159,7 +159,8 @@
             </div>
         </div>
     </main>
-    <form id="deleteForm" method="post" style="display: none;">
+    <form id="deleteForm" method="post" th:action="@{/admin/classes}" style="display: none;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
     </form>
     <div th:replace="~{base :: footer}"></div>
     <script>

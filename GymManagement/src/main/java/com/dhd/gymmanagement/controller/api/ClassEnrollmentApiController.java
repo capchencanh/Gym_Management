@@ -3,12 +3,14 @@ package com.dhd.gymmanagement.controller.api;
 import com.dhd.gymmanagement.dto.ClassEnrollmentDTO;
 import com.dhd.gymmanagement.entity.ClassEnrollment;
 import com.dhd.gymmanagement.service.ClassEnrollmentService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -18,6 +20,8 @@ public class ClassEnrollmentApiController {
 
     @Autowired
     private ClassEnrollmentService classEnrollmentService;
+
+    private static final Logger logger = LoggerFactory.getLogger(ClassEnrollmentApiController.class);
 
     @GetMapping("/enrollments")
     public ResponseEntity<List<ClassEnrollmentDTO>> getAllEnrollments() {
@@ -38,21 +42,48 @@ public class ClassEnrollmentApiController {
                 .collect(Collectors.toList());
             return ResponseEntity.ok(enrollmentDTOs);
         } catch (Exception e) {
+            logger.error("Error getEnrollmentsByUser {}: {}", userId, e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
     }
 
     @PostMapping("/enrollments")
-    public ResponseEntity<ClassEnrollmentDTO> createEnrollment(@RequestBody EnrollmentRequest request) {
+    public ResponseEntity<?> createEnrollment(@RequestBody Map<String, Object> request) {
         try {
-            ClassEnrollment enrollment = classEnrollmentService.enrollUser(request.getUserId(), request.getClassId());
+            final Integer userId;
+            final Integer classId;
+            try {
+                Object u = request.get("userId");
+                Object c = request.get("classId");
+                userId = (u == null) ? null : ((u instanceof Number) ? ((Number) u).intValue() : Integer.valueOf(u.toString()));
+                classId = (c == null) ? null : ((c instanceof Number) ? ((Number) c).intValue() : Integer.valueOf(c.toString()));
+            } catch (Exception ex) {
+                logger.error("Parse payload error: {}", ex.getMessage());
+                return ResponseEntity.badRequest().body(Map.of("message", "Payload không hợp lệ"));
+            }
+            if (userId == null || classId == null) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Thiếu userId hoặc classId"));
+            }
+            boolean alreadyEnrolled = classEnrollmentService.isUserEnrolled(userId, classId);
+            if (alreadyEnrolled) {
+                List<ClassEnrollment> list = classEnrollmentService.getEnrollmentsByUser(userId);
+                ClassEnrollment existing = list.stream()
+                        .filter(e -> e.getTrainingClass() != null && e.getTrainingClass().getClassId().equals(classId))
+                        .findFirst()
+                        .orElse(null);
+                if (existing != null) {
+                    return ResponseEntity.ok(new ClassEnrollmentDTO(existing));
+                }
+            }
+
+            ClassEnrollment enrollment = classEnrollmentService.enrollUser(userId, classId);
             if (enrollment != null) {
                 return ResponseEntity.ok(new ClassEnrollmentDTO(enrollment));
-            } else {
-                return ResponseEntity.badRequest().build();
             }
+
+            return ResponseEntity.ok(Map.of("message", "Không thể tham gia lớp. Vui lòng kiểm tra lại."));
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.ok(Map.of("message", "Không thể tham gia lớp. Vui lòng thử lại sau."));
         }
     }
 

@@ -2,11 +2,12 @@ package com.dhd.gymmanagement.controller.api;
 
 import com.dhd.gymmanagement.entity.User;
 import com.dhd.gymmanagement.service.UserService;
-import com.dhd.gymmanagement.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,21 +21,14 @@ public class UserApiController {
     private UserService userService;
 
     @GetMapping("/profile")
-    public ResponseEntity<?> getProfile(@RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<?> getProfile() {
         try {
-            if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ");
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || authentication.getName() == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Chưa xác thực");
             }
 
-            String token = authorizationHeader.substring(7);
-            
-            // Validate JWT token và lấy thông tin user
-            Map<String, Object> claims = JwtUtils.validateTokenAndGetClaims(token);
-            if (claims == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ hoặc đã hết hạn");
-            }
-
-            String email = (String) claims.get("email");
+            String email = authentication.getName();
             User user = userService.getUserByEmail(email).orElse(null);
 
             if (user == null) {
@@ -45,7 +39,6 @@ public class UserApiController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Tài khoản đã bị xóa");
             }
 
-            // Trả về thông tin user
             Map<String, Object> userInfo = new HashMap<>();
             userInfo.put("user_id", user.getUserId());
             userInfo.put("email", user.getEmail());
@@ -67,20 +60,14 @@ public class UserApiController {
     }
 
     @PutMapping("/profile")
-    public ResponseEntity<?> updateProfile(@RequestHeader("Authorization") String authorizationHeader,
-                                        @RequestBody Map<String, Object> updateRequest) {
+    public ResponseEntity<?> updateProfile(@RequestBody Map<String, Object> updateRequest) {
         try {
-            if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ");
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || authentication.getName() == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Chưa xác thực");
             }
 
-            String token = authorizationHeader.substring(7);
-            Map<String, Object> claims = JwtUtils.validateTokenAndGetClaims(token);
-            if (claims == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ hoặc đã hết hạn");
-            }
-
-            String email = (String) claims.get("email");
+            String email = authentication.getName();
             User user = userService.getUserByEmail(email).orElse(null);
 
             if (user == null) {

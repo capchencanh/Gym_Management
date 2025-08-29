@@ -8,6 +8,7 @@ import com.dhd.gymmanagement.repository.TrainingClassRepository;
 import com.dhd.gymmanagement.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -41,21 +42,38 @@ public class ClassEnrollmentService {
         return null;
     }
 
+    @Transactional
     public ClassEnrollment enrollUser(Integer userId, Integer classId) {
-        // Kiểm tra xem user đã đăng ký lớp này chưa
         Optional<ClassEnrollment> existingEnrollment = classEnrollmentRepository.findByClassIdAndUserId(classId, userId);
-        if (existingEnrollment.isPresent() && existingEnrollment.get().getIsDeleted() == 0) {
-            return null; // Đã đăng ký rồi
+        if (existingEnrollment.isPresent()) {
+            ClassEnrollment exists = existingEnrollment.get();
+            if (exists.getIsDeleted() != null && exists.getIsDeleted() == 1) {
+                exists.setIsDeleted(0);
+                exists.setStatus(ClassEnrollment.Status.ENROLLED);
+                exists.setJoinedAt(new Timestamp(System.currentTimeMillis()));
+                return classEnrollmentRepository.save(exists);
+            }
+            if (exists.getIsDeleted() == null || exists.getIsDeleted() == 0) {
+                return exists;
+            }
         }
 
-        // Kiểm tra xem lớp có còn chỗ
         TrainingClass trainingClass = trainingClassRepository.findById(classId).orElse(null);
         if (trainingClass == null || trainingClass.getIsDeleted() != 0) {
             return null;
         }
 
         Long currentEnrolled = classEnrollmentRepository.countEnrolledUsersByClassId(classId);
-        if (currentEnrolled >= trainingClass.getMaxParticipants()) {
+        if (currentEnrolled == null) {
+            currentEnrolled = 0L;
+        }
+
+        Integer maxParticipants = trainingClass.getMaxParticipants();
+        if (maxParticipants == null) {
+            maxParticipants = Integer.MAX_VALUE;
+        }
+
+        if (currentEnrolled >= maxParticipants.longValue()) {
             return null; // Lớp đầy
         }
 
@@ -74,6 +92,7 @@ public class ClassEnrollmentService {
         return classEnrollmentRepository.save(enrollment);
     }
 
+    @Transactional
     public boolean cancelEnrollment(Integer enrollmentId) {
         Optional<ClassEnrollment> enrollment = classEnrollmentRepository.findById(enrollmentId);
         if (enrollment.isPresent() && enrollment.get().getIsDeleted() == 0) {
@@ -87,6 +106,7 @@ public class ClassEnrollmentService {
         return false;
     }
 
+    @Transactional
     public boolean markAttendance(Integer enrollmentId, Boolean attendance) {
         Optional<ClassEnrollment> enrollment = classEnrollmentRepository.findById(enrollmentId);
         if (enrollment.isPresent() && enrollment.get().getIsDeleted() == 0) {
@@ -101,6 +121,7 @@ public class ClassEnrollmentService {
         return false;
     }
 
+    @Transactional
     public boolean completeEnrollment(Integer enrollmentId) {
         Optional<ClassEnrollment> enrollment = classEnrollmentRepository.findById(enrollmentId);
         if (enrollment.isPresent() && enrollment.get().getIsDeleted() == 0) {

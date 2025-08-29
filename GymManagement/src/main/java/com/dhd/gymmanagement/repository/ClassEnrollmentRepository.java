@@ -21,10 +21,10 @@ public interface ClassEnrollmentRepository extends JpaRepository<ClassEnrollment
     @Query("SELECT ce FROM ClassEnrollment ce WHERE (ce.isDeleted = 0 OR ce.isDeleted IS NULL) AND ce.trainingClass.classId = :classId AND ce.user.userId = :userId")
     Optional<ClassEnrollment> findByClassIdAndUserId(@Param("classId") Integer classId, @Param("userId") Integer userId);
     
-    @Query("SELECT ce FROM ClassEnrollment ce JOIN FETCH ce.user JOIN FETCH ce.trainingClass WHERE (ce.isDeleted = 0 OR ce.isDeleted IS NULL) AND ce.trainingClass.classId = :classId AND ce.status != 'CANCELLED'")
+    @Query("SELECT ce FROM ClassEnrollment ce JOIN FETCH ce.user JOIN FETCH ce.trainingClass WHERE (ce.isDeleted = 0 OR ce.isDeleted IS NULL) AND ce.trainingClass.classId = :classId")
     List<ClassEnrollment> findEnrolledUsersByClassId(@Param("classId") Integer classId);
     
-    @Query("SELECT COUNT(ce) FROM ClassEnrollment ce WHERE (ce.isDeleted = 0 OR ce.isDeleted IS NULL) AND ce.trainingClass.classId = :classId AND ce.status != 'CANCELLED'")
+    @Query("SELECT COUNT(ce) FROM ClassEnrollment ce WHERE (ce.isDeleted = 0 OR ce.isDeleted IS NULL) AND ce.trainingClass.classId = :classId")
     Long countEnrolledUsersByClassId(@Param("classId") Integer classId);
     
     @Query("SELECT ce FROM ClassEnrollment ce JOIN FETCH ce.user JOIN FETCH ce.trainingClass WHERE ce.isDeleted = 0 AND ce.trainingClass.classId = :classId")

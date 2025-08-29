@@ -18,6 +18,7 @@ public class ClassApiController {
     @Autowired
     private TrainingClassService trainingClassService;
 
+
     @GetMapping("/classes")
     public ResponseEntity<List<ClassDTO>> getAllClasses() {
         try {
@@ -25,7 +26,7 @@ public class ClassApiController {
             List<ClassDTO> classDTOs = classes.stream()
                 .map(ClassDTO::new)
                 .collect(Collectors.toList());
-            
+
             return ResponseEntity.ok(classDTOs);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();

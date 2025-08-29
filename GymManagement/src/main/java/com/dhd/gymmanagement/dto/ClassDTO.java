@@ -1,6 +1,7 @@
 package com.dhd.gymmanagement.dto;
 
 import com.dhd.gymmanagement.entity.TrainingClass;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ClassDTO {
     private Integer id;
@@ -8,7 +9,9 @@ public class ClassDTO {
     private String description;
     private Integer duration;
     private Integer maxParticipants;
+    @JsonProperty("trainerId")
     private Integer trainerId;
+    @JsonProperty("trainerName")
     private String trainerName;
     private String schedule;
     private Double price;
@@ -28,9 +31,10 @@ public class ClassDTO {
 
         if (classEntity.getTrainer() != null) {
             this.trainerId = classEntity.getTrainer().getTrainerId();
-            if (classEntity.getTrainer().getUser() != null) {
-                this.trainerName = classEntity.getTrainer().getUser().getName();
-            }
+            String name = classEntity.getTrainer().getName();
+            this.trainerName = (name != null && !name.isBlank()) ? name : "Chưa phân công";
+        } else {
+            this.trainerName = "Chưa phân công";
         }
     }
 

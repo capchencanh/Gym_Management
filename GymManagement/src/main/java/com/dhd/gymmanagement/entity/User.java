@@ -1,6 +1,7 @@
 package com.dhd.gymmanagement.entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ public class User {
     private String phoneNumber;
 
     @Column(name = "password_hash", nullable = false)
+    @JsonIgnore
     private String passwordHash;
 
     @Enumerated(EnumType.STRING)
