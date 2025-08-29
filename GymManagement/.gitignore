@@ -44,3 +44,6 @@ gym_web/.env
 gym_web/.env.local
 gym_web/.env.development
 gym_web/.env.production
+
+# Backend environment file
+.env
