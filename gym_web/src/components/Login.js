@@ -36,16 +36,11 @@ const Login = () => {
             setLoading(true);
             setError(null);
 
-          
             let res = await Apis.post(endpoints["login"], { 
                 email: user.email, 
                 password: user.password 
             });
-            
-           
-            localStorage.setItem("token", res.data.token);
 
-           
             let u = await Apis.get(endpoints["profile"]);
 
          
@@ -70,19 +65,21 @@ const Login = () => {
             nav("/");
         } catch (ex) {
             if (ex.response) {
+                const data = ex.response.data;
+                const dataMessage = typeof data === 'string' ? data : (data?.message || null);
                 switch (ex.response.status) {
                     case 400:
-                        setError(ex.response.data || "Dữ liệu không hợp lệ");
+                        setError(dataMessage || "Dữ liệu không hợp lệ");
                         break;
                     case 401:
-                        setError(ex.response.data || "Email hoặc mật khẩu không đúng");
+                        setError(dataMessage || "Email hoặc mật khẩu không đúng");
                         break;
                     case 403:
-                        if (ex.response.data && typeof ex.response.data === 'string') {
-                            if (ex.response.data.includes("không thể đăng nhập vào ứng dụng di động")) {
-                                setError(ex.response.data);
+                        if (typeof data === 'string') {
+                            if (data.includes("không thể đăng nhập vào ứng dụng di động")) {
+                                setError(data);
                             } else if (ex.response.data.includes("đã bị xóa")) {
-                                setError(ex.response.data);
+                                setError(data);
                             } else {
                                 setError("Tài khoản của bạn đã bị khóa hoặc không có quyền truy cập");
                             }
@@ -94,8 +91,8 @@ const Login = () => {
                         setError("Tài khoản không tồn tại. Vui lòng kiểm tra lại email.");
                         break;
                     default:
-                        if (ex.response.data && typeof ex.response.data === 'string') {
-                            setError(ex.response.data);
+                        if (typeof data === 'string') {
+                            setError(data);
                         } else {
                             setError("Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.");
                         }

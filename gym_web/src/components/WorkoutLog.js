@@ -58,8 +58,6 @@ const WorkoutLog = () => {
         }
     };
 
-   // Trong file WorkoutLog.js
-// DÁN VÀO ĐÚNG VỊ TRÍ CỦA HÀM CŨ
 const formatWorkoutHistoryFromDB = (dbData) => {
     const sessions = {};
     
@@ -85,12 +83,12 @@ const formatWorkoutHistoryFromDB = (dbData) => {
                 sets: [],
                 duration: log.workout_type === 'cardio' ? log.duration_minutes : null,
                 calories: log.workout_type === 'cardio' ? log.calories_burned : null,
-                comments: [] // Thêm mảng comments cho mỗi bài tập
+                comments: [] 
             };
             sessions[sessionKey].exercises.push(exercise);
         }
         
-        // Gộp comment từ các log vào chung một bài tập
+     
         if (log.comments && log.comments.length > 0) {
             exercise.comments.push(...log.comments);
         }

@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import ChatService from '../services/chatService';
 import './Chat.css';
+import { MyUserContext } from '../configs/Contexts';
 
 const Chat = ({ isOpen, onClose, receiverId, receiverName }) => {
     const [messages, setMessages] = useState([]);
@@ -10,67 +11,36 @@ const Chat = ({ isOpen, onClose, receiverId, receiverName }) => {
     const messagesEndRef = useRef(null);
     const [currentUserId, setCurrentUserId] = useState(null);
     const chatService = useRef(new ChatService());
+    const userContext = useContext(MyUserContext);
 
     useEffect(() => {
         if (isOpen && receiverId) {
-          
-            const user = JSON.parse(localStorage.getItem('user'));
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-            const authUser = JSON.parse(localStorage.getItem('authUser'));
-            
-            
-            const foundUser = user || currentUser || userInfo || authUser;
-            
+            const foundUser = userContext;
             if (foundUser) {
-                let userId = foundUser.userId || foundUser.id || foundUser.user_id;
-                
+                const userId = foundUser.id || foundUser.user_id;
                 if (userId) {
                     setCurrentUserId(userId);
-                    
-                    
                     chatService.current.listenToConversation(
-                        userId, 
-                        receiverId, 
-                        (messages) => {
-                            setMessages(messages);
-                            setError('');
+                        userId,
+                        receiverId,
+                        (payload) => {
+                            if (Array.isArray(payload)) {
+                                setMessages(payload);
+                                setError('');
+                            } else if (payload && payload.message) {
+                                setMessages([]);
+                                setError(payload.message);
+                            } else {
+                                setMessages([]);
+                                setError('Không thể tải tin nhắn.');
+                            }
                         }
                     );
                 } else {
                     setError('Không thể lấy ID người dùng. Vui lòng đăng nhập lại.');
                 }
             } else {
-               
-                const token = localStorage.getItem('token');
-                
-                if (token) {
-                    try {
-                        const payload = token.split('.')[1];
-                        const decodedPayload = JSON.parse(atob(payload));
-                        const userId = decodedPayload.userId;
-                        
-                        if (userId) {
-                            setCurrentUserId(userId);
-                            
-                           
-                            chatService.current.listenToConversation(
-                                userId, 
-                                receiverId, 
-                                (messages) => {
-                                    setMessages(messages);
-                                    setError('');
-                                }
-                            );
-                        } else {
-                            setError('Không thể lấy ID người dùng từ token. Vui lòng đăng nhập lại.');
-                        }
-                    } catch (error) {
-                        setError('Lỗi khi xử lý token. Vui lòng đăng nhập lại.');
-                    }
-                } else {
-                    setError('Không tìm thấy token đăng nhập. Vui lòng đăng nhập lại.');
-                }
+                setError('Vui lòng đăng nhập để sử dụng chat.');
             }
         }
 
@@ -80,7 +50,7 @@ const Chat = ({ isOpen, onClose, receiverId, receiverName }) => {
                 chatService.current.stopListening(currentUserId, receiverId);
             }
         };
-    }, [isOpen, receiverId, currentUserId]);
+    }, [isOpen, receiverId, currentUserId, userContext]);
 
     useEffect(() => {
         scrollToBottom();
