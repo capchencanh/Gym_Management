@@ -1,0 +1,38 @@
+.package-container {
+    padding: 2rem 0;
+    background-color: #f8f9fa;
+}
+
+.package-card {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    transition: box-shadow 0.2s;
+}
+
+.package-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.package-title {
+    color: #495057;
+    font-weight: 600;
+}
+
+.package-price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #dc3545;
+}
+
+.package-duration {
+    background-color: #28a745;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.search-box {
+    max-width: 400px;
+    margin: 0 auto 2rem auto;
+}

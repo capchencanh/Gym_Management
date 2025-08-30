@@ -1,24 +1,12 @@
 import React, { useContext, useState } from "react";
-import { Button, Col, Form, Alert, Container, Row, Card } from "react-bootstrap";
+import { Col, Container, Row, Card } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import MySpinner from "./Layouts/MySpinner";
 import Apis, { endpoints } from "../configs/Apis";
 import { MyDispatchContext } from "../configs/Contexts";
+import LoginForm from "./LoginForm";
+import { handleLoginError } from "./LoginErrorHandler";
 
 const Login = () => {
-    const info = [
-        {
-            type: "email",
-            title: "Email",
-            field: "email",
-        },
-        {
-            type: "password",
-            title: "Mật khẩu",
-            field: "password",
-        },
-    ];
-
     const [user, setUser] = useState({});
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -36,16 +24,13 @@ const Login = () => {
             setLoading(true);
             setError(null);
 
-            let res = await Apis.post(endpoints["login"], { 
+            await Apis.post(endpoints["login"], { 
                 email: user.email, 
                 password: user.password 
             });
 
             let u = await Apis.get(endpoints["profile"]);
 
-         
-
-           
             dispatch({
                 type: "login",
                 payload: {
@@ -64,43 +49,7 @@ const Login = () => {
 
             nav("/");
         } catch (ex) {
-            if (ex.response) {
-                const data = ex.response.data;
-                const dataMessage = typeof data === 'string' ? data : (data?.message || null);
-                switch (ex.response.status) {
-                    case 400:
-                        setError(dataMessage || "Dữ liệu không hợp lệ");
-                        break;
-                    case 401:
-                        setError(dataMessage || "Email hoặc mật khẩu không đúng");
-                        break;
-                    case 403:
-                        if (typeof data === 'string') {
-                            if (data.includes("không thể đăng nhập vào ứng dụng di động")) {
-                                setError(data);
-                            } else if (ex.response.data.includes("đã bị xóa")) {
-                                setError(data);
-                            } else {
-                                setError("Tài khoản của bạn đã bị khóa hoặc không có quyền truy cập");
-                            }
-                        } else {
-                            setError("Tài khoản của bạn đã bị khóa hoặc không có quyền truy cập");
-                        }
-                        break;
-                    case 404:
-                        setError("Tài khoản không tồn tại. Vui lòng kiểm tra lại email.");
-                        break;
-                    default:
-                        if (typeof data === 'string') {
-                            setError(data);
-                        } else {
-                            setError("Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.");
-                        }
-                        break;
-                }
-            } else {
-                setError("Có lỗi xảy ra. Vui lòng kiểm tra kết nối mạng và thử lại.");
-            }
+            setError(handleLoginError(ex));
         } finally {
             setLoading(false);
         }
@@ -117,39 +66,13 @@ const Login = () => {
                                 ĐĂNG NHẬP
                             </h1>
                             
-
-                            
-                            <Form onSubmit={login}>
-                                {error && <Alert variant="danger">{error}</Alert>}
-
-                                {info.map((i) => (
-                                    <Form.Group className="mb-3" controlId={i.field} key={i.field}>
-                                        <Form.Label>{i.title}</Form.Label>
-                                        <Form.Control
-                                            required
-                                            type={i.type}
-                                            placeholder={i.title}
-                                            value={user[i.field] || ""}
-                                            onChange={(e) => setState(e.target.value, i.field)}
-                                            size="lg"
-                                        />
-                                    </Form.Group>
-                                ))}
-
-                                {loading ? (
-                                    <MySpinner />
-                                ) : (
-                                    <Button 
-                                        type="submit" 
-                                        variant="primary" 
-                                        size="lg"
-                                        className="w-100 mb-3"
-                                    >
-                                        <i className="fas fa-sign-in-alt me-2"></i>
-                                        Đăng nhập
-                                    </Button>
-                                )}
-                            </Form>
+                            <LoginForm 
+                                user={user}
+                                setState={setState}
+                                login={login}
+                                loading={loading}
+                                error={error}
+                            />
                             
                             <div className="text-center">
                                 <small className="text-muted">
@@ -159,8 +82,6 @@ const Login = () => {
                                     </a>
                                 </small>
                             </div>
-                            
-
                         </Card.Body>
                     </Card>
                 </Col>

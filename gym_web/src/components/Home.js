@@ -1,5 +1,6 @@
 import React from 'react';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import { useUser } from '../configs/UserProvider';
 
 const Home = () => {
@@ -24,7 +25,7 @@ const Home = () => {
       </Row>
 
       <Row className="mb-4">
-        <Col md={4} className="mb-3">
+        <Col md={3} className="mb-3">
           <Card className="h-100 text-center">
             <Card.Body>
               <i className="fas fa-dumbbell fa-3x text-primary mb-3"></i>
@@ -36,7 +37,7 @@ const Home = () => {
           </Card>
         </Col>
 
-        <Col md={4} className="mb-3">
+        <Col md={3} className="mb-3">
           <Card className="h-100 text-center">
             <Card.Body>
               <i className="fas fa-apple-alt fa-3x text-success mb-3"></i>
@@ -48,7 +49,7 @@ const Home = () => {
           </Card>
         </Col>
 
-        <Col md={4} className="mb-3">
+        <Col md={3} className="mb-3">
           <Card className="h-100 text-center">
             <Card.Body>
               <i className="fas fa-users fa-3x text-info mb-3"></i>
@@ -56,6 +57,21 @@ const Home = () => {
               <Card.Text>
                 Đăng ký và tham gia các lớp tập với PT chuyên nghiệp
               </Card.Text>
+            </Card.Body>
+          </Card>
+        </Col>
+
+        <Col md={3} className="mb-3">
+          <Card className="h-100 text-center">
+            <Card.Body>
+              <i className="fas fa-tags fa-3x text-warning mb-3"></i>
+              <Card.Title>Gói tập luyện</Card.Title>
+              <Card.Text>
+                Xem và đăng ký các gói tập phù hợp với nhu cầu
+              </Card.Text>
+              <Link to="/package" className="btn btn-warning">
+                Xem gói tập
+              </Link>
             </Card.Body>
           </Card>
         </Col>

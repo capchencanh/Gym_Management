@@ -62,18 +62,24 @@ const Header = () => {
                         {user ? (
                             <>
                                 <Nav.Link as={Link} to="/profile" className="d-flex align-items-center">
-                                    {user.avatar && (
+                                    {user.avatar_url ? (
                                         <img
-                                            src={user.avatar}
-                                            alt={user.username || user.name}
-                                            style={{ width: "30px", height: "30px", borderRadius: "50%", marginRight: "8px" }}
+                                            src={user.avatar_url}
+                                            alt={user.name}
+                                            style={{ width: "30px", height: "30px", borderRadius: "50%", marginRight: "8px", objectFit: "cover" }}
                                         />
+                                    ) : (
+                                        <i className="fas fa-user me-2" style={{ fontSize: "20px" }}></i>
                                     )}
-                                    {user.fullName || user.username || user.name || user.email}
+                                    {user.name || user.email}
                                 </Nav.Link>
                                 <Nav.Link as={Link} to="/pt-management" className="d-flex align-items-center">
                                     <i className="fas fa-user-tie me-1"></i>
                                     Personal Trainer
+                                </Nav.Link>
+                                <Nav.Link as={Link} to="/package" className="d-flex align-items-center">
+                                    <i className="fas fa-dumbbell me-1"></i>
+                                    Gói Tập
                                 </Nav.Link>
                                 <Button variant="outline-danger" onClick={handleLogout} size="sm" className="ms-lg-2 align-self-center mt-2 mt-lg-0">
                                     Đăng xuất

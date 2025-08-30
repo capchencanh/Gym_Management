@@ -41,6 +41,8 @@ export const endpoints = {
     'users': 'api/users',
     'profile': 'api/users/profile',
     'update-profile': 'api/users/profile',
+    'update-avatar': 'api/users/avatar',
+    'change-password': 'api/users/change-password',
     
     // Categories 
     'categories2': 'api/categories2',
@@ -78,7 +80,16 @@ export const endpoints = {
     'pt-sessions': 'api/pt/training/session',
     'pt-sessions-by-trainer': 'api/pt/training/trainer',
     'pt-sessions-by-date': 'api/pt/training/trainer/date',
-    'pt-sessions-by-user-trainer': 'api/pt/training/user'
+    'pt-sessions-by-user-trainer': 'api/pt/training/user',
+    
+    // Packages
+    'packages': 'api/packages',
+    'package-detail': 'api/packages',
+    
+    // Payment
+    'create-payment': 'api/payment/create-payment',
+    'payment-callback': 'api/payment/payment-callback',
+    'check-payment-status': 'api/payment/check-status'
 };
 
 export default Apis;

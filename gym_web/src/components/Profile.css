@@ -1,0 +1,143 @@
+.profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+.profile-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 1rem 0;
+}
+
+.profile-header h1 {
+    font-size: 2.25rem;
+    font-weight: 600;
+    color: #000000;
+    margin-bottom: 0.5rem;
+}
+
+.profile-header p {
+    color: #666666;
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+.profile-section {
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.profile-info {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2rem;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    background: #f8f9fa;
+    border: 2px solid #e5e5e5;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.profile-avatar i {
+    font-size: 3rem;
+    color: #666666;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-details h2 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #000000;
+    margin-bottom: 1rem;
+}
+
+.profile-details .detail-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 1rem;
+}
+
+.profile-details p {
+    color: #666666;
+    margin-bottom: 0.5rem;
+}
+
+.profile-details i {
+    color: #000000;
+    margin-right: 0.5rem;
+    width: 16px;
+}
+
+.profile-section h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #000000;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.profile-section h3 i {
+    margin-right: 0.5rem;
+    color: #666666;
+}
+
+.btn-custom {
+    background: #000000;
+    border: none;
+    color: #ffffff;
+    padding: 0.75rem 2rem;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-custom:hover {
+    background: #333333;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.btn-custom:disabled {
+    background: #666666;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.alert {
+    border-radius: 6px;
+    border: none;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .profile-info {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .profile-details .detail-row {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+}

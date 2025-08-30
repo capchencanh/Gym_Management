@@ -8,6 +8,8 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import PTManagement from "./components/PTManagement";
 import ClassList from "./components/ClassList";
+import Profile from "./components/Profile";
+import Package from "./components/Package";
 import { MyUserContext, MyDispatchContext } from "./configs/Contexts";
 import MyUserReducer from "./reducer/MyUserReducer"; 
 import Apis, { endpoints } from "./configs/Apis";
@@ -63,6 +65,8 @@ const App = () => {
                                 <Route path="/workout" element={<WorkoutLog />} />
                                 <Route path="/pt-management" element={<PTManagement userId={user?.id} />} />
                                 <Route path="/classes" element={<ClassList />} />
+                                <Route path="/profile" element={<Profile />} />
+                                <Route path="/package" element={<Package />} />
                                 <Route path="/home" element={<Home />} />
                                 <Route path="*" element={<Home />} />
                             </Routes>
