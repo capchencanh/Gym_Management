@@ -1,6 +1,8 @@
 package com.dhd.gymmanagement.service;
 
 import com.dhd.gymmanagement.entity.MembershipPackage;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,6 +10,8 @@ public interface MembershipPackageService {
     
 
     List<MembershipPackage> getAllActivePackages();
+    
+    Page<MembershipPackage> getAllPackages(Pageable pageable);
     
 
     Optional<MembershipPackage> getPackageById(Integer packageId);
@@ -20,8 +24,12 @@ public interface MembershipPackageService {
 
     MembershipPackage updatePackage(Integer packageId, MembershipPackage packageData);
     
+    MembershipPackage updatePackage(MembershipPackage packageData);
+    
 
     boolean softDeletePackage(Integer packageId);
+    
+    boolean deletePackage(Integer packageId);
     
 
     boolean hardDeletePackage(Integer packageId);
@@ -29,8 +37,14 @@ public interface MembershipPackageService {
 
     List<MembershipPackage> findPackagesByPriceRange(Double minPrice, Double maxPrice);
     
+    Page<MembershipPackage> findPackagesByPriceRange(Double minPrice, Double maxPrice, Pageable pageable);
+    
 
     List<MembershipPackage> findPackagesByDuration(Integer duration);
+    
+    Page<MembershipPackage> findPackagesByDuration(Integer duration, Pageable pageable);
+    
+    Page<MembershipPackage> searchPackages(String keyword, Pageable pageable);
     
 
     boolean isPackageNameExists(String name);
@@ -39,10 +53,10 @@ public interface MembershipPackageService {
     long countActivePackages();
     
 
-    long calculateTotalRevenue();
+    Double calculateTotalRevenue();
     
 
-    long calculateMonthlyRevenue();
+    Double calculateMonthlyRevenue();
     
 
     long getMostPopularPackageCount();

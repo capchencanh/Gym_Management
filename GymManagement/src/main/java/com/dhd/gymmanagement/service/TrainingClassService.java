@@ -5,6 +5,8 @@ import com.dhd.gymmanagement.entity.Trainer;
 import com.dhd.gymmanagement.repository.TrainingClassRepository;
 import com.dhd.gymmanagement.repository.TrainerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -22,6 +24,10 @@ public class TrainingClassService {
 
     public List<TrainingClass> getAllClasses() {
         return trainingClassRepository.findAllActiveWithTrainerAndUser();
+    }
+    
+    public Page<TrainingClass> getAllClasses(Pageable pageable) {
+        return trainingClassRepository.findAllActiveWithTrainerAndUser(pageable);
     }
 
     public TrainingClass getClassById(Integer classId) {
@@ -76,6 +82,10 @@ public class TrainingClassService {
 
     public List<TrainingClass> searchClassesByName(String name) {
         return trainingClassRepository.findByNameContaining(name);
+    }
+    
+    public Page<TrainingClass> searchClasses(String keyword, Pageable pageable) {
+        return trainingClassRepository.findByNameContaining(keyword, pageable);
     }
 
     public List<TrainingClass> getClassesWithoutTrainer() {

@@ -1,5 +1,6 @@
 package com.dhd.gymmanagement.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.sql.Timestamp;
 
@@ -15,6 +16,7 @@ public class MembershipPackage {
     private String name;
 
     @Column(name = "duration_months", nullable = false)
+    @JsonProperty("duration_months")
     private Integer durationMonths;
 
     @Column(nullable = false)

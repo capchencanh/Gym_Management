@@ -127,9 +127,8 @@ public class FirebaseChatService {
         }, 10000);
         
         try {
-            // Lấy tất cả chat rooms có chứa PT này
             DatabaseReference chatRoomsRef = firebaseDatabase.getReference("chatRooms");
-            System.out.println("=== DEBUG: Checking chatRooms reference ===");
+
             
             chatRoomsRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -185,7 +184,7 @@ public class FirebaseChatService {
                                             
                                             @Override
                                             public void onCancelled(DatabaseError error) {
-                                                System.out.println("=== DEBUG: Error getting last message: " + error.getMessage() + " ===");
+                            
                                             }
                                         });
                                         
@@ -193,7 +192,7 @@ public class FirebaseChatService {
                                     }
                                 }
                             } else {
-                                System.out.println("=== DEBUG: PT " + ptId + " NOT found in chat room " + chatRoomSnapshot.getKey() + " ===");
+            
                             }
                         }
                         

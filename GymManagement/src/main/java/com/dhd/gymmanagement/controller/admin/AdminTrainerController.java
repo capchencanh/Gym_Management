@@ -5,6 +5,10 @@ import com.dhd.gymmanagement.entity.User;
 import com.dhd.gymmanagement.service.TrainerService;
 import com.dhd.gymmanagement.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -29,18 +33,30 @@ public class AdminTrainerController {
     
     @GetMapping
     public String listTrainers(Model model, 
-                              @RequestParam(required = false) String keyword) {
+                              @RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "10") int size,
+                              @RequestParam(required = false) String keyword,
+                              @RequestParam(required = false) String sortBy,
+                              @RequestParam(defaultValue = "asc") String sortDir) {
         
-        List<User> ptUsers;
+        Sort sort;
+        if (sortBy != null && !sortBy.trim().isEmpty()) {
+            sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
+        } else {
+            sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, "name");
+        }
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        Page<User> ptUsersPage;
         
         if (keyword != null && !keyword.trim().isEmpty()) {
-            ptUsers = userService.searchUsersByRole(User.Role.PT, keyword);
+            ptUsersPage = userService.searchUsersByRole(User.Role.PT, keyword, pageable);
         } else {
-            ptUsers = userService.getUsersByRole(User.Role.PT);
+            ptUsersPage = userService.getUsersByRole(User.Role.PT, pageable);
         }
         
         List<Trainer> trainers = new ArrayList<>();
-        for (User user : ptUsers) {
+        for (User user : ptUsersPage.getContent()) {
             Trainer trainer = new Trainer();
             trainer.setTrainerId(user.getUserId());
             trainer.setUser(user);
@@ -55,15 +71,19 @@ public class AdminTrainerController {
             trainers.add(trainer);
         }
         
-        // Tính toán số lượng trainer
-        long activeTrainers = ptUsers.size(); // Số trainer đang hiển thị (đã filter is_deleted = 0)
+        long activeTrainers = ptUsersPage.getTotalElements();
         
-        // Đếm tổng số trainer (cả active và deleted)
         long totalTrainers = userService.countUsersByRole(User.Role.PT);
-        long inactiveTrainers = totalTrainers - activeTrainers; // Số trainer đã bị xóa
+        long inactiveTrainers = totalTrainers - activeTrainers;
         
         model.addAttribute("trainers", trainers);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", ptUsersPage.getTotalPages());
+        model.addAttribute("totalItems", ptUsersPage.getTotalElements());
+        model.addAttribute("size", size);
         model.addAttribute("keyword", keyword);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sortDir", sortDir);
         model.addAttribute("totalTrainers", totalTrainers);
         model.addAttribute("activeTrainers", activeTrainers);
         model.addAttribute("inactiveTrainers", inactiveTrainers);

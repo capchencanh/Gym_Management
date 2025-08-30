@@ -1,24 +1,22 @@
 package com.dhd.gymmanagement.service;
 
 import com.dhd.gymmanagement.entity.User;
+import com.dhd.gymmanagement.entity.Trainer;
 import com.dhd.gymmanagement.entity.UserAvailability;
 import com.dhd.gymmanagement.repository.UserRepository;
-import com.dhd.gymmanagement.repository.UserAvailabilityRepository;
+import com.dhd.gymmanagement.repository.TrainerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
-import org.springframework.web.multipart.MultipartFile;
-import java.io.IOException;
-import java.util.Map;
 import java.sql.Timestamp;
-import java.time.DayOfWeek;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
-import com.dhd.gymmanagement.entity.Trainer;
-import com.dhd.gymmanagement.repository.TrainerRepository;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import java.time.DayOfWeek;
+import java.time.LocalTime;
 
 @Service
 public class UserService {
@@ -27,19 +25,20 @@ public class UserService {
     private UserRepository userRepository;
     
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-    
-    @Autowired
     private TrainerRepository trainerRepository;
     
     @Autowired
-    private UserAvailabilityRepository userAvailabilityRepository;
-
+    private UserProfileService userProfileService;
+    
     @Autowired
-    private Cloudinary cloudinary;
+    private BCryptPasswordEncoder passwordEncoder;
     
     public List<User> getAllUsers() {
         return userRepository.findAllByIsDeleted(0);
+    }
+    
+    public Page<User> getAllUsers(Pageable pageable) {
+        return userRepository.findAllByIsDeleted(0, pageable);
     }
     
     public Optional<User> getUserById(Integer userId) {
@@ -58,12 +57,24 @@ public class UserService {
         return userRepository.findByRoleAndIsDeletedFalse(role);
     }
     
+    public Page<User> getUsersByRole(User.Role role, Pageable pageable) {
+        return userRepository.findByRoleAndIsDeletedFalse(role, pageable);
+    }
+    
     public List<User> searchUsers(String keyword) {
         return userRepository.findByKeyword(keyword);
     }
     
+    public Page<User> searchUsers(String keyword, Pageable pageable) {
+        return userRepository.findByKeywordAndIsDeletedFalse(keyword, pageable);
+    }
+    
     public List<User> searchUsersByRole(User.Role role, String keyword) {
         return userRepository.findByRoleAndKeywordAndIsDeletedFalse(role, keyword);
+    }
+    
+    public Page<User> searchUsersByRole(User.Role role, String keyword, Pageable pageable) {
+        return userRepository.findByRoleAndKeywordAndIsDeletedFalse(role, keyword, pageable);
     }
     
     public User createUser(User user) {
@@ -75,7 +86,6 @@ public class UserService {
         }
         
         user.setPasswordHash(passwordEncoder.encode(user.getPasswordHash()));
-        
         user.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         
@@ -83,35 +93,7 @@ public class UserService {
     }
     
     public User updateUser(Integer userId, User userDetails) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
-        
-        if (!user.getEmail().equals(userDetails.getEmail()) && 
-            userRepository.existsByEmail(userDetails.getEmail())) {
-            throw new RuntimeException("Email đã tồn tại");
-        }
-        if (!user.getPhoneNumber().equals(userDetails.getPhoneNumber()) && 
-            userRepository.existsByPhoneNumber(userDetails.getPhoneNumber())) {
-            throw new RuntimeException("Số điện thoại đã tồn tại");
-        }
-        
-        user.setName(userDetails.getName());
-        user.setEmail(userDetails.getEmail());
-        user.setPhoneNumber(userDetails.getPhoneNumber());
-        user.setGender(userDetails.getGender());
-        user.setBirthdate(userDetails.getBirthdate());
-        user.setHeight(userDetails.getHeight());
-        user.setWeight(userDetails.getWeight());
-        user.setFitnessGoal(userDetails.getFitnessGoal());
-        user.setRole(userDetails.getRole());
-        
-        if (userDetails.getPasswordHash() != null && !userDetails.getPasswordHash().isEmpty()) {
-            user.setPasswordHash(passwordEncoder.encode(userDetails.getPasswordHash()));
-        }
-        
-        user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-        
-        return userRepository.save(user);
+        return userProfileService.updateUser(userId, userDetails);
     }
     
     public void deleteUser(Integer userId) {
@@ -120,7 +102,6 @@ public class UserService {
         user.setIsDeleted(1);
         userRepository.save(user);
         
-
         if (user.getRole() == User.Role.PT) {
             try {
                 Trainer trainer = trainerRepository.findById(userId).orElse(null);
@@ -129,9 +110,39 @@ public class UserService {
                     trainerRepository.save(trainer);
                 }
             } catch (Exception e) {
-
+                // Log error but don't throw
             }
         }
+    }
+    
+    public long countUsers() {
+        return userRepository.countByIsDeleted(0);
+    }
+    
+    public long countUsersByRole(User.Role role) {
+        return userRepository.countByRole(role);
+    }
+    
+    public long countActiveUsersByRole(User.Role role) {
+        return userRepository.countByRoleAndIsDeletedFalse(role);
+    }
+    
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
+    }
+    
+    public User save(User user) {
+        return userProfileService.save(user);
+    }
+    
+    public boolean checkPassword(User user, String password) {
+        return passwordEncoder.matches(password, user.getPasswordHash());
+    }
+    
+    public void updatePassword(User user, String newPassword) {
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        userRepository.save(user);
     }
     
     public boolean changePassword(Integer userId, String oldPassword, String newPassword) {
@@ -159,127 +170,10 @@ public class UserService {
         userRepository.save(user);
     }
     
-    public long countUsers() {
-        return userRepository.countByIsDeleted(0);
-    }
-    
-    public long countUsersByRole(User.Role role) {
-
-        return userRepository.countByRole(role);
-    }
-    
-    public long countActiveUsersByRole(User.Role role) {
-
-        return userRepository.countByRoleAndIsDeletedFalse(role);
-    }
-    
-
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email).orElse(null);
-    }
-    
-    public User save(User user) {
-        user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-        return userRepository.save(user);
-    }
-    
-    public boolean checkPassword(User user, String password) {
-        return passwordEncoder.matches(password, user.getPasswordHash());
-    }
-    
-    public void updatePassword(User user, String newPassword) {
-        user.setPasswordHash(passwordEncoder.encode(newPassword));
-        user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-        userRepository.save(user);
-    }
-    
-
-    public UserAvailability createUserAvailability(Integer userId, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
-        User user = getUserById(userId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
-        
-        UserAvailability availability = new UserAvailability();
-        availability.setUser(user);
-        availability.setDayOfWeek(dayOfWeek);
-        availability.setStartTime(startTime);
-        availability.setEndTime(endTime);
-        availability.setIsAvailable(true);
-        
-        return userAvailabilityRepository.save(availability);
-    }
-    
-
-    public List<UserAvailability> getUserAvailabilities(Integer userId) {
-        return userAvailabilityRepository.findByUserId(userId);
-    }
-    
-
-    public UserAvailability updateUserAvailability(Integer availabilityId, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime, Boolean isAvailable) {
-        UserAvailability availability = userAvailabilityRepository.findById(availabilityId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy availability"));
-        
-        availability.setDayOfWeek(dayOfWeek);
-        availability.setStartTime(startTime);
-        availability.setEndTime(endTime);
-        availability.setIsAvailable(isAvailable);
-        
-        return userAvailabilityRepository.save(availability);
-    }
-    
-
-    public void deleteUserAvailability(Integer availabilityId) {
-        UserAvailability availability = userAvailabilityRepository.findById(availabilityId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy availability"));
-        
-        availability.setIsDeleted(1);
-        userAvailabilityRepository.save(availability);
-    }
-
     public void updateAvatar(String email, MultipartFile avatarFile) throws IOException {
-        // Tìm user bằng email
-        User user = findByEmail(email);
-        if (user == null) {
-            throw new RuntimeException("Không tìm thấy người dùng với email: " + email);
-        }
-
-
-        if (avatarFile != null && !avatarFile.isEmpty()) {
-
-
-            if (user.getAvatarUrl() != null && user.getAvatarUrl().contains("cloudinary.com")) {
-                try {
-
-                    String[] urlParts = user.getAvatarUrl().split("/");
-                    String fileName = urlParts[urlParts.length - 1];
-                    String publicId = "user_avatars/" + fileName.substring(0, fileName.lastIndexOf("."));
-
-
-                    cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
-                } catch (Exception e) {
-                    System.err.println("Không thể xóa ảnh đại diện cũ: " + e.getMessage());
-                }
-            }
-
-
-            Map uploadResult = cloudinary.uploader().upload(avatarFile.getBytes(),
-                    ObjectUtils.asMap(
-                            "resource_type", "auto",
-                            "folder", "user_avatars"
-                    ));
-
-            String newAvatarUrl = (String) uploadResult.get("secure_url");
-
-
-            user.setAvatarUrl(newAvatarUrl);
-
-
-            save(user);
-        } else {
-            throw new RuntimeException("Tập tin ảnh không được để trống.");
-        }
+        userProfileService.updateAvatar(email, avatarFile);
     }
     
-
     public Trainer findTrainerByEmail(String email) {
         User user = userRepository.findByEmail(email).orElse(null);
         
@@ -287,9 +181,22 @@ public class UserService {
             return null;
         }
         
-
         return trainerRepository.findById(user.getUserId()).orElse(null);
     }
     
-
+    public List<UserAvailability> getUserAvailabilities(Integer userId) {
+        return userProfileService.getUserAvailabilities(userId);
+    }
+    
+    public UserAvailability createUserAvailability(Integer userId, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
+        return userProfileService.createUserAvailability(userId, dayOfWeek, startTime, endTime);
+    }
+    
+    public UserAvailability updateUserAvailability(Integer availabilityId, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime, Boolean isAvailable) {
+        return userProfileService.updateUserAvailability(availabilityId, dayOfWeek, startTime, endTime, isAvailable);
+    }
+    
+    public void deleteUserAvailability(Integer availabilityId) {
+        userProfileService.deleteUserAvailability(availabilityId);
+    }
 }

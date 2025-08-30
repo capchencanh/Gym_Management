@@ -1,5 +1,6 @@
 package com.dhd.gymmanagement.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.sql.Timestamp;
 
@@ -11,20 +12,19 @@ public class Payment {
     @Column(name = "payment_id")
     private Integer paymentId;
 
-    @ManyToOne
-    @JoinColumn(name = "membership_id", nullable = false)
-    private UserMembership userMembership;
+    @Column(name = "membership_id", nullable = false)
+    private Integer membershipId;
 
     @Column(nullable = false)
     private Double amount;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method")
-    private PaymentMethod paymentMethod = PaymentMethod.CASH;
+    private PaymentMethod paymentMethod;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_status")
-    private PaymentStatus paymentStatus = PaymentStatus.PENDING;
+    private PaymentStatus paymentStatus;
 
     @Column(name = "payment_date")
     private Timestamp paymentDate;
@@ -32,25 +32,40 @@ public class Payment {
     @Column(columnDefinition = "text")
     private String notes;
 
+    @Column(name = "is_deleted", columnDefinition = "TINYINT(1) DEFAULT 0")
+    private Integer isDeleted = 0;
+
+    // Enums
     public enum PaymentMethod {
-        CASH, CARD, TRANSFER
-    }
-    public enum PaymentStatus {
-        PENDING, COMPLETED, FAILED
+        CARD, CASH, TRANSFER
     }
 
+    public enum PaymentStatus {
+        COMPLETED, FAILED, PENDING
+    }
+
+    // Getters and Setters
     public Integer getPaymentId() { return paymentId; }
     public void setPaymentId(Integer paymentId) { this.paymentId = paymentId; }
-    public UserMembership getUserMembership() { return userMembership; }
-    public void setUserMembership(UserMembership userMembership) { this.userMembership = userMembership; }
+
+    public Integer getMembershipId() { return membershipId; }
+    public void setMembershipId(Integer membershipId) { this.membershipId = membershipId; }
+
     public Double getAmount() { return amount; }
     public void setAmount(Double amount) { this.amount = amount; }
+
     public PaymentMethod getPaymentMethod() { return paymentMethod; }
     public void setPaymentMethod(PaymentMethod paymentMethod) { this.paymentMethod = paymentMethod; }
+
     public PaymentStatus getPaymentStatus() { return paymentStatus; }
     public void setPaymentStatus(PaymentStatus paymentStatus) { this.paymentStatus = paymentStatus; }
+
     public Timestamp getPaymentDate() { return paymentDate; }
     public void setPaymentDate(Timestamp paymentDate) { this.paymentDate = paymentDate; }
+
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
+
+    public Integer getIsDeleted() { return isDeleted; }
+    public void setIsDeleted(Integer isDeleted) { this.isDeleted = isDeleted; }
 }

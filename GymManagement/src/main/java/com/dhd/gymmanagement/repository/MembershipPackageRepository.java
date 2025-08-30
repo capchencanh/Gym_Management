@@ -1,6 +1,8 @@
 package com.dhd.gymmanagement.repository;
 
 import com.dhd.gymmanagement.entity.MembershipPackage;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,6 +17,8 @@ public interface MembershipPackageRepository extends JpaRepository<MembershipPac
 
     @Query("SELECT p FROM MembershipPackage p WHERE p.isDeleted = 0")
     List<MembershipPackage> findAllActive();
+    @Query("SELECT p FROM MembershipPackage p WHERE p.isDeleted = 0")
+    Page<MembershipPackage> findAllActive(Pageable pageable);
     
 
     @Query("SELECT p FROM MembershipPackage p WHERE p.name = :name AND p.isDeleted = 0")
@@ -23,10 +27,14 @@ public interface MembershipPackageRepository extends JpaRepository<MembershipPac
 
     @Query("SELECT p FROM MembershipPackage p WHERE p.price BETWEEN :minPrice AND :maxPrice AND p.isDeleted = 0")
     List<MembershipPackage> findByPriceRange(@Param("minPrice") Double minPrice, @Param("maxPrice") Double maxPrice);
+    @Query("SELECT p FROM MembershipPackage p WHERE p.price BETWEEN :minPrice AND :maxPrice AND p.isDeleted = 0")
+    Page<MembershipPackage> findByPriceRange(@Param("minPrice") Double minPrice, @Param("maxPrice") Double maxPrice, Pageable pageable);
     
 
     @Query("SELECT p FROM MembershipPackage p WHERE p.durationMonths = :duration AND p.isDeleted = 0")
     List<MembershipPackage> findByDuration(@Param("duration") Integer duration);
+    @Query("SELECT p FROM MembershipPackage p WHERE p.durationMonths = :duration AND p.isDeleted = 0")
+    Page<MembershipPackage> findByDuration(@Param("duration") Integer duration, Pageable pageable);
     
 
     @Query("SELECT COUNT(p) > 0 FROM MembershipPackage p WHERE p.name = :name AND p.isDeleted = 0")

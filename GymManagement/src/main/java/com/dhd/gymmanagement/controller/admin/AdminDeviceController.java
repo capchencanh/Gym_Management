@@ -3,6 +3,10 @@ package com.dhd.gymmanagement.controller.admin;
 import com.dhd.gymmanagement.entity.Device;
 import com.dhd.gymmanagement.service.DeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -20,12 +24,24 @@ public class AdminDeviceController {
     
     @GetMapping
     public String listDevices(Model model, 
+                             @RequestParam(defaultValue = "0") int page,
+                             @RequestParam(defaultValue = "10") int size,
                              @RequestParam(required = false) String name,
                              @RequestParam(required = false) String type,
                              @RequestParam(required = false) String status,
-                             @RequestParam(required = false) String location) {
+                             @RequestParam(required = false) String location,
+                             @RequestParam(required = false) String sortBy,
+                             @RequestParam(defaultValue = "asc") String sortDir) {
         
-        List<Device> devices;
+        Sort sort;
+        if (sortBy != null && !sortBy.trim().isEmpty()) {
+            sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
+        } else {
+            sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, "name");
+        }
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        Page<Device> devicesPage;
         
         Device.DeviceStatus deviceStatus = null;
         if (status != null && !status.trim().isEmpty()) {
@@ -39,9 +55,9 @@ public class AdminDeviceController {
             type != null && !type.trim().isEmpty() || 
             deviceStatus != null || 
             location != null && !location.trim().isEmpty()) {
-            devices = deviceService.searchDevices(name, type, deviceStatus, location);
+            devicesPage = deviceService.searchDevices(name, type, deviceStatus, location, pageable);
         } else {
-            devices = deviceService.getAllDevices();
+            devicesPage = deviceService.getAllDevices(pageable);
         }
         
         List<Device> allDevices = deviceService.getAllDevicesForStats();
@@ -51,11 +67,17 @@ public class AdminDeviceController {
         long brokenCount = allDevices.stream().filter(d -> d.getStatus() == Device.DeviceStatus.BROKEN).count();
         long maintenanceCount = allDevices.stream().filter(d -> d.getStatus() == Device.DeviceStatus.MAINTENANCE).count();
         
-        model.addAttribute("devices", devices);
+        model.addAttribute("devices", devicesPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", devicesPage.getTotalPages());
+        model.addAttribute("totalItems", devicesPage.getTotalElements());
+        model.addAttribute("size", size);
         model.addAttribute("name", name);
         model.addAttribute("selectedType", type);
         model.addAttribute("selectedStatus", status);
         model.addAttribute("location", location);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sortDir", sortDir);
         model.addAttribute("statuses", Device.DeviceStatus.values());
         model.addAttribute("totalDevices", totalDevices);
         model.addAttribute("availableCount", availableCount);
@@ -118,7 +140,6 @@ public class AdminDeviceController {
                 return "redirect:/admin/devices";
             }
             
-            // Xử lý upload ảnh mới
             if (imageFile != null && !imageFile.isEmpty()) {
                 deviceService.updateDeviceWithImage(id, device, imageFile);
             } else {

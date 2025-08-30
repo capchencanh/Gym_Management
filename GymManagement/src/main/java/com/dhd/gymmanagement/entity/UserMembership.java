@@ -1,7 +1,8 @@
 package com.dhd.gymmanagement.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import java.sql.Date;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "user_memberships")
@@ -11,38 +12,60 @@ public class UserMembership {
     @Column(name = "membership_id")
     private Integer membershipId;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "user_id", nullable = false)
+    private Integer userId;
 
-    @ManyToOne
-    @JoinColumn(name = "package_id")
-    private MembershipPackage membershipPackage;
+    @Column(name = "package_id", nullable = false)
+    private Integer packageId;
 
     @Column(name = "start_date", nullable = false)
-    private Date startDate;
+    private Timestamp startDate;
 
     @Column(name = "end_date", nullable = false)
-    private Date endDate;
+    private Timestamp endDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Status status = Status.ACTIVE;
+    @Column(name = "status")
+    private MembershipStatus status = MembershipStatus.ACTIVE;
 
-    public enum Status {
+    @Column(name = "created_at")
+    private Timestamp createdAt;
+
+    @Column(name = "updated_at")
+    private Timestamp updatedAt;
+
+    @Column(name = "is_deleted", columnDefinition = "TINYINT(1) DEFAULT 0")
+    private Integer isDeleted = 0;
+
+    public enum MembershipStatus {
         ACTIVE, EXPIRED, CANCELLED
     }
 
+    // Getters and Setters
     public Integer getMembershipId() { return membershipId; }
     public void setMembershipId(Integer membershipId) { this.membershipId = membershipId; }
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
-    public MembershipPackage getMembershipPackage() { return membershipPackage; }
-    public void setMembershipPackage(MembershipPackage membershipPackage) { this.membershipPackage = membershipPackage; }
-    public Date getStartDate() { return startDate; }
-    public void setStartDate(Date startDate) { this.startDate = startDate; }
-    public Date getEndDate() { return endDate; }
-    public void setEndDate(Date endDate) { this.endDate = endDate; }
-    public Status getStatus() { return status; }
-    public void setStatus(Status status) { this.status = status; }
+
+    public Integer getUserId() { return userId; }
+    public void setUserId(Integer userId) { this.userId = userId; }
+
+    public Integer getPackageId() { return packageId; }
+    public void setPackageId(Integer packageId) { this.packageId = packageId; }
+
+    public Timestamp getStartDate() { return startDate; }
+    public void setStartDate(Timestamp startDate) { this.startDate = startDate; }
+
+    public Timestamp getEndDate() { return endDate; }
+    public void setEndDate(Timestamp endDate) { this.endDate = endDate; }
+
+    public MembershipStatus getStatus() { return status; }
+    public void setStatus(MembershipStatus status) { this.status = status; }
+
+    public Timestamp getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
+
+    public Timestamp getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
+
+    public Integer getIsDeleted() { return isDeleted; }
+    public void setIsDeleted(Integer isDeleted) { this.isDeleted = isDeleted; }
 }

@@ -6,6 +6,8 @@ import com.dhd.gymmanagement.entity.Device;
 import com.dhd.gymmanagement.repository.DeviceRepository;
 import com.dhd.gymmanagement.service.DeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,6 +30,11 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public List<Device> getAllDevices() {
         return deviceRepository.findByIsDeletedFalse();
+    }
+    
+    @Override
+    public Page<Device> getAllDevices(Pageable pageable) {
+        return deviceRepository.findByIsDeletedFalse(pageable);
     }
     
     @Override
@@ -133,6 +140,11 @@ public class DeviceServiceImpl implements DeviceService {
     }
     
     @Override
+    public Page<Device> searchDevices(String name, String type, Device.DeviceStatus status, String location, Pageable pageable) {
+        return deviceRepository.searchDevices(name, type, status, location, pageable);
+    }
+    
+    @Override
     public List<Device> getDevicesByStatus(Device.DeviceStatus status) {
         return deviceRepository.findByStatus(status);
     }
@@ -232,7 +244,6 @@ public class DeviceServiceImpl implements DeviceService {
                     String fileName = urlParts[urlParts.length - 1];
                     String publicId = "gym_devices/" + fileName.substring(0, fileName.lastIndexOf("."));
                     
-                    // Xóa từ Cloudinary
                     cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
                 }
             } catch (Exception e) {

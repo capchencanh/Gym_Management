@@ -9,6 +9,10 @@ import com.dhd.gymmanagement.service.ClassEnrollmentService;
 import com.dhd.gymmanagement.service.TrainingClassService;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -33,11 +37,30 @@ public class AdminClassController {
 
 
     @GetMapping
-    public String listClasses(Model model) {
-        List<TrainingClass> classes = trainingClassService.getAllClasses();
+    public String listClasses(Model model,
+                             @RequestParam(defaultValue = "0") int page,
+                             @RequestParam(defaultValue = "10") int size,
+                             @RequestParam(required = false) String keyword,
+                             @RequestParam(required = false) String sortBy,
+                             @RequestParam(defaultValue = "asc") String sortDir) {
         
-
-        List<AdminClassDTO> classDTOs = classes.stream().map(trainingClass -> {
+        Sort sort;
+        if (sortBy != null && !sortBy.trim().isEmpty()) {
+            sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
+        } else {
+            sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, "name");
+        }
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        Page<TrainingClass> classesPage;
+        
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            classesPage = trainingClassService.searchClasses(keyword, pageable);
+        } else {
+            classesPage = trainingClassService.getAllClasses(pageable);
+        }
+        
+        List<AdminClassDTO> classDTOs = classesPage.getContent().stream().map(trainingClass -> {
             AdminClassDTO dto = new AdminClassDTO(trainingClass);
             Long enrolledCount = classEnrollmentService.getEnrolledCountByClass(trainingClass.getClassId());
             dto.setCurrentEnrollmentCount(enrolledCount != null ? enrolledCount.intValue() : 0);
@@ -45,6 +68,13 @@ public class AdminClassController {
         }).collect(Collectors.toList());
         
         model.addAttribute("classes", classDTOs);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", classesPage.getTotalPages());
+        model.addAttribute("totalItems", classesPage.getTotalElements());
+        model.addAttribute("size", size);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sortDir", sortDir);
         return "admin/class/list";
     }
 

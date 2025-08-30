@@ -4,6 +4,10 @@ import com.dhd.gymmanagement.entity.*;
 import com.dhd.gymmanagement.service.*;
 import com.dhd.gymmanagement.dto.TrainingSessionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -30,11 +34,37 @@ public class AdminPTAssignmentController {
     
 
     @GetMapping
-    public String listAllAssignments(Model model) {
-        List<PTAssignment> allAssignments = ptAssignmentService.getAllAssignments();
+    public String listAllAssignments(Model model,
+                                    @RequestParam(defaultValue = "0") int page,
+                                    @RequestParam(defaultValue = "10") int size,
+                                    @RequestParam(required = false) String status,
+                                    @RequestParam(required = false) String sortBy,
+                                    @RequestParam(defaultValue = "asc") String sortDir) {
+        
+        Sort sort;
+        if (sortBy != null && !sortBy.trim().isEmpty()) {
+            sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
+        } else {
+            sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, "createdAt");
+        }
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        Page<PTAssignment> assignmentsPage;
+        
+        if (status != null && !status.trim().isEmpty()) {
+            try {
+                PTAssignment.Status assignmentStatus = PTAssignment.Status.valueOf(status.toUpperCase());
+                assignmentsPage = ptAssignmentService.getAssignmentsByStatus(assignmentStatus, pageable);
+            } catch (IllegalArgumentException e) {
+                assignmentsPage = ptAssignmentService.getAllAssignments(pageable);
+            }
+        } else {
+            assignmentsPage = ptAssignmentService.getAllAssignments(pageable);
+        }
+        
         List<Trainer> availableTrainers = trainerService.getActiveTrainers();
         
-
+        List<PTAssignment> allAssignments = ptAssignmentService.getAllAssignments();
         List<PTAssignment> pendingAssignments = allAssignments.stream()
             .filter(a -> a.getStatus() == PTAssignment.Status.PENDING)
             .collect(java.util.stream.Collectors.toList());
@@ -51,7 +81,14 @@ public class AdminPTAssignmentController {
             .filter(a -> a.getStatus() == PTAssignment.Status.COMPLETED)
             .collect(java.util.stream.Collectors.toList());
         
-        model.addAttribute("allAssignments", allAssignments);
+        model.addAttribute("allAssignments", assignmentsPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", assignmentsPage.getTotalPages());
+        model.addAttribute("totalItems", assignmentsPage.getTotalElements());
+        model.addAttribute("size", size);
+        model.addAttribute("selectedStatus", status);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sortDir", sortDir);
         model.addAttribute("pendingAssignments", pendingAssignments);
         model.addAttribute("assignedAssignments", assignedAssignments);
         model.addAttribute("activeAssignments", activeAssignments);

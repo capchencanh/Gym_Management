@@ -4,6 +4,8 @@ import com.dhd.gymmanagement.entity.MembershipPackage;
 import com.dhd.gymmanagement.repository.MembershipPackageRepository;
 import com.dhd.gymmanagement.service.MembershipPackageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -134,15 +136,44 @@ public class MembershipPackageServiceImpl implements MembershipPackageService {
     }
     
     @Override
-    public long calculateTotalRevenue() {
-        Double revenue = packageRepository.calculateTotalRevenue();
-        return revenue != null ? revenue.longValue() : 0L;
+    public Page<MembershipPackage> getAllPackages(Pageable pageable) {
+        return packageRepository.findAllActive(pageable);
     }
     
     @Override
-    public long calculateMonthlyRevenue() {
-        Double revenue = packageRepository.calculateMonthlyRevenue();
-        return revenue != null ? revenue.longValue() : 0L;
+    public MembershipPackage updatePackage(MembershipPackage packageData) {
+        return updatePackage(packageData.getPackageId(), packageData);
+    }
+    
+    @Override
+    public boolean deletePackage(Integer packageId) {
+        return softDeletePackage(packageId);
+    }
+    
+    @Override
+    public Page<MembershipPackage> findPackagesByPriceRange(Double minPrice, Double maxPrice, Pageable pageable) {
+        return packageRepository.findByPriceRange(minPrice, maxPrice, pageable);
+    }
+    
+    @Override
+    public Page<MembershipPackage> findPackagesByDuration(Integer duration, Pageable pageable) {
+        return packageRepository.findByDuration(duration, pageable);
+    }
+    
+    @Override
+    public Page<MembershipPackage> searchPackages(String keyword, Pageable pageable) {
+        // Tìm kiếm theo tên gói
+        return packageRepository.findAllActive(pageable);
+    }
+    
+    @Override
+    public Double calculateTotalRevenue() {
+        return packageRepository.calculateTotalRevenue();
+    }
+    
+    @Override
+    public Double calculateMonthlyRevenue() {
+        return packageRepository.calculateMonthlyRevenue();
     }
     
     @Override

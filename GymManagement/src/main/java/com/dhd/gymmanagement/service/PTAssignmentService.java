@@ -3,6 +3,8 @@ package com.dhd.gymmanagement.service;
 import com.dhd.gymmanagement.entity.*;
 import com.dhd.gymmanagement.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -44,6 +46,10 @@ public class PTAssignmentService {
         return ptAssignmentRepository.findPendingAssignments();
     }
     
+    public Page<PTAssignment> getAssignmentsByStatus(PTAssignment.Status status, Pageable pageable) {
+        return ptAssignmentRepository.findByStatus(status, pageable);
+    }
+    
 
     public List<PTAssignment> getAssignmentsByTrainer(Integer trainerId) {
         return ptAssignmentRepository.findByTrainerId(trainerId);
@@ -72,6 +78,10 @@ public class PTAssignmentService {
 
     public List<PTAssignment> getAllAssignments() {
         return ptAssignmentRepository.findAll();
+    }
+    
+    public Page<PTAssignment> getAllAssignments(Pageable pageable) {
+        return ptAssignmentRepository.findAll(pageable);
     }
     
 

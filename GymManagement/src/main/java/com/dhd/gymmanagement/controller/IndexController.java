@@ -68,8 +68,8 @@ public class IndexController {
         
 
         long activePackages = packageService.countActivePackages();
-        long totalPackageRevenue = packageService.calculateTotalRevenue();
-        long monthlyPackageRevenue = packageService.calculateMonthlyRevenue();
+        Double totalPackageRevenue = packageService.calculateTotalRevenue();
+        Double monthlyPackageRevenue = packageService.calculateMonthlyRevenue();
         long popularPackageCount = packageService.getMostPopularPackageCount();
 
         model.addAttribute("totalUsers", totalUsers);

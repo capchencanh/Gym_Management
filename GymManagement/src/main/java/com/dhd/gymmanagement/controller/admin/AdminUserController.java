@@ -5,6 +5,10 @@ import com.dhd.gymmanagement.entity.Trainer;
 import com.dhd.gymmanagement.service.UserService;
 import com.dhd.gymmanagement.service.TrainerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -24,31 +28,43 @@ public class AdminUserController {
     
     @GetMapping
     public String listUsers(Model model, 
+                           @RequestParam(defaultValue = "0") int page,
+                           @RequestParam(defaultValue = "10") int size,
                            @RequestParam(required = false) String keyword,
-                           @RequestParam(required = false) String role) {
+                           @RequestParam(required = false) String role,
+                           @RequestParam(required = false) String sortBy,
+                           @RequestParam(defaultValue = "asc") String sortDir) {
         
-        List<User> users;
+        Sort sort;
+        if (sortBy != null && !sortBy.trim().isEmpty()) {
+            sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, sortBy);
+        } else {
+            sort = Sort.by(sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, "name");
+        }
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        Page<User> usersPage;
         
         if (keyword != null && !keyword.trim().isEmpty()) {
             if (role != null && !role.trim().isEmpty()) {
                 try {
                     User.Role userRole = User.Role.valueOf(role.toUpperCase());
-                    users = userService.searchUsersByRole(userRole, keyword);
+                    usersPage = userService.searchUsersByRole(userRole, keyword, pageable);
                 } catch (IllegalArgumentException e) {
-                    users = userService.searchUsers(keyword);
+                    usersPage = userService.searchUsers(keyword, pageable);
                 }
             } else {
-                users = userService.searchUsers(keyword);
+                usersPage = userService.searchUsers(keyword, pageable);
             }
         } else if (role != null && !role.trim().isEmpty()) {
             try {
                 User.Role userRole = User.Role.valueOf(role.toUpperCase());
-                users = userService.getUsersByRole(userRole);
+                usersPage = userService.getUsersByRole(userRole, pageable);
             } catch (IllegalArgumentException e) {
-                users = userService.getAllUsers();
+                usersPage = userService.getAllUsers(pageable);
             }
         } else {
-            users = userService.getAllUsers();
+            usersPage = userService.getAllUsers(pageable);
         }
         
 
@@ -58,9 +74,15 @@ public class AdminUserController {
         long ptCount = allUsers.stream().filter(u -> u.getRole() == User.Role.PT).count();
         long userCount = allUsers.stream().filter(u -> u.getRole() == User.Role.USER).count();
         
-        model.addAttribute("users", users);
+        model.addAttribute("users", usersPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", usersPage.getTotalPages());
+        model.addAttribute("totalItems", usersPage.getTotalElements());
+        model.addAttribute("size", size);
         model.addAttribute("keyword", keyword);
         model.addAttribute("selectedRole", role);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sortDir", sortDir);
         model.addAttribute("roles", User.Role.values());
         model.addAttribute("totalUsers", totalUsers);
         model.addAttribute("adminCount", adminCount);

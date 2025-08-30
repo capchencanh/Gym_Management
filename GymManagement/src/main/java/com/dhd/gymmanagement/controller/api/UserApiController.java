@@ -6,11 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/users")
@@ -50,6 +52,7 @@ public class UserApiController {
             userInfo.put("height", user.getHeight());
             userInfo.put("weight", user.getWeight());
             userInfo.put("fitness_goal", user.getFitnessGoal());
+            userInfo.put("avatar_url", user.getAvatarUrl());
 
             return ResponseEntity.ok(userInfo);
 
@@ -74,7 +77,6 @@ public class UserApiController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy user");
             }
 
-            // Cập nhật thông tin user
             if (updateRequest.containsKey("name")) {
                 user.setName((String) updateRequest.get("name"));
             }
@@ -102,6 +104,73 @@ public class UserApiController {
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Cập nhật profile thành công");
             response.put("user", updatedUser);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Có lỗi xảy ra: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/avatar")
+    public ResponseEntity<?> updateAvatar(@RequestParam("avatarFile") MultipartFile avatarFile) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || authentication.getName() == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Chưa xác thực");
+            }
+
+            String email = authentication.getName();
+            userService.updateAvatar(email, avatarFile);
+
+            User updatedUser = userService.getUserByEmail(email).orElse(null);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Cập nhật ảnh đại diện thành công");
+            response.put("avatar_url", updatedUser.getAvatarUrl());
+
+            return ResponseEntity.ok(response);
+
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Lỗi khi tải ảnh lên: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Có lỗi xảy ra: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody Map<String, String> passwordRequest) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || authentication.getName() == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Chưa xác thực");
+            }
+
+            String email = authentication.getName();
+            User user = userService.getUserByEmail(email).orElse(null);
+
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy user");
+            }
+
+            String currentPassword = passwordRequest.get("currentPassword");
+            String newPassword = passwordRequest.get("newPassword");
+
+            if (!userService.checkPassword(user, currentPassword)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Mật khẩu hiện tại không chính xác");
+            }
+
+            if (newPassword.length() < 6) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Mật khẩu mới phải có ít nhất 6 ký tự");
+            }
+
+            userService.updatePassword(user, newPassword);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Đổi mật khẩu thành công");
 
             return ResponseEntity.ok(response);
 
