@@ -11,6 +11,7 @@ const Package = () => {
     const [loading, setLoading] = useState(true);
     const [searchKeyword, setSearchKeyword] = useState('');
     const [processingPayment, setProcessingPayment] = useState(false);
+    const [activePackageIds, setActivePackageIds] = useState([]);
     const [paymentStatus, setPaymentStatus] = useState(null);
     const [showPaymentStatus, setShowPaymentStatus] = useState(false);
     const [currentOrderId, setCurrentOrderId] = useState(null);
@@ -19,6 +20,9 @@ const Package = () => {
 
     useEffect(() => {
         loadPackages();
+        if (user) {
+            loadActiveMemberships(user.id);
+        }
         
         const urlParams = new URLSearchParams(location.search);
         const status = urlParams.get('status');
@@ -52,6 +56,16 @@ const Package = () => {
             console.error('Lỗi khi tải danh sách gói tập:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const loadActiveMemberships = async (userId) => {
+        try {
+            const res = await Apis.get(`${endpoints['active-memberships']}?userId=${userId}`);
+            const ids = (res.data || []).map(m => m.package_id);
+            setActivePackageIds(ids);
+        } catch (err) {
+            console.error('Lỗi khi lấy membership đang hoạt động:', err);
         }
     };
 
@@ -233,16 +247,22 @@ const Package = () => {
                                         <p className="card-text text-muted">
                                             {pkg.description || 'Không có mô tả'}
                                         </p>
-                                                                                                                         <button 
-                                            className="btn btn-primary w-100"
-                                            onClick={() => {
-                                                
-                                                handlePayment(pkg.package_id);
-                                            }}
-                                            disabled={processingPayment}
-                                        >
-                                            {processingPayment ? 'Đang xử lý...' : 'Thanh Toán MoMo'}
-                                        </button>
+                                        {activePackageIds.includes(pkg.package_id) && (
+                                            <div className="alert alert-success py-2 text-center mb-0">Đang hoạt động</div>
+                                        )}
+                                        {!activePackageIds.includes(pkg.package_id) && (
+                                            activePackageIds.length > 0 ? (
+                                                <div className="alert alert-secondary py-2 text-center mb-0">Bạn đã có gói đang hoạt động</div>
+                                            ) : (
+                                                <button 
+                                                    className="btn btn-primary w-100"
+                                                    onClick={() => { handlePayment(pkg.package_id); }}
+                                                    disabled={processingPayment}
+                                                >
+                                                    {processingPayment ? 'Đang xử lý...' : 'Thanh Toán MoMo'}
+                                                </button>
+                                            )
+                                        )}
                                     </div>
                                 </div>
                             </div>

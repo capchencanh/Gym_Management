@@ -40,6 +40,7 @@ export const endpoints = {
     // User 
     'users': 'api/users',
     'profile': 'api/users/profile',
+    'active-memberships': 'api/users/memberships/active',
     'update-profile': 'api/users/profile',
     'update-avatar': 'api/users/avatar',
     'change-password': 'api/users/change-password',
