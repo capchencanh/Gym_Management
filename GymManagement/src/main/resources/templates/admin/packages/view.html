@@ -112,6 +112,94 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Giao dịch MoMo của gói</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Order ID</th>
+                                                        <th>Số tiền</th>
+                                                        <th>User ID</th>
+                                                        <th>Trạng thái</th>
+                                                        <th>Mã GD</th>
+                                                        <th>Thời gian</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr th:each="p : ${momoPayments}">
+                                                        <td th:text="${p.orderId}"></td>
+                                                        <td th:text="${p.amount}"></td>
+                                                        <td th:text="${p.userId}"></td>
+                                                        <td>
+                                                            <span class="badge"
+                                                                  th:classappend="${p.status != null and p.status.toString() == 'COMPLETED'} ? 'bg-success' : (${p.status != null and p.status.toString() == 'PENDING'} ? 'bg-warning' : 'bg-secondary')"
+                                                                  th:text="${p.status != null ? p.status : 'N/A'}"></span>
+                                                        </td>
+                                                        <td th:text="${p.momoTransactionId != null ? p.momoTransactionId : '-'}"></td>
+                                                        <td th:text="${p.updatedAt != null ? #dates.format(p.updatedAt, 'yyyy-MM-dd HH:mm:ss') : (p.createdAt != null ? #dates.format(p.createdAt, 'yyyy-MM-dd HH:mm:ss') : 'N/A')}"></td>
+                                                    </tr>
+                                                    <tr th:if="${#lists.isEmpty(momoPayments)}">
+                                                        <td colspan="6" class="text-center text-muted">Chưa có giao dịch MoMo</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Thanh toán tiền mặt của gói</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Membership ID</th>
+                                                        <th>Số tiền</th>
+                                                        <th>Phương thức</th>
+                                                        <th>Trạng thái</th>
+                                                        <th>Ngày thanh toán</th>
+                                                        <th>Ghi chú</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr th:each="p : ${cashPayments}">
+                                                        <td th:text="${p.membershipId}"></td>
+                                                        <td th:text="${p.amount}"></td>
+                                                        <td>
+                                                            <span class="badge bg-info" th:text="${p.paymentMethod}"></span>
+                                                        </td>
+                                                        <td>
+                                                            <span class="badge"
+                                                                  th:classappend="${p.paymentStatus != null and p.paymentStatus.toString() == 'COMPLETED'} ? 'bg-success' : (${p.paymentStatus != null and p.paymentStatus.toString() == 'PENDING'} ? 'bg-warning' : 'bg-danger')"
+                                                                  th:text="${p.paymentStatus != null ? p.paymentStatus : 'N/A'}"></span>
+                                                        </td>
+                                                        <td th:text="${p.paymentDate != null ? #dates.format(p.paymentDate, 'yyyy-MM-dd HH:mm:ss') : 'N/A'}"></td>
+                                                        <td th:text="${p.notes != null ? p.notes : '-'}"></td>
+                                                    </tr>
+                                                    <tr th:if="${#lists.isEmpty(cashPayments)}">
+                                                        <td colspan="6" class="text-center text-muted">Chưa có thanh toán tiền mặt</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -13,6 +13,8 @@ public interface MoMoPaymentService {
     List<MoMoPayment> getPaymentsByUserId(Integer userId);
     
     List<MoMoPayment> getPaymentsByStatus(MoMoPayment.PaymentStatus status);
+    List<MoMoPayment> getPaymentsByPackageId(Integer packageId);
+    long countCompletedByPackageId(Integer packageId);
     
     void updatePaymentStatus(String orderId, MoMoPayment.PaymentStatus status, 
                            String transactionId, String resultCode, String message);

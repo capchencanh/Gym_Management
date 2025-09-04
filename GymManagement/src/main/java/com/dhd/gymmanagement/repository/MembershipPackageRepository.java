@@ -1,6 +1,8 @@
 package com.dhd.gymmanagement.repository;
 
 import com.dhd.gymmanagement.entity.MembershipPackage;
+import com.dhd.gymmanagement.entity.MoMoPayment;
+import com.dhd.gymmanagement.entity.Payment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -55,4 +57,25 @@ public interface MembershipPackageRepository extends JpaRepository<MembershipPac
 
     @Query("SELECT p FROM MembershipPackage p WHERE p.isDeleted = 0 ORDER BY p.price DESC")
     List<MembershipPackage> findMostExpensivePackages();
+    
+    @Query("SELECT COUNT(mp) FROM MoMoPayment mp WHERE mp.packageId = :packageId AND mp.status = 'COMPLETED' AND mp.isDeleted = 0")
+    long countMoMoPaymentsByPackageId(@Param("packageId") Integer packageId);
+    
+    @Query("SELECT COUNT(p) FROM Payment p JOIN UserMembership um ON p.membershipId = um.membershipId WHERE um.packageId = :packageId AND p.paymentMethod = 'CASH' AND p.paymentStatus = 'COMPLETED' AND p.isDeleted = 0")
+    long countCashPaymentsByPackageId(@Param("packageId") Integer packageId);
+    
+    @Query("SELECT COALESCE(SUM(mp.amount), 0) FROM MoMoPayment mp WHERE mp.status = 'COMPLETED' AND mp.isDeleted = 0 AND YEAR(mp.createdAt) = :year AND MONTH(mp.createdAt) = :month")
+    Double calculateMoMoRevenueByMonth(@Param("year") int year, @Param("month") int month);
+    
+    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p JOIN UserMembership um ON p.membershipId = um.membershipId WHERE p.paymentMethod = 'CASH' AND p.paymentStatus = 'COMPLETED' AND p.isDeleted = 0 AND YEAR(p.paymentDate) = :year AND MONTH(p.paymentDate) = :month")
+    Double calculateCashRevenueByMonth(@Param("year") int year, @Param("month") int month);
+    
+    @Query("SELECT COUNT(mp) FROM MoMoPayment mp WHERE mp.status = 'COMPLETED' AND mp.isDeleted = 0")
+    long countTotalMoMoPayments();
+    
+    @Query("SELECT COUNT(p) FROM Payment p WHERE p.paymentMethod = 'CASH' AND p.paymentStatus = 'COMPLETED' AND p.isDeleted = 0")
+    long countTotalCashPayments();
+    
+    @Query("SELECT COUNT(p) FROM Payment p WHERE p.paymentMethod = 'TRANSFER' AND p.paymentStatus = 'COMPLETED' AND p.isDeleted = 0")
+    long countTotalTransferPayments();
 }

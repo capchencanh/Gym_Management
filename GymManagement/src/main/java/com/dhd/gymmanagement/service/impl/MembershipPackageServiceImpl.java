@@ -162,7 +162,6 @@ public class MembershipPackageServiceImpl implements MembershipPackageService {
     
     @Override
     public Page<MembershipPackage> searchPackages(String keyword, Pageable pageable) {
-        // Tìm kiếm theo tên gói
         return packageRepository.findAllActive(pageable);
     }
     
@@ -180,5 +179,80 @@ public class MembershipPackageServiceImpl implements MembershipPackageService {
     public long getMostPopularPackageCount() {
         List<MembershipPackage> popularPackages = packageRepository.findMostExpensivePackages();
         return popularPackages.isEmpty() ? 0 : popularPackages.size();
+    }
+    
+    @Override
+    public List<java.util.Map<String, Object>> getPackageDistributionData() {
+        List<java.util.Map<String, Object>> distributionData = new java.util.ArrayList<>();
+        
+        List<MembershipPackage> packages = getAllActivePackages();
+        
+        for (MembershipPackage pkg : packages) {
+            java.util.Map<String, Object> packageData = new java.util.HashMap<>();
+            packageData.put("name", pkg.getName());
+            
+            long momoCount = packageRepository.countMoMoPaymentsByPackageId(pkg.getPackageId());
+            
+            long cashCount = packageRepository.countCashPaymentsByPackageId(pkg.getPackageId());
+            
+            long totalCount = momoCount + cashCount;
+            packageData.put("count", totalCount);
+            
+            if (totalCount > 0) {
+                distributionData.add(packageData);
+            }
+        }
+        
+        return distributionData;
+    }
+    
+    @Override
+    public List<java.util.Map<String, Object>> getRevenueMonthlyData() {
+        List<java.util.Map<String, Object>> revenueData = new java.util.ArrayList<>();
+        
+        //  6 tháng gần nhất
+        for (int i = 5; i >= 0; i--) {
+            java.time.LocalDate date = java.time.LocalDate.now().minusMonths(i);
+            String monthName = date.getMonth().getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.forLanguageTag("vi"));
+            
+            java.util.Map<String, Object> monthData = new java.util.HashMap<>();
+            monthData.put("month", monthName);
+            
+            double momoRevenue = packageRepository.calculateMoMoRevenueByMonth(date.getYear(), date.getMonthValue());
+            
+            double cashRevenue = packageRepository.calculateCashRevenueByMonth(date.getYear(), date.getMonthValue());
+            
+            double totalRevenue = momoRevenue + cashRevenue;
+            monthData.put("amount", totalRevenue);
+            
+            revenueData.add(monthData);
+        }
+        
+        return revenueData;
+    }
+    
+    @Override
+    public List<java.util.Map<String, Object>> getPaymentMethodData() {
+        List<java.util.Map<String, Object>> paymentData = new java.util.ArrayList<>();
+        
+        java.util.Map<String, Object> momoData = new java.util.HashMap<>();
+        momoData.put("method", "MoMo");
+        long momoCount = packageRepository.countTotalMoMoPayments();
+        momoData.put("count", momoCount);
+        paymentData.add(momoData);
+        
+        java.util.Map<String, Object> cashData = new java.util.HashMap<>();
+        cashData.put("method", "Tiền mặt");
+        long cashCount = packageRepository.countTotalCashPayments();
+        cashData.put("count", cashCount);
+        paymentData.add(cashData);
+        
+        java.util.Map<String, Object> transferData = new java.util.HashMap<>();
+        transferData.put("method", "Chuyển khoản");
+        long transferCount = packageRepository.countTotalTransferPayments();
+        transferData.put("count", transferCount);
+        paymentData.add(transferData);
+        
+        return paymentData;
     }
 }

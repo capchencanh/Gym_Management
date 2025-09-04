@@ -44,7 +44,6 @@ public class AuthApiController {
                     .build();
             httpResponse.addHeader("Set-Cookie", responseCookie.toString());
 
-            // Remove token from response body since it's in cookie
             authResult.remove("token");
             return ResponseEntity.ok(authResult);
 

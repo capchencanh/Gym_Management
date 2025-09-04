@@ -43,6 +43,17 @@ public class MoMoPaymentServiceImpl implements MoMoPaymentService {
     }
 
     @Override
+    public List<MoMoPayment> getPaymentsByPackageId(Integer packageId) {
+        return moMoPaymentRepository.findByPackageId(packageId);
+    }
+
+    @Override
+    public long countCompletedByPackageId(Integer packageId) {
+        List<MoMoPayment> list = moMoPaymentRepository.findByPackageId(packageId);
+        return list.stream().filter(p -> p.getStatus() == MoMoPayment.PaymentStatus.COMPLETED).count();
+    }
+
+    @Override
     public void updatePaymentStatus(String orderId, MoMoPayment.PaymentStatus status, 
                                   String transactionId, String resultCode, String message) {
         Optional<MoMoPayment> paymentOpt = moMoPaymentRepository.findByOrderId(orderId);

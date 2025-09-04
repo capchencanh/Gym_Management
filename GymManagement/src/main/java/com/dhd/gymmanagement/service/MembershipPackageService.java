@@ -60,4 +60,10 @@ public interface MembershipPackageService {
     
 
     long getMostPopularPackageCount();
+    
+    List<java.util.Map<String, Object>> getPackageDistributionData();
+    
+    List<java.util.Map<String, Object>> getRevenueMonthlyData();
+    
+    List<java.util.Map<String, Object>> getPaymentMethodData();
 }

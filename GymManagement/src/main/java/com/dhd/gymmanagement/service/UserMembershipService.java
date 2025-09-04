@@ -11,4 +11,9 @@ public interface UserMembershipService {
     UserMembership createUserMembership(UserMembership userMembership);
     UserMembership updateUserMembership(UserMembership userMembership);
     boolean deleteUserMembership(Integer membershipId);
+    List<UserMembership> getActiveMembershipsByUserId(Integer userId);
+    
+    List<java.util.Map<String, Object>> getExpiredMembershipsByPackageId(Integer packageId);
+    
+    boolean renewMembership(Integer userId, Integer packageId, Integer months);
 }

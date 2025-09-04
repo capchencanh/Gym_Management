@@ -11,4 +11,6 @@ public interface PaymentService {
     Payment updatePayment(Payment payment);
     boolean deletePayment(Integer paymentId);
     List<Payment> getPaymentsByMembershipId(Integer membershipId);
+    List<Payment> getPaymentsByPackageId(Integer packageId);
+    long countCompletedByPackageId(Integer packageId);
 }

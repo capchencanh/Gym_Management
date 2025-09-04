@@ -110,7 +110,6 @@ public class UserService {
                     trainerRepository.save(trainer);
                 }
             } catch (Exception e) {
-                // Log error but don't throw
             }
         }
     }
@@ -198,5 +197,24 @@ public class UserService {
     
     public void deleteUserAvailability(Integer availabilityId) {
         userProfileService.deleteUserAvailability(availabilityId);
+    }
+    
+    public List<java.util.Map<String, Object>> getUserMonthlyData() {
+        List<java.util.Map<String, Object>> monthlyData = new java.util.ArrayList<>();
+        
+        for (int i = 5; i >= 0; i--) {
+            java.time.LocalDate date = java.time.LocalDate.now().minusMonths(i);
+            String monthName = date.getMonth().getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.forLanguageTag("vi"));
+            
+            java.util.Map<String, Object> monthData = new java.util.HashMap<>();
+            monthData.put("month", monthName);
+            
+            long userCount = userRepository.countByCreatedAtMonth(date.getYear(), date.getMonthValue());
+            monthData.put("count", userCount);
+            
+            monthlyData.add(monthData);
+        }
+        
+        return monthlyData;
     }
 }

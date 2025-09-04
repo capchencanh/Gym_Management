@@ -17,4 +17,5 @@ public interface MoMoPaymentRepository extends JpaRepository<MoMoPayment, Intege
     List<MoMoPayment> findByStatus(MoMoPayment.PaymentStatus status);
     
     List<MoMoPayment> findByUserIdAndStatus(Integer userId, MoMoPayment.PaymentStatus status);
+    List<MoMoPayment> findByPackageId(Integer packageId);
 }

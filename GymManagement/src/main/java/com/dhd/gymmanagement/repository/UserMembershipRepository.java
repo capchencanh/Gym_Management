@@ -15,4 +15,8 @@ public interface UserMembershipRepository extends JpaRepository<UserMembership, 
     Optional<UserMembership> findByMembershipIdAndIsDeleted(Integer membershipId, Integer isDeleted);
     
     List<UserMembership> findByUserIdAndIsDeleted(Integer userId, Integer isDeleted);
+    
+    List<UserMembership> findByPackageIdAndIsDeleted(Integer packageId, Integer isDeleted);
+    
+    List<UserMembership> findByUserIdAndPackageIdAndIsDeleted(Integer userId, Integer packageId, Integer isDeleted);
 }

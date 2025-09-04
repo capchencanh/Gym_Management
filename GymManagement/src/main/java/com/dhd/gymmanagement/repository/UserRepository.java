@@ -50,4 +50,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     long countByRole(User.Role role);
     
     long countByRoleAndIsDeletedFalse(User.Role role);
+    
+    @Query("SELECT COUNT(u) FROM User u WHERE YEAR(u.createdAt) = :year AND MONTH(u.createdAt) = :month AND u.isDeleted = 0")
+    long countByCreatedAtMonth(@Param("year") int year, @Param("month") int month);
 }

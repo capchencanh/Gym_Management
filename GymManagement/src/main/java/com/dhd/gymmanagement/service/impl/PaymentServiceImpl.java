@@ -54,4 +54,17 @@ public class PaymentServiceImpl implements PaymentService {
     public List<Payment> getPaymentsByMembershipId(Integer membershipId) {
         return paymentRepository.findByMembershipIdAndIsDeleted(membershipId, 0);
     }
+
+    @Override
+    public List<Payment> getPaymentsByPackageId(Integer packageId) {
+        return paymentRepository.findByPackageIdAndIsDeleted(packageId, 0);
+    }
+
+    @Override
+    public long countCompletedByPackageId(Integer packageId) {
+        List<Payment> payments = paymentRepository.findByPackageIdAndIsDeleted(packageId, 0);
+        return payments.stream()
+                .filter(p -> p.getPaymentStatus() == Payment.PaymentStatus.COMPLETED)
+                .count();
+    }
 }

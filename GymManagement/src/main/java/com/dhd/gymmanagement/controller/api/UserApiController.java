@@ -1,6 +1,8 @@
 package com.dhd.gymmanagement.controller.api;
 
 import com.dhd.gymmanagement.entity.User;
+import com.dhd.gymmanagement.entity.UserMembership;
+import com.dhd.gymmanagement.service.UserMembershipService;
 import com.dhd.gymmanagement.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,9 @@ public class UserApiController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserMembershipService userMembershipService;
 
     @GetMapping("/profile")
     public ResponseEntity<?> getProfile() {
@@ -59,6 +64,28 @@ public class UserApiController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Có lỗi xảy ra: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/memberships/active")
+    public ResponseEntity<?> getActiveMemberships(@RequestParam Integer userId) {
+        try {
+            if (userId == null) {
+                return ResponseEntity.badRequest().body("userId is required");
+            }
+            java.util.List<UserMembership> active = userMembershipService.getActiveMembershipsByUserId(userId);
+            java.util.List<java.util.Map<String, Object>> data = new java.util.ArrayList<>();
+            for (UserMembership m : active) {
+                java.util.Map<String, Object> item = new java.util.HashMap<>();
+                item.put("membership_id", m.getMembershipId());
+                item.put("package_id", m.getPackageId());
+                item.put("start_date", m.getStartDate());
+                item.put("end_date", m.getEndDate());
+                data.add(item);
+            }
+            return ResponseEntity.ok(data);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Có lỗi xảy ra: " + e.getMessage());
         }
     }
 

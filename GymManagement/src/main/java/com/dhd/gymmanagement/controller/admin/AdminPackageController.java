@@ -2,6 +2,11 @@ package com.dhd.gymmanagement.controller.admin;
 
 import com.dhd.gymmanagement.entity.MembershipPackage;
 import com.dhd.gymmanagement.service.MembershipPackageService;
+import com.dhd.gymmanagement.service.MoMoPaymentService;
+import com.dhd.gymmanagement.service.UserMembershipService;
+import com.dhd.gymmanagement.service.PaymentService;
+import com.dhd.gymmanagement.entity.UserMembership;
+import com.dhd.gymmanagement.entity.Payment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,7 +17,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -21,6 +25,12 @@ public class AdminPackageController {
     
     @Autowired
     private MembershipPackageService membershipPackageService;
+    @Autowired
+    private MoMoPaymentService moMoPaymentService;
+    @Autowired
+    private UserMembershipService userMembershipService;
+    @Autowired
+    private PaymentService paymentService;
     
     @GetMapping
     public String listPackages(Model model,
@@ -51,6 +61,23 @@ public class AdminPackageController {
         Double monthlyRevenue = membershipPackageService.calculateMonthlyRevenue();
         
         model.addAttribute("packages", packagesPage.getContent());
+        java.util.Map<Integer, Long> totalPaymentCounts = new java.util.HashMap<>();
+        java.util.Map<Integer, java.util.List<java.util.Map<String, Object>>> expiredMemberships = new java.util.HashMap<>();
+        
+        for (MembershipPackage mp : packagesPage.getContent()) {
+            Integer packageId = mp.getPackageId();
+            long momoCount = moMoPaymentService.countCompletedByPackageId(packageId);
+            long cashCount = paymentService.countCompletedByPackageId(packageId);
+            totalPaymentCounts.put(packageId, momoCount + cashCount);
+            
+            java.util.List<java.util.Map<String, Object>> expiredList = userMembershipService.getExpiredMembershipsByPackageId(packageId);
+            if (!expiredList.isEmpty()) {
+                expiredMemberships.put(packageId, expiredList);
+            }
+        }
+        
+        model.addAttribute("totalPaymentCounts", totalPaymentCounts);
+        model.addAttribute("expiredMemberships", expiredMemberships);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", packagesPage.getTotalPages());
         model.addAttribute("totalItems", packagesPage.getTotalElements());
@@ -131,6 +158,8 @@ public class AdminPackageController {
             Optional<MembershipPackage> packageOpt = membershipPackageService.getPackageById(id);
             if (packageOpt.isPresent()) {
                 model.addAttribute("package", packageOpt.get());
+                model.addAttribute("momoPayments", moMoPaymentService.getPaymentsByPackageId(id));
+                model.addAttribute("cashPayments", paymentService.getPaymentsByPackageId(id));
                 return "admin/packages/view";
             } else {
                 return "redirect:/admin/packages";
@@ -138,5 +167,49 @@ public class AdminPackageController {
         } catch (Exception e) {
             return "redirect:/admin/packages";
         }
+    }
+
+    @PostMapping("/cash-pay/{id}")
+    public String cashPay(@PathVariable Integer id,
+                          @RequestParam Integer userId,
+                          @RequestParam(required = false) String notes,
+                          RedirectAttributes redirectAttributes) {
+        try {
+            java.util.Optional<MembershipPackage> pkgOpt = membershipPackageService.getPackageById(id);
+            if (pkgOpt.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "Không tìm thấy gói");
+                return "redirect:/admin/packages";
+            }
+            MembershipPackage pkg = pkgOpt.get();
+
+            java.sql.Timestamp start = new java.sql.Timestamp(System.currentTimeMillis());
+            java.util.Calendar cal = java.util.Calendar.getInstance();
+            cal.setTime(start);
+            cal.add(java.util.Calendar.MONTH, pkg.getDurationMonths());
+            java.sql.Timestamp end = new java.sql.Timestamp(cal.getTimeInMillis());
+
+            UserMembership um = new UserMembership();
+            um.setUserId(userId);
+            um.setPackageId(id);
+            um.setStartDate(start);
+            um.setEndDate(end);
+            um.setStatus(UserMembership.MembershipStatus.ACTIVE);
+            UserMembership saved = userMembershipService.createUserMembership(um);
+
+            Payment p = new Payment();
+            p.setMembershipId(saved.getMembershipId());
+            p.setAmount(pkg.getPrice());
+            p.setPaymentMethod(Payment.PaymentMethod.CASH);
+            p.setPaymentStatus(Payment.PaymentStatus.COMPLETED);
+            p.setPaymentDate(new java.sql.Timestamp(System.currentTimeMillis()));
+            p.setNotes(notes != null ? notes : ("Thanh toán tiền mặt cho gói " + pkg.getName()));
+            p.setIsDeleted(0);
+            paymentService.createPayment(p);
+
+            redirectAttributes.addFlashAttribute("success", "Ghi nhận thanh toán tiền mặt thành công cho User ID " + userId);
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi ghi nhận tiền mặt: " + e.getMessage());
+        }
+        return "redirect:/admin/packages";
     }
 }

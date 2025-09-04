@@ -95,6 +95,11 @@ public class IndexController {
         model.addAttribute("activeAssignments", ptAssignmentService.countActiveAssignments());
         model.addAttribute("completedAssignments", ptAssignmentService.countCompletedAssignments());
         
+        model.addAttribute("userMonthlyData", userService.getUserMonthlyData());
+        model.addAttribute("packageDistributionData", packageService.getPackageDistributionData());
+        model.addAttribute("revenueData", packageService.getRevenueMonthlyData());
+        model.addAttribute("paymentMethodData", packageService.getPaymentMethodData());
+        
         model.addAttribute("categories", categoryService.getAllCategories());
         return "admin/dashboard";
     }
