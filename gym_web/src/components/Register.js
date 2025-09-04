@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Button, Col, Form, Alert, Container, Row, Card } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import MySpinner from "./Layouts/MySpinner";
 import Apis, { endpoints } from "../configs/Apis";
@@ -124,89 +123,113 @@ const Register = () => {
         }
     };
 
+    const icons = {
+        name: "fas fa-user",
+        email: "fas fa-envelope",
+        password: "fas fa-lock",
+        confirmPassword: "fas fa-lock",
+        phoneNumber: "fas fa-phone"
+    };
+
     const renderField = (field) => {
         if (field.type === "select") {
             return (
-                <Form.Select
+                <select
+                    className="form-control"
                     required={field.required}
                     value={user[field.field] || ""}
                     onChange={(e) => setState(e.target.value, field.field)}
-                    size="lg"
                 >
                     {field.options.map((option, index) => (
                         <option key={index} value={option.value}>
                             {option.label}
                         </option>
                     ))}
-                </Form.Select>
+                </select>
             );
         }
 
         return (
-            <Form.Control
-                required={field.required}
+            <input
                 type={field.type}
+                className="form-control"
                 placeholder={field.title}
                 value={user[field.field] || ""}
                 onChange={(e) => setState(e.target.value, field.field)}
-                size="lg"
+                required={field.required}
             />
         );
     };
 
     return (
-        <Container className="mt-5">
-            <Row className="justify-content-center">
-                <Col md={6} lg={4}>
-                    <Card className="shadow">
-                        <Card.Body className="p-4">
-                            <h1 className="text-center text-primary mb-4">
-                                <i className="fas fa-user-plus me-2"></i>
-                                ĐĂNG KÝ TÀI KHOẢN
-                            </h1>
-                            
-                            <Form onSubmit={register}>
-                                {error && <Alert variant="danger">{error}</Alert>}
-                                {success && <Alert variant="success">{success}</Alert>}
+        <div className="page-container">
+            <div className="page-header">
+                <h1 className="page-title">
+                    <i className="fas fa-user-plus me-2"></i>
+                    ĐĂNG KÝ TÀI KHOẢN
+                </h1>
+                <p className="page-subtitle">
+                    Tạo tài khoản mới để bắt đầu hành trình fitness của bạn
+                </p>
+            </div>
+            
+            <div className="row justify-content-center">
+                <div className="col-md-6 col-lg-4">
+                    <div className="card">
+                        <div className="card-body">
+                            <form onSubmit={register} className="register-form">
+                                {error && (
+                                    <div className="alert alert-danger">
+                                        <i className="fas fa-exclamation-circle me-2"></i>
+                                        {error}
+                                    </div>
+                                )}
+                                {success && (
+                                    <div className="alert alert-success">
+                                        <i className="fas fa-check-circle me-2"></i>
+                                        {success}
+                                    </div>
+                                )}
 
                                 {info.map((i) => (
-                                    <Form.Group className="mb-3" controlId={i.field} key={i.field}>
-                                        <Form.Label>
+                                    <div className="mb-3" key={i.field}>
+                                        <label htmlFor={i.field} className="form-label">
+                                            <i className={`${icons[i.field] || 'fas fa-edit'} me-2`}></i>
                                             {i.title}
                                             {i.required && <span className="text-danger"> *</span>}
-                                        </Form.Label>
+                                        </label>
                                         {renderField(i)}
-                                    </Form.Group>
+                                    </div>
                                 ))}
 
                                 {loading ? (
-                                    <MySpinner />
+                                    <div className="loading-container">
+                                        <MySpinner />
+                                    </div>
                                 ) : (
-                                    <Button 
+                                    <button 
                                         type="submit" 
-                                        variant="primary" 
-                                        size="lg"
-                                        className="w-100 mb-3"
+                                        className="btn btn-primary w-100"
                                     >
                                         <i className="fas fa-user-plus me-2"></i>
                                         Đăng ký
-                                    </Button>
+                                    </button>
                                 )}
-                            </Form>
+                            </form>
                             
-                            <div className="text-center">
+                            <div className="text-center mt-4">
                                 <small className="text-muted">
                                     Đã có tài khoản?{" "}
-                                    <a href="/login" className="text-decoration-none">
+                                    <a href="/login" className="text-decoration-none fw-medium">
                                         Đăng nhập ngay
                                     </a>
                                 </small>
                             </div>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row>
-        </Container>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 };
 

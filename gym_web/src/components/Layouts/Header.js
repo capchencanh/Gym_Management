@@ -1,11 +1,11 @@
 import { useContext, useEffect, useState } from "react";
-import { Button, Container, Nav, Navbar, NavDropdown } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import Apis, { endpoints } from "../../configs/Apis";
 import { MyUserContext, MyDispatchContext } from "../../configs/Contexts";
 
 const Header = () => {
     const [categories, setCategories] = useState([]);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const user = useContext(MyUserContext); 
     const dispatch = useContext(MyDispatchContext);
     const navigate = useNavigate();
@@ -28,77 +28,119 @@ const Header = () => {
         navigate(user ? "/" : "/login");
     };
 
+    const toggleDropdown = () => {
+        setIsDropdownOpen(!isDropdownOpen);
+    };
+
+    const closeDropdown = () => {
+        setIsDropdownOpen(false);
+    };
+
+
     useEffect(() => {
         loadCates();
     }, []);
 
     return (
-        <Navbar expand="lg" className="bg-body-tertiary shadow-sm" sticky="top">
-            <Container>
-                <Navbar.Brand as={Link} to={user ? "/home" : "/"}>
-                    DT's SocialNetwork
-                </Navbar.Brand>
-                <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                <Navbar.Collapse id="basic-navbar-nav">
-                    <Nav className="me-auto">
-                        {user && <Nav.Link as={Link} to="/home">Trang chủ</Nav.Link>}
-
-                        {categories.length > 0 && (
-                            <NavDropdown title="Danh mục" id="basic-nav-dropdown">
-                                {categories.map((c) => (
-                                    <NavDropdown.Item 
-                                        as={Link} 
-                                        key={c.id} 
-                                        to={c.path}
+        <header className="App-header">
+            <div className="header-container">
+                <Link to={user ? "/home" : "/"} className="logo">
+                    <i className="fas fa-dumbbell"></i>
+                    Gym Management
+                </Link>
+                
+                <nav className="nav-menu">
+                    {user && (
+                        <ul className="nav-menu">
+                            <li className="nav-item">
+                                <Link to="/home" className="nav-link">
+                                    <i className="fas fa-home me-1"></i>
+                                    Trang chủ
+                                </Link>
+                            </li>
+                            
+                            {categories.length > 0 && (
+                                <li className="nav-item dropdown">
+                                    <span 
+                                        className="nav-link dropdown-toggle" 
+                                        onClick={toggleDropdown}
+                                        style={{ cursor: 'pointer' }}
                                     >
-                                        {c.name}
-                                    </NavDropdown.Item>
-                                ))}
-                            </NavDropdown>
-                        )}
-                    </Nav>
-
-                    <Nav>
-                        {user ? (
-                            <>
-                                <Nav.Link as={Link} to="/profile" className="d-flex align-items-center">
-                                    {user.avatar_url ? (
-                                        <img
-                                            src={user.avatar_url}
-                                            alt={user.name}
-                                            style={{ width: "30px", height: "30px", borderRadius: "50%", marginRight: "8px", objectFit: "cover" }}
-                                        />
-                                    ) : (
-                                        <i className="fas fa-user me-2" style={{ fontSize: "20px" }}></i>
+                                        <i className="fas fa-th-large me-1"></i>
+                                        Danh mục
+                                        <i className={`fas fa-chevron-down ms-1 ${isDropdownOpen ? 'rotate-180' : ''}`}></i>
+                                    </span>
+                                    {isDropdownOpen && (
+                                        <div className="dropdown-menu show">
+                                            {categories.map((c) => (
+                                                <Link 
+                                                    key={c.id} 
+                                                    to={c.path}
+                                                    className="dropdown-item"
+                                                    onClick={closeDropdown}
+                                                >
+                                                    {c.name}
+                                                </Link>
+                                            ))}
+                                        </div>
                                     )}
-                                    {user.name || user.email}
-                                </Nav.Link>
-                                <Nav.Link as={Link} to="/pt-management" className="d-flex align-items-center">
+                                </li>
+                            )}
+                        </ul>
+                    )}
+                </nav>
+
+                <div className="user-menu">
+                    {user ? (
+                        <>
+                            <div className="user-info">
+                                {user.avatar_url ? (
+                                    <img
+                                        src={user.avatar_url}
+                                        alt={user.name}
+                                        className="user-avatar"
+                                    />
+                                ) : (
+                                    <i className="fas fa-user"></i>
+                                )}
+                                <span className="user-name">{user.name || user.email}</span>
+                            </div>
+                            
+                            <div className="user-actions">
+                                <Link to="/profile" className="btn btn-secondary btn-sm">
+                                    <i className="fas fa-user me-1"></i>
+                                    Profile
+                                </Link>
+                                <Link to="/pt-management" className="btn btn-secondary btn-sm">
                                     <i className="fas fa-user-tie me-1"></i>
-                                    Personal Trainer
-                                </Nav.Link>
-                                <Nav.Link as={Link} to="/package" className="d-flex align-items-center">
+                                    PT
+                                </Link>
+                                <Link to="/package" className="btn btn-secondary btn-sm">
                                     <i className="fas fa-dumbbell me-1"></i>
                                     Gói Tập
-                                </Nav.Link>
-                                <Button variant="outline-danger" onClick={handleLogout} size="sm" className="ms-lg-2 align-self-center mt-2 mt-lg-0">
+                                </Link>
+                                <button onClick={handleLogout} className="btn btn-secondary btn-sm">
+                                    <i className="fas fa-sign-out-alt me-1"></i>
                                     Đăng xuất
-                                </Button>
-                            </>
-                        ) : (
-                            <>
-                                <Nav.Link as={Link} to="/login" className="ms-lg-2">
-                                    <Button variant="outline-primary" size="sm">Đăng nhập</Button>
-                                </Nav.Link>
-                                <Nav.Link as={Link} to="/register">
-                                    <Button variant="primary" size="sm">Đăng ký</Button>
-                                </Nav.Link>
-                            </>
-                        )}
-                    </Nav>
-                </Navbar.Collapse>
-            </Container>
-        </Navbar>
+                                </button>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="auth-buttons">
+                            <Link to="/login" className="btn btn-secondary btn-sm">
+                                <i className="fas fa-sign-in-alt me-1"></i>
+                                Đăng nhập
+                            </Link>
+                            <Link to="/register" className="btn btn-primary btn-sm">
+                                <i className="fas fa-user-plus me-1"></i>
+                                Đăng ký
+                            </Link>
+                        </div>
+                    )}
+                </div>
+
+            </div>
+        </header>
     );
 };
 

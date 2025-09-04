@@ -14,6 +14,7 @@ import { MyUserContext, MyDispatchContext } from "./configs/Contexts";
 import MyUserReducer from "./reducer/MyUserReducer"; 
 import Apis, { endpoints } from "./configs/Apis";
 import MySpinner from "./components/Layouts/MySpinner";
+import "./App.css";
 
 const App = () => {
     const [user, dispatch] = useReducer(MyUserReducer, null);
@@ -55,24 +56,30 @@ const App = () => {
         <MyUserContext.Provider value={user}>
             <MyDispatchContext.Provider value={dispatch}>
                 <BrowserRouter>
-                    <Header />
-                    <main className="min-vh-100">
-                        {loading ? <MySpinner /> : (
-                            <Routes>
-                                <Route path="/" element={<Home />} />
-                                <Route path="/login" element={<Login />} />
-                                <Route path="/register" element={<Register />} />
-                                <Route path="/workout" element={<WorkoutLog />} />
-                                <Route path="/pt-management" element={<PTManagement userId={user?.id} />} />
-                                <Route path="/classes" element={<ClassList />} />
-                                <Route path="/profile" element={<Profile />} />
-                                <Route path="/package" element={<Package />} />
-                                <Route path="/home" element={<Home />} />
-                                <Route path="*" element={<Home />} />
-                            </Routes>
-                        )}
-                    </main>
-                    <Footer />
+                    <div className="App">
+                        <Header />
+                        <div className="App-main">
+                            {loading ? (
+                                <div className="loading-container">
+                                    <MySpinner />
+                                </div>
+                            ) : (
+                                <Routes>
+                                    <Route path="/" element={<Home />} />
+                                    <Route path="/login" element={<Login />} />
+                                    <Route path="/register" element={<Register />} />
+                                    <Route path="/workout" element={<WorkoutLog />} />
+                                    <Route path="/pt-management" element={<PTManagement userId={user?.id} />} />
+                                    <Route path="/classes" element={<ClassList />} />
+                                    <Route path="/profile" element={<Profile />} />
+                                    <Route path="/package" element={<Package />} />
+                                    <Route path="/home" element={<Home />} />
+                                    <Route path="*" element={<Home />} />
+                                </Routes>
+                            )}
+                        </div>
+                        <Footer />
+                    </div>
                 </BrowserRouter>
             </MyDispatchContext.Provider>
         </MyUserContext.Provider>

@@ -56,16 +56,21 @@ const Login = () => {
     };
 
     return (
-        <Container className="mt-5">
-            <Row className="justify-content-center">
-                <Col md={6} lg={4}>
-                    <Card className="shadow">
-                        <Card.Body className="p-4">
-                            <h1 className="text-center text-primary mb-4">
-                                <i className="fas fa-sign-in-alt me-2"></i>
-                                ĐĂNG NHẬP
-                            </h1>
-                            
+        <div className="page-container">
+            <div className="page-header">
+                <h1 className="page-title">
+                    <i className="fas fa-sign-in-alt me-2"></i>
+                    ĐĂNG NHẬP
+                </h1>
+                <p className="page-subtitle">
+                    Đăng nhập vào tài khoản của bạn để tiếp tục
+                </p>
+            </div>
+            
+            <div className="row justify-content-center">
+                <div className="col-md-6 col-lg-4">
+                    <div className="card">
+                        <div className="card-body">
                             <LoginForm 
                                 user={user}
                                 setState={setState}
@@ -74,19 +79,19 @@ const Login = () => {
                                 error={error}
                             />
                             
-                            <div className="text-center">
+                            <div className="text-center mt-4">
                                 <small className="text-muted">
                                     Chưa có tài khoản?{" "}
-                                    <a href="/register" className="text-decoration-none">
+                                    <a href="/register" className="text-decoration-none fw-medium">
                                         Đăng ký ngay
                                     </a>
                                 </small>
                             </div>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row>
-        </Container>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 };
 

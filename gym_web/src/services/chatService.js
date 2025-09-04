@@ -17,18 +17,18 @@ export class ChatService {
     this.listeners = new Map();
   }
 
-  // Tạo chat room ID giữa 2 user
+  
   createChatRoomId(userId1, userId2) {
-    // Sắp xếp để đảm bảo chat room ID luôn giống nhau
+    
     const sortedIds = [userId1, userId2].sort();
     return `${sortedIds[0]}_${sortedIds[1]}`;
   }
 
-                                // Gửi tin nhắn
+                                
                async sendMessage(senderId, receiverId, message) {
                  const chatRoomId = this.createChatRoomId(senderId, receiverId);
                  
-                 // Tạo chat room trước
+                 
                  await this.createOrUpdateChatRoom(senderId, receiverId, message);
                  
                  const chatRef = ref(database, `chats/${chatRoomId}`);
@@ -39,7 +39,7 @@ export class ChatService {
                    message,
                    timestamp: serverTimestamp(),
                    read: false,
-                   messageId: Date.now().toString() // Unique ID
+                   messageId: Date.now().toString()
                  };
                  
                  try {
@@ -51,7 +51,7 @@ export class ChatService {
                  }
                }
 
-  // Lắng nghe tin nhắn real-time
+  
   listenToConversation(userId1, userId2, callback) {
     const chatRoomId = this.createChatRoomId(userId1, userId2);
     const chatRef = ref(database, `chats/${chatRoomId}`);
@@ -68,7 +68,7 @@ export class ChatService {
           });
         });
         
-        // Sắp xếp theo timestamp
+        
         messages.sort((a, b) => {
           if (a.timestamp && b.timestamp) {
             return a.timestamp - b.timestamp;
@@ -80,14 +80,14 @@ export class ChatService {
       callback(messages);
     });
 
-    // Lưu listener để cleanup
+    
     const key = `${userId1}-${userId2}`;
     this.listeners.set(key, { ref: chatRef, listener });
     
     return listener;
   }
 
-  // Dừng lắng nghe
+  
   stopListening(userId1, userId2) {
     const key = `${userId1}-${userId2}`;
     const listenerInfo = this.listeners.get(key);
@@ -97,7 +97,7 @@ export class ChatService {
     }
   }
 
-  // Đánh dấu tin nhắn đã đọc
+  
   async markAsRead(chatRoomId, messageId) {
     try {
       const messageRef = ref(database, `chats/${chatRoomId}/${messageId}`);
@@ -107,7 +107,7 @@ export class ChatService {
     }
   }
 
-  // Lấy danh sách chat rooms của user
+  
   listenToUserChats(userId, callback) {
     const userChatsRef = ref(database, 'userChats');
     const userChatsQuery = query(userChatsRef, orderByChild('userId'), equalTo(userId));
@@ -125,7 +125,7 @@ export class ChatService {
     return listener;
   }
 
-  // Tạo hoặc cập nhật chat room
+  
   async createOrUpdateChatRoom(userId1, userId2, lastMessage = null) {
     const chatRoomId = this.createChatRoomId(userId1, userId2);
     
@@ -152,7 +152,7 @@ export class ChatService {
     }
   }
 
-  // Cleanup tất cả listeners
+  
   cleanup() {
     this.listeners.forEach((listenerInfo) => {
       off(listenerInfo.ref, listenerInfo.listener);

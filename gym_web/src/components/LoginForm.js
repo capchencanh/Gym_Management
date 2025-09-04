@@ -1,5 +1,4 @@
 import React from "react";
-import { Button, Form, Alert } from "react-bootstrap";
 import MySpinner from "./Layouts/MySpinner";
 
 const LoginForm = ({ user, setState, login, loading, error }) => {
@@ -8,46 +7,57 @@ const LoginForm = ({ user, setState, login, loading, error }) => {
             type: "email",
             title: "Email",
             field: "email",
+            icon: "fas fa-envelope"
         },
         {
             type: "password",
             title: "Mật khẩu",
             field: "password",
+            icon: "fas fa-lock"
         },
     ];
 
     return (
-        <Form onSubmit={login}>
-            {error && <Alert variant="danger">{error}</Alert>}
+        <form onSubmit={login} className="login-form">
+            {error && (
+                <div className="alert alert-danger">
+                    <i className="fas fa-exclamation-circle me-2"></i>
+                    {error}
+                </div>
+            )}
 
             {info.map((i) => (
-                <Form.Group className="mb-3" controlId={i.field} key={i.field}>
-                    <Form.Label>{i.title}</Form.Label>
-                    <Form.Control
-                        required
+                <div className="mb-3" key={i.field}>
+                    <label htmlFor={i.field} className="form-label">
+                        <i className={`${i.icon} me-2`}></i>
+                        {i.title}
+                    </label>
+                    <input
                         type={i.type}
+                        className="form-control"
+                        id={i.field}
                         placeholder={i.title}
                         value={user[i.field] || ""}
                         onChange={(e) => setState(e.target.value, i.field)}
-                        size="lg"
+                        required
                     />
-                </Form.Group>
+                </div>
             ))}
 
             {loading ? (
-                <MySpinner />
+                <div className="loading-container">
+                    <MySpinner />
+                </div>
             ) : (
-                <Button 
+                <button 
                     type="submit" 
-                    variant="primary" 
-                    size="lg"
-                    className="w-100 mb-3"
+                    className="btn btn-primary w-100"
                 >
                     <i className="fas fa-sign-in-alt me-2"></i>
                     Đăng nhập
-                </Button>
+                </button>
             )}
-        </Form>
+        </form>
     );
 };
 

@@ -60,7 +60,7 @@ const TrainingSchedule = ({ userId, trainerId, onClose }) => {
 
     const formatTime = (timeStr) => {
         if (!timeStr) return '';
-        return timeStr.substring(0, 5); // Lấy HH:mm từ HH:mm:ss
+        return timeStr.substring(0, 5);
     };
 
     const formatDate = (dateStr) => {

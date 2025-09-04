@@ -1,7 +1,7 @@
 import React from 'react';
-import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useUser } from '../configs/UserProvider';
+import './Home.css';
 
 const Home = () => {
   const user = useUser();
@@ -13,81 +13,81 @@ const Home = () => {
     return `Chào mừng ${user.name}!`;
   };
 
+  const features = [
+    {
+      icon: "fas fa-dumbbell",
+      title: "Quản lý bài tập",
+      description: "Theo dõi và ghi log các buổi tập luyện của bạn",
+      link: "/workout-log"
+    },
+    {
+      icon: "fas fa-apple-alt",
+      title: "Chế độ dinh dưỡng",
+      description: "Quản lý chế độ ăn và gợi ý thực đơn phù hợp",
+      link: "/nutrition"
+    },
+    {
+      icon: "fas fa-users",
+      title: "Lớp tập luyện",
+      description: "Đăng ký và tham gia các lớp tập với PT chuyên nghiệp",
+      link: "/classes"
+    },
+    {
+      icon: "fas fa-tags",
+      title: "Gói tập luyện",
+      description: "Xem và đăng ký các gói tập phù hợp với nhu cầu",
+      link: "/package"
+    }
+  ];
+
   return (
-    <Container className="mt-4">
-      <Row>
-        <Col>
-          <h1 className="text-center mb-4">{getWelcomeMessage()}</h1>
-          <p className="text-center text-muted mb-5">
-            Hệ thống quản lý gym hiện đại
-          </p>
-        </Col>
-      </Row>
+    <div className="page-container">
+          <div className="page-header">
+            <h1 className="page-title">
+              <i className="fas fa-dumbbell me-2"></i>
+              {getWelcomeMessage()}
+            </h1>
+            <p className="page-subtitle">
+              Hệ thống quản lý gym hiện đại với giao diện thân thiện
+            </p>
+          </div>
 
-      <Row className="mb-4">
-        <Col md={3} className="mb-3">
-          <Card className="h-100 text-center">
-            <Card.Body>
-              <i className="fas fa-dumbbell fa-3x text-primary mb-3"></i>
-              <Card.Title>Quản lý bài tập</Card.Title>
-              <Card.Text>
-                Theo dõi và ghi log các buổi tập luyện của bạn
-              </Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
+          <div className="section">
+            <div className="stats-grid">
+              {features.map((feature, index) => (
+                <div key={index} className="card feature-card">
+                  <div className="card-body text-center">
+                    <div className="feature-icon">
+                      <i className={`${feature.icon} fa-3x`}></i>
+                    </div>
+                    <h4 className="feature-title">{feature.title}</h4>
+                    <p className="feature-description">{feature.description}</p>
+                    {feature.link && (
+                      <Link to={feature.link} className="btn btn-primary">
+                        Khám phá
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
 
-        <Col md={3} className="mb-3">
-          <Card className="h-100 text-center">
-            <Card.Body>
-              <i className="fas fa-apple-alt fa-3x text-success mb-3"></i>
-              <Card.Title>Chế độ dinh dưỡng</Card.Title>
-              <Card.Text>
-                Quản lý chế độ ăn và gợi ý thực đơn phù hợp
-              </Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-
-        <Col md={3} className="mb-3">
-          <Card className="h-100 text-center">
-            <Card.Body>
-              <i className="fas fa-users fa-3x text-info mb-3"></i>
-              <Card.Title>Lớp tập luyện</Card.Title>
-              <Card.Text>
-                Đăng ký và tham gia các lớp tập với PT chuyên nghiệp
-              </Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-
-        <Col md={3} className="mb-3">
-          <Card className="h-100 text-center">
-            <Card.Body>
-              <i className="fas fa-tags fa-3x text-warning mb-3"></i>
-              <Card.Title>Gói tập luyện</Card.Title>
-              <Card.Text>
-                Xem và đăng ký các gói tập phù hợp với nhu cầu
-              </Card.Text>
-              <Link to="/package" className="btn btn-warning">
-                Xem gói tập
-              </Link>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-
-      <Row>
-        <Col className="text-center">
-          <Button variant="primary" size="lg" className="me-3">
-            Bắt đầu ngay
-          </Button>
-          <Button variant="outline-secondary" size="lg">
-            Tìm hiểu thêm
-          </Button>
-        </Col>
-      </Row>
-    </Container>
+          <div className="section">
+            <div className="text-center">
+              <div className="action-buttons">
+                <Link to="/register" className="btn btn-primary btn-lg me-3">
+                  <i className="fas fa-rocket me-2"></i>
+                  Bắt đầu ngay
+                </Link>
+                <Link to="/about" className="btn btn-secondary btn-lg">
+                  <i className="fas fa-info-circle me-2"></i>
+                  Tìm hiểu thêm
+                </Link>
+              </div>
+            </div>
+          </div>
+    </div>
   );
 };
 

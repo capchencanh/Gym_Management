@@ -79,7 +79,6 @@ const Profile = () => {
         try {
             const response = await Apis.put(endpoints['update-profile'], formData);
             
-            // Cập nhật user context với thông tin mới
             const updatedUser = { ...user, ...formData };
             dispatch({
                 type: "update",
@@ -117,7 +116,6 @@ const Profile = () => {
                 }
             });
 
-            // Cập nhật user context với avatar mới
             const updatedUser = { ...user, avatar_url: response.data.avatar_url };
             dispatch({
                 type: "update",
@@ -179,217 +177,241 @@ const Profile = () => {
     }
 
     return (
-        <div className="profile-container">
-            <div className="profile-header">
-                <h1>Profile</h1>
-                <p>Quản lý thông tin cá nhân và tài khoản</p>
-            </div>
-
-            {message.text && (
-                <div className={`alert alert-${message.type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`}>
-                    <i className={`fas fa-${message.type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2`}></i>
-                    {message.text}
-                    <button type="button" className="btn-close" onClick={() => setMessage({ type: '', text: '' })}></button>
-                </div>
-            )}
-
-            <div className="profile-section">
-                <div className="profile-info">
-                    <div className="profile-avatar">
-                        {avatarPreview ? (
-                            <img src={avatarPreview} alt="User Avatar" />
-                        ) : (
-                            <i className="fas fa-user"></i>
-                        )}
+        <div className="page-container">
+                    <div className="page-header">
+                        <h1 className="page-title">
+                            <i className="fas fa-user me-2"></i>
+                            Profile
+                        </h1>
+                        <p className="page-subtitle">
+                            Quản lý thông tin cá nhân và tài khoản
+                        </p>
                     </div>
-                    <div className="profile-details">
-                        <h2>{user.name}</h2>
-                        <div className="detail-row">
-                            <div>
-                                <p><i className="fas fa-envelope"></i>{user.email}</p>
-                                <p><i className="fas fa-phone"></i>{user.phone_number}</p>
+
+                    {message.text && (
+                        <div className={`alert alert-${message.type === 'success' ? 'success' : 'danger'}`}>
+                            <i className={`fas fa-${message.type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2`}></i>
+                            {message.text}
+                            <button type="button" className="btn-close" onClick={() => setMessage({ type: '', text: '' })}></button>
+                        </div>
+                    )}
+
+                    <div className="section">
+                        <div className="card">
+                            <div className="card-body">
+                                <div className="profile-info">
+                                    <div className="profile-avatar">
+                                        {avatarPreview ? (
+                                            <img src={avatarPreview} alt="User Avatar" />
+                                        ) : (
+                                            <i className="fas fa-user"></i>
+                                        )}
+                                    </div>
+                                    <div className="profile-details">
+                                        <h2>{user.name}</h2>
+                                        <div className="detail-row">
+                                            <div>
+                                                <p><i className="fas fa-envelope"></i>{user.email}</p>
+                                                <p><i className="fas fa-phone"></i>{user.phone_number}</p>
+                                            </div>
+                                            <div>
+                                                <p><i className="fas fa-calendar"></i>{user.birthdate ? new Date(user.birthdate).toLocaleDateString('vi-VN') : 'N/A'}</p>
+                                                <p><i className="fas fa-venus-mars"></i>{user.gender}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <p><i className="fas fa-calendar"></i>{user.birthdate ? new Date(user.birthdate).toLocaleDateString('vi-VN') : 'N/A'}</p>
-                                <p><i className="fas fa-venus-mars"></i>{user.gender}</p>
+                        </div>
+                    </div>
+
+                    <div className="section">
+                        <div className="card">
+                            <div className="card-body">
+                                <h3 className="section-title">
+                                    <i className="fas fa-image me-2"></i>
+                                    Cập nhật ảnh đại diện
+                                </h3>
+                                <form onSubmit={handleUpdateAvatar}>
+                                    <div className="mb-3">
+                                        <label htmlFor="avatar-input" className="form-label">Chọn ảnh mới để thay thế:</label>
+                                        <input 
+                                            type="file" 
+                                            className="form-control" 
+                                            id="avatar-input" 
+                                            accept="image/*"
+                                            onChange={handleAvatarChange}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="text-center">
+                                        <button type="submit" className="btn btn-primary" disabled={loading}>
+                                            <i className="fas fa-upload me-2"></i>
+                                            {loading ? 'Đang tải...' : 'Tải lên'}
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <div className="profile-section">
-                <h3>
-                    <i className="fas fa-image"></i> Cập nhật ảnh đại diện
-                </h3>
-                <form onSubmit={handleUpdateAvatar}>
-                    <div className="mb-3">
-                        <label htmlFor="avatar-input" className="form-label">Chọn ảnh mới để thay thế:</label>
-                        <input 
-                            type="file" 
-                            className="form-control" 
-                            id="avatar-input" 
-                            accept="image/*"
-                            onChange={handleAvatarChange}
-                            required
-                        />
-                    </div>
-                    <div className="text-center">
-                        <button type="submit" className="btn btn-custom" disabled={loading}>
-                            <i className="fas fa-upload me-2"></i>
-                            {loading ? 'Đang tải...' : 'Tải lên'}
-                        </button>
-                    </div>
-                </form>
-            </div>
+                    <div className="section">
+                        <div className="card">
+                            <div className="card-body">
+                                <h3 className="section-title">
+                                    <i className="fas fa-edit me-2"></i>
+                                    Cập nhật thông tin
+                                </h3>
+                                <form onSubmit={handleUpdateProfile}>
+                                    <div className="row">
+                                        <div className="col-md-6 mb-3">
+                                            <label className="form-label">Họ và tên</label>
+                                            <input 
+                                                type="text" 
+                                                className="form-control" 
+                                                name="name"
+                                                value={formData.name}
+                                                onChange={handleInputChange}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="col-md-6 mb-3">
+                                            <label className="form-label">Số điện thoại</label>
+                                            <input 
+                                                type="tel" 
+                                                className="form-control" 
+                                                name="phone_number"
+                                                value={formData.phone_number}
+                                                onChange={handleInputChange}
+                                                required
+                                            />
+                                        </div>
+                                    </div>
 
-            <div className="profile-section">
-                <h3>
-                    <i className="fas fa-edit"></i> Cập nhật thông tin
-                </h3>
-                <form onSubmit={handleUpdateProfile}>
-                    <div className="row">
-                        <div className="col-md-6 mb-3">
-                            <label className="form-label">Họ và tên</label>
-                            <input 
-                                type="text" 
-                                className="form-control" 
-                                name="name"
-                                value={formData.name}
-                                onChange={handleInputChange}
-                                required
-                            />
-                        </div>
-                        <div className="col-md-6 mb-3">
-                            <label className="form-label">Số điện thoại</label>
-                            <input 
-                                type="tel" 
-                                className="form-control" 
-                                name="phone_number"
-                                value={formData.phone_number}
-                                onChange={handleInputChange}
-                                required
-                            />
-                        </div>
-                    </div>
+                                    <div className="row">
+                                        <div className="col-md-4 mb-3">
+                                            <label className="form-label">Ngày sinh</label>
+                                            <input 
+                                                type="date" 
+                                                className="form-control" 
+                                                name="birthdate"
+                                                value={formData.birthdate}
+                                                onChange={handleInputChange}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="col-md-4 mb-3">
+                                            <label className="form-label">Giới tính</label>
+                                            <select 
+                                                className="form-select" 
+                                                name="gender"
+                                                value={formData.gender}
+                                                onChange={handleInputChange}
+                                                required
+                                            >
+                                                <option value="">Chọn giới tính</option>
+                                                <option value="Nam">Nam</option>
+                                                <option value="Nữ">Nữ</option>
+                                                <option value="Khác">Khác</option>
+                                            </select>
+                                        </div>
+                                    </div>
 
-                    <div className="row">
-                        <div className="col-md-4 mb-3">
-                            <label className="form-label">Ngày sinh</label>
-                            <input 
-                                type="date" 
-                                className="form-control" 
-                                name="birthdate"
-                                value={formData.birthdate}
-                                onChange={handleInputChange}
-                                required
-                            />
-                        </div>
-                        <div className="col-md-4 mb-3">
-                            <label className="form-label">Giới tính</label>
-                            <select 
-                                className="form-select" 
-                                name="gender"
-                                value={formData.gender}
-                                onChange={handleInputChange}
-                                required
-                            >
-                                <option value="">Chọn giới tính</option>
-                                <option value="Nam">Nam</option>
-                                <option value="Nữ">Nữ</option>
-                                <option value="Khác">Khác</option>
-                            </select>
-                        </div>
-                    </div>
+                                    <div className="row">
+                                        <div className="col-md-6 mb-3">
+                                            <label className="form-label">Chiều cao (cm)</label>
+                                            <input 
+                                                type="number" 
+                                                className="form-control" 
+                                                name="height"
+                                                value={formData.height}
+                                                onChange={handleInputChange}
+                                                min="100" 
+                                                max="250"
+                                            />
+                                        </div>
+                                        <div className="col-md-6 mb-3">
+                                            <label className="form-label">Cân nặng (kg)</label>
+                                            <input 
+                                                type="number" 
+                                                className="form-control" 
+                                                name="weight"
+                                                value={formData.weight}
+                                                onChange={handleInputChange}
+                                                min="30" 
+                                                max="200" 
+                                                step="0.1"
+                                            />
+                                        </div>
+                                    </div>
 
-                    <div className="row">
-                        <div className="col-md-6 mb-3">
-                            <label className="form-label">Chiều cao (cm)</label>
-                            <input 
-                                type="number" 
-                                className="form-control" 
-                                name="height"
-                                value={formData.height}
-                                onChange={handleInputChange}
-                                min="100" 
-                                max="250"
-                            />
-                        </div>
-                        <div className="col-md-6 mb-3">
-                            <label className="form-label">Cân nặng (kg)</label>
-                            <input 
-                                type="number" 
-                                className="form-control" 
-                                name="weight"
-                                value={formData.weight}
-                                onChange={handleInputChange}
-                                min="30" 
-                                max="200" 
-                                step="0.1"
-                            />
+                                    <div className="text-center">
+                                        <button type="submit" className="btn btn-primary" disabled={loading}>
+                                            <i className="fas fa-save me-2"></i>
+                                            {loading ? 'Đang cập nhật...' : 'Cập nhật thông tin'}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="text-center">
-                        <button type="submit" className="btn btn-custom" disabled={loading}>
-                            <i className="fas fa-save me-2"></i>
-                            {loading ? 'Đang cập nhật...' : 'Cập nhật thông tin'}
-                        </button>
-                    </div>
-                </form>
-            </div>
+                    <div className="section">
+                        <div className="card">
+                            <div className="card-body">
+                                <h3 className="section-title">
+                                    <i className="fas fa-lock me-2"></i>
+                                    Đổi mật khẩu
+                                </h3>
+                                <form onSubmit={handleChangePassword}>
+                                    <div className="row">
+                                        <div className="col-md-4 mb-3">
+                                            <label className="form-label">Mật khẩu hiện tại</label>
+                                            <input 
+                                                type="password" 
+                                                className="form-control" 
+                                                name="currentPassword"
+                                                value={passwordData.currentPassword}
+                                                onChange={handlePasswordChange}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="col-md-4 mb-3">
+                                            <label className="form-label">Mật khẩu mới</label>
+                                            <input 
+                                                type="password" 
+                                                className="form-control" 
+                                                name="newPassword"
+                                                value={passwordData.newPassword}
+                                                onChange={handlePasswordChange}
+                                                required 
+                                                minLength="6"
+                                            />
+                                        </div>
+                                        <div className="col-md-4 mb-3">
+                                            <label className="form-label">Xác nhận mật khẩu mới</label>
+                                            <input 
+                                                type="password" 
+                                                className="form-control" 
+                                                name="confirmPassword"
+                                                value={passwordData.confirmPassword}
+                                                onChange={handlePasswordChange}
+                                                required 
+                                                minLength="6"
+                                            />
+                                        </div>
+                                    </div>
 
-            <div className="profile-section">
-                <h3>
-                    <i className="fas fa-lock"></i> Đổi mật khẩu
-                </h3>
-                <form onSubmit={handleChangePassword}>
-                    <div className="row">
-                        <div className="col-md-4 mb-3">
-                            <label className="form-label">Mật khẩu hiện tại</label>
-                            <input 
-                                type="password" 
-                                className="form-control" 
-                                name="currentPassword"
-                                value={passwordData.currentPassword}
-                                onChange={handlePasswordChange}
-                                required
-                            />
-                        </div>
-                        <div className="col-md-4 mb-3">
-                            <label className="form-label">Mật khẩu mới</label>
-                            <input 
-                                type="password" 
-                                className="form-control" 
-                                name="newPassword"
-                                value={passwordData.newPassword}
-                                onChange={handlePasswordChange}
-                                required 
-                                minLength="6"
-                            />
-                        </div>
-                        <div className="col-md-4 mb-3">
-                            <label className="form-label">Xác nhận mật khẩu mới</label>
-                            <input 
-                                type="password" 
-                                className="form-control" 
-                                name="confirmPassword"
-                                value={passwordData.confirmPassword}
-                                onChange={handlePasswordChange}
-                                required 
-                                minLength="6"
-                            />
+                                    <div className="text-center">
+                                        <button type="submit" className="btn btn-primary" disabled={loading}>
+                                            <i className="fas fa-key me-2"></i>
+                                            {loading ? 'Đang đổi...' : 'Đổi mật khẩu'}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
-
-                    <div className="text-center">
-                        <button type="submit" className="btn btn-custom" disabled={loading}>
-                            <i className="fas fa-key me-2"></i>
-                            {loading ? 'Đang đổi...' : 'Đổi mật khẩu'}
-                        </button>
-                    </div>
-                </form>
-            </div>
         </div>
     );
 };
