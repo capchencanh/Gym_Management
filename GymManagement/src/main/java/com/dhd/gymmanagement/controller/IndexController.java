@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class IndexController {
@@ -37,7 +38,11 @@ public class IndexController {
     }
     
     @GetMapping("/admin")
-    public String admin(Model model, @RequestParam(required = false) Integer categoryId) {
+    public String admin(Model model, @RequestParam(required = false) Integer categoryId, HttpSession session) {
+        String userRole = (String) session.getAttribute("userRole");
+        if ("PT".equals(userRole)) {
+            return "redirect:/pt/dashboard";
+        }
         if (categoryId != null) {
             switch (categoryId) {
                 case 7:

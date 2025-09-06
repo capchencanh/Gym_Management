@@ -107,7 +107,7 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item" th:if="${session.user}">
-                            <a class="nav-link" href="/admin">Dashboard</a>
+                            <a class="nav-link" th:href="${session.userRole == 'ADMIN' ? '/admin' : '/pt/dashboard'}">Dashboard</a>
                         </li>
                         <li class="nav-item dropdown" th:if="${session.user}">
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button"
@@ -153,63 +153,84 @@
             <div class="position-sticky pt-3">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link" href="/admin">
+                        <a class="nav-link" th:href="${session.userRole == 'ADMIN' ? '/admin' : '/pt/dashboard'}">
                             <i class="fas fa-tachometer-alt me-2"></i>
                             Dashboard
                         </a>
                     </li>
-                    <li class="nav-item">
+                  
+                    <li class="nav-item" th:if="${session.userRole == 'ADMIN'}">
                         <a class="nav-link" href="/admin/users">
                             <i class="fas fa-users me-2"></i>
                             Quản lý tài khoản
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" th:if="${session.userRole == 'ADMIN'}">
                         <a class="nav-link" href="/admin/trainers">
                             <i class="fas fa-user-tie me-2"></i>
                             Quản lý Trainer
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" th:if="${session.userRole == 'ADMIN'}">
                         <a class="nav-link" href="/admin/devices">
                             <i class="fas fa-dumbbell me-2"></i>
                             Quản lý thiết bị
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" th:if="${session.userRole == 'ADMIN'}">
                         <a class="nav-link" href="/admin/equipment">
                             <i class="fas fa-box me-2"></i>
                             Quản lý dụng cụ
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" th:if="${session.userRole == 'ADMIN'}">
                         <a class="nav-link" href="/admin/classes">
                             <i class="fas fa-chalkboard-teacher me-2"></i>
                             Quản lý lớp học
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" th:if="${session.userRole == 'ADMIN'}">
                         <a class="nav-link" href="/admin/packages">
                             <i class="fas fa-credit-card me-2"></i>
                             Quản lý gói tập
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" th:if="${session.userRole == 'ADMIN'}">
                         <a class="nav-link" href="/admin/payments">
                             <i class="fas fa-money-bill-wave me-2"></i>
                             Quản lý thanh toán
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" th:if="${session.userRole == 'ADMIN'}">
                         <a class="nav-link" href="/admin/pt-assignments">
                             <i class="fas fa-user-friends me-2"></i>
                             Quản lý phân công PT
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" th:if="${session.userRole == 'ADMIN'}">
                         <a class="nav-link" href="/admin/reports">
                             <i class="fas fa-chart-bar me-2"></i>
                             Báo cáo
+                        </a>
+                    </li>
+                    
+                    <!-- Menu dành cho PT -->
+                    <li class="nav-item" th:if="${session.userRole == 'PT'}">
+                        <a class="nav-link" th:href="@{/pt/dashboard/schedule(trainerId=${session.userId})}">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            Lịch tập
+                        </a>
+                    </li>
+                    <li class="nav-item" th:if="${session.userRole == 'PT'}">
+                        <a class="nav-link" th:href="@{/pt/dashboard/stats(trainerId=${session.userId})}">
+                            <i class="fas fa-chart-bar me-2"></i>
+                            Thống kê
+                        </a>
+                    </li>
+                    <li class="nav-item" th:if="${session.userRole == 'PT'}">
+                        <a class="nav-link" href="/pt/chat">
+                            <i class="fas fa-comments me-2"></i>
+                            Chat với User
                         </a>
                     </li>
                 </ul>

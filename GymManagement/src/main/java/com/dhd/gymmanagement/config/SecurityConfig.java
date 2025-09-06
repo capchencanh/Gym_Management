@@ -71,6 +71,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/categories2").permitAll()
                         .requestMatchers("/api/packages/**").permitAll()
                         .requestMatchers("/api/payment/**").permitAll()
+                        .requestMatchers("/api/ai/**").permitAll()
 
                         .requestMatchers("/api/upload/**").authenticated()
                         .requestMatchers("/api/workout-logs/**").authenticated()

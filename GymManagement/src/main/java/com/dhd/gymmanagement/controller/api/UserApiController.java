@@ -117,10 +117,12 @@ public class UserApiController {
                 user.setBirthdate(java.sql.Date.valueOf((String) updateRequest.get("birthdate")));
             }
             if (updateRequest.containsKey("height")) {
-                user.setHeight((Double) updateRequest.get("height"));
+                Double h = toDouble(updateRequest.get("height"));
+                user.setHeight(h);
             }
             if (updateRequest.containsKey("weight")) {
-                user.setWeight((Double) updateRequest.get("weight"));
+                Double w = toDouble(updateRequest.get("weight"));
+                user.setWeight(w);
             }
             if (updateRequest.containsKey("fitness_goal")) {
                 user.setFitnessGoal((String) updateRequest.get("fitness_goal"));
@@ -138,6 +140,21 @@ public class UserApiController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Có lỗi xảy ra: " + e.getMessage());
         }
+    }
+
+    private Double toDouble(Object value) {
+        try {
+            if (value == null) return null;
+            if (value instanceof Number) {
+                return ((Number) value).doubleValue();
+            }
+            if (value instanceof String) {
+                String s = ((String) value).trim();
+                if (s.isEmpty()) return null;
+                return Double.parseDouble(s);
+            }
+        } catch (Exception ignored) {}
+        return null;
     }
 
     @PostMapping("/avatar")
