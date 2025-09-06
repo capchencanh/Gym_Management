@@ -90,7 +90,10 @@ export const endpoints = {
     // Payment
     'create-payment': 'api/payment/create-payment',
     'payment-callback': 'api/payment/payment-callback',
-    'check-payment-status': 'api/payment/check-status'
+    'check-payment-status': 'api/payment/check-status',
+
+    // AI Chat
+    'ai-chat': 'api/ai/chat'
 };
 
 export default Apis;

@@ -15,6 +15,7 @@ import MyUserReducer from "./reducer/MyUserReducer";
 import Apis, { endpoints } from "./configs/Apis";
 import MySpinner from "./components/Layouts/MySpinner";
 import "./App.css";
+import AIChatBox from "./components/AIChatBox";
 
 const App = () => {
     const [user, dispatch] = useReducer(MyUserReducer, null);
@@ -79,6 +80,7 @@ const App = () => {
                             )}
                         </div>
                         <Footer />
+                        <AIChatBox />
                     </div>
                 </BrowserRouter>
             </MyDispatchContext.Provider>

@@ -77,9 +77,14 @@ const Profile = () => {
         setMessage({ type: '', text: '' });
 
         try {
-            const response = await Apis.put(endpoints['update-profile'], formData);
+            const payload = {
+                ...formData,
+                height: formData.height !== '' && formData.height !== null ? parseFloat(formData.height) : null,
+                weight: formData.weight !== '' && formData.weight !== null ? parseFloat(formData.weight) : null
+            };
+            const response = await Apis.put(endpoints['update-profile'], payload);
             
-            const updatedUser = { ...user, ...formData };
+            const updatedUser = { ...user, ...payload };
             dispatch({
                 type: "update",
                 payload: updatedUser
@@ -217,6 +222,7 @@ const Profile = () => {
                                             <div>
                                                 <p><i className="fas fa-calendar"></i>{user.birthdate ? new Date(user.birthdate).toLocaleDateString('vi-VN') : 'N/A'}</p>
                                                 <p><i className="fas fa-venus-mars"></i>{user.gender}</p>
+                                                <p><i className="fas fa-bullseye"></i>{user.fitness_goal || 'Chưa thiết lập mục tiêu'}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -341,6 +347,20 @@ const Profile = () => {
                                                 min="30" 
                                                 max="200" 
                                                 step="0.1"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="row">
+                                        <div className="col-md-12 mb-3">
+                                            <label className="form-label">Mục tiêu tập luyện/dinh dưỡng</label>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                name="fitness_goal"
+                                                placeholder="Ví dụ: Giảm mỡ 5kg trong 3 tháng, tăng cơ phần thân trên..."
+                                                value={formData.fitness_goal}
+                                                onChange={handleInputChange}
                                             />
                                         </div>
                                     </div>
