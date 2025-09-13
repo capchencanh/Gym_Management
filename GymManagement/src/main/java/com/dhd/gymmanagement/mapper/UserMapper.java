@@ -1,4 +1,3 @@
-// src/main/java/com/dhd/gymmanagement/mapper/UserMapper.java
 package com.dhd.gymmanagement.mapper;
 
 import com.dhd.gymmanagement.dto.UserDTO;

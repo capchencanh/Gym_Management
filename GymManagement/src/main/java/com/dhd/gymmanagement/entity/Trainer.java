@@ -1,11 +1,22 @@
 package com.dhd.gymmanagement.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Trainer entity for gym management system
+ */
 @Entity
 @Table(name = "trainers")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Trainer {
     @Id
     @Column(name = "trainer_id")
@@ -23,26 +34,13 @@ public class Trainer {
     private String schedule;
     
     @Column(name = "is_deleted")
+    @Builder.Default
     private Integer isDeleted = 0;
 
     @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
     private List<PTAssignment> assignments = new ArrayList<>();
-
-    public Integer getTrainerId() { return trainerId; }
-    public void setTrainerId(Integer trainerId) { this.trainerId = trainerId; }
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
-    public String getSpecialization() { return specialization; }
-    public void setSpecialization(String specialization) { this.specialization = specialization; }
-    public String getSchedule() { return schedule; }
-    public void setSchedule(String schedule) { this.schedule = schedule; }
-    public Integer getIsDeleted() { return isDeleted; }
-    public void setIsDeleted(Integer isDeleted) { this.isDeleted = isDeleted; }
     
-    public List<PTAssignment> getAssignments() { return assignments; }
-    public void setAssignments(List<PTAssignment> assignments) { this.assignments = assignments; }
-    
-    // Helper method để lấy tên trainer
     public String getName() {
         return user != null ? user.getName() : "Unknown";
     }

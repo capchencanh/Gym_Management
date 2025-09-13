@@ -86,6 +86,11 @@ public class AdminClassController {
         model.addAttribute("trainingClass", new TrainingClass());
         return "admin/class/form";
     }
+    
+    @GetMapping("/new")
+    public String newClassForm(Model model) {
+        return createClassForm(model);
+    }
 
 
     @PostMapping("/create")

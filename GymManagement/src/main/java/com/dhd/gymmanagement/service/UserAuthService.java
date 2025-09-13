@@ -25,6 +25,14 @@ public class UserAuthService {
         return userRepository.findByPhoneNumber(phoneNumber);
     }
     
+    public boolean existsByEmailAndIsDeletedFalse(String email) {
+        return userRepository.existsByEmailAndIsDeletedFalse(email);
+    }
+    
+    public boolean existsByPhoneNumberAndIsDeletedFalse(String phoneNumber) {
+        return userRepository.existsByPhoneNumberAndIsDeletedFalse(phoneNumber);
+    }
+    
     public User findByEmail(String email) {
         return userRepository.findByEmail(email).orElse(null);
     }
@@ -69,17 +77,20 @@ public class UserAuthService {
     }
     
     public User createUser(User user) {
-        if (userRepository.existsByEmail(user.getEmail())) {
+        if (userRepository.existsByEmailAndIsDeletedFalse(user.getEmail())) {
             throw new RuntimeException("Email đã tồn tại");
         }
-        if (user.getPhoneNumber() != null && userRepository.existsByPhoneNumber(user.getPhoneNumber())) {
-            throw new RuntimeException("Số điện thoại đã tồn tại");
+        
+        if (user.getPhoneNumber() != null && !user.getPhoneNumber().trim().isEmpty()) {
+            if (userRepository.existsByPhoneNumberAndIsDeletedFalse(user.getPhoneNumber())) {
+                throw new RuntimeException("Số điện thoại đã tồn tại");
+            }
         }
         
-        user.setPasswordHash(passwordEncoder.encode(user.getPasswordHash()));
         user.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         
         return userRepository.save(user);
     }
 }
+

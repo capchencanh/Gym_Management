@@ -5,6 +5,7 @@ import com.dhd.gymmanagement.service.UserService;
 import com.dhd.gymmanagement.service.DeviceService;
 import com.dhd.gymmanagement.service.MembershipPackageService;
 import com.dhd.gymmanagement.service.PTAssignmentService;
+import com.dhd.gymmanagement.service.TrainingClassService;
 import com.dhd.gymmanagement.entity.Device;
 import com.dhd.gymmanagement.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,9 @@ public class IndexController {
     
     @Autowired
     private PTAssignmentService ptAssignmentService;
+    
+    @Autowired
+    private TrainingClassService trainingClassService;
 
     @GetMapping("/")
     public String index(Model model) {
@@ -54,10 +58,8 @@ public class IndexController {
                 case 10:
                     return "redirect:/admin/packages";
                 case 11:
-                    return "redirect:/admin/payments";
-                case 12:
                     return "redirect:/admin/reports";
-                case 13:
+                case 12:
                     return "redirect:/admin/devices";
                 default:
                     break;
@@ -68,7 +70,6 @@ public class IndexController {
         long totalUsers = userService.countUsers();
         long ptCount = userService.getUsersByRole(User.Role.PT).size();
         long userCount = userService.getUsersByRole(User.Role.USER).size();
-        long adminCount = userService.getUsersByRole(User.Role.ADMIN).size();
         long totalPackages = packageService.countActivePackages();
         
 
@@ -79,7 +80,7 @@ public class IndexController {
 
         model.addAttribute("totalUsers", totalUsers);
         model.addAttribute("totalTrainers", ptCount);
-        model.addAttribute("totalClasses", 0);
+        model.addAttribute("totalClasses", trainingClassService.countTotalClasses());
         model.addAttribute("totalDevices", deviceService.countTotalDevices());
         model.addAttribute("totalPackages", totalPackages);
         
@@ -91,7 +92,7 @@ public class IndexController {
         
         model.addAttribute("userCount", userCount);
         model.addAttribute("ptCount", ptCount);
-        model.addAttribute("activeClasses", 0);
+        model.addAttribute("activeClasses", trainingClassService.countActiveClasses());
         model.addAttribute("activeDevices", deviceService.countDevicesByStatus(Device.DeviceStatus.IN_USE));
         
 

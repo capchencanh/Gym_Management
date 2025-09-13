@@ -70,21 +70,15 @@ public class AuthService {
             throw new IllegalArgumentException("Mật khẩu phải có ít nhất 6 ký tự");
         }
 
-        if (userAuthService.getUserByEmail(email).isPresent()) {
-            throw new RuntimeException("Email đã tồn tại trong hệ thống");
-        }
-
-        if (phoneNumber != null && !phoneNumber.trim().isEmpty()) {
-            if (userAuthService.getUserByPhoneNumber(phoneNumber).isPresent()) {
-                throw new RuntimeException("Số điện thoại đã tồn tại trong hệ thống");
-            }
+        if (phoneNumber != null && !phoneNumber.trim().isEmpty() && !phoneNumber.matches("^[0-9]{10,11}$")) {
+            throw new IllegalArgumentException("Số điện thoại phải có 10-11 chữ số");
         }
 
         User newUser = new User();
         newUser.setName(name);
         newUser.setEmail(email);
         newUser.setPasswordHash(passwordEncoder.encode(password));
-        newUser.setPhoneNumber(phoneNumber);
+        newUser.setPhoneNumber(phoneNumber != null && !phoneNumber.trim().isEmpty() ? phoneNumber : null);
         newUser.setRole(User.Role.USER);
         newUser.setIsDeleted(0);
 

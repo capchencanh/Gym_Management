@@ -10,6 +10,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +24,8 @@ import java.time.LocalTime;
 
 @Service
 public class UserService {
-    
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
+
     @Autowired
     private UserRepository userRepository;
     
@@ -32,6 +37,32 @@ public class UserService {
     
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+    
+    private Counter userCreatedCounter;
+    private Counter userDeletedCounter;
+    private Counter passwordChangedCounter;
+    private Counter passwordResetCounter;
+    
+    @Autowired
+    public void setMeterRegistry(MeterRegistry meterRegistry) {
+        // Initialize metrics counters
+        this.userCreatedCounter = Counter.builder("user.events")
+                .tag("event", "created")
+                .description("Số lượng người dùng được tạo")
+                .register(meterRegistry);
+        this.userDeletedCounter = Counter.builder("user.events")
+                .tag("event", "deleted")
+                .description("Số lượng người dùng bị đánh dấu xóa")
+                .register(meterRegistry);
+        this.passwordChangedCounter = Counter.builder("user.password.events")
+                .tag("event", "changed")
+                .description("Số lần đổi mật khẩu thành công")
+                .register(meterRegistry);
+        this.passwordResetCounter = Counter.builder("user.password.events")
+                .tag("event", "reset")
+                .description("Số lần reset mật khẩu")
+                .register(meterRegistry);
+    }
     
     public List<User> getAllUsers() {
         return userRepository.findAllByIsDeleted(0);
@@ -88,8 +119,11 @@ public class UserService {
         user.setPasswordHash(passwordEncoder.encode(user.getPasswordHash()));
         user.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-        
-        return userRepository.save(user);
+        User saved = userRepository.save(user);
+        // Audit logging
+        log.info("{\"audit\":true,\"action\":\"USER_CREATED\",\"user_id\":{},\"email\":\"{}\"}", saved.getUserId(), saved.getEmail());
+        if (userCreatedCounter != null) userCreatedCounter.increment();
+        return saved;
     }
     
     public User updateUser(Integer userId, User userDetails) {
@@ -101,6 +135,8 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
         user.setIsDeleted(1);
         userRepository.save(user);
+        log.info("{\"audit\":true,\"action\":\"USER_DELETED\",\"user_id\":{},\"email\":\"{}\"}", user.getUserId(), user.getEmail());
+        if (userDeletedCounter != null) userDeletedCounter.increment();
         
         if (user.getRole() == User.Role.PT) {
             try {
@@ -108,8 +144,10 @@ public class UserService {
                 if (trainer != null) {
                     trainer.setIsDeleted(1);
                     trainerRepository.save(trainer);
+                    log.info("{\"audit\":true,\"action\":\"TRAINER_DELETED\",\"trainer_id\":{}}", trainer.getTrainerId());
                 }
             } catch (Exception e) {
+                log.warn("Lỗi xóa trainer khi xóa user_id={}: {}", userId, e.getMessage());
             }
         }
     }
@@ -142,6 +180,8 @@ public class UserService {
         user.setPasswordHash(passwordEncoder.encode(newPassword));
         user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         userRepository.save(user);
+        log.info("{\"audit\":true,\"action\":\"PASSWORD_UPDATED\",\"user_id\":{},\"email\":\"{}\"}", user.getUserId(), user.getEmail());
+        if (passwordChangedCounter != null) passwordChangedCounter.increment();
     }
     
     public boolean changePassword(Integer userId, String oldPassword, String newPassword) {
@@ -155,7 +195,8 @@ public class UserService {
         user.setPasswordHash(passwordEncoder.encode(newPassword));
         user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         userRepository.save(user);
-        
+        log.info("{\"audit\":true,\"action\":\"PASSWORD_CHANGED\",\"user_id\":{},\"email\":\"{}\"}", user.getUserId(), user.getEmail());
+        if (passwordChangedCounter != null) passwordChangedCounter.increment();
         return true;
     }
     
@@ -167,6 +208,8 @@ public class UserService {
         user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         
         userRepository.save(user);
+        log.info("{\"audit\":true,\"action\":\"PASSWORD_RESET\",\"user_id\":{},\"email\":\"{}\"}", user.getUserId(), user.getEmail());
+        if (passwordResetCounter != null) passwordResetCounter.increment();
     }
     
     public void updateAvatar(String email, MultipartFile avatarFile) throws IOException {

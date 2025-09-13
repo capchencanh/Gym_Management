@@ -16,6 +16,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.io.IOException;
 
+/**
+ * User API Controller
+ */
 @RestController
 @RequestMapping("/api/users")
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")

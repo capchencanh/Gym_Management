@@ -2,10 +2,21 @@ package com.dhd.gymmanagement.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import java.sql.Timestamp;
 
+/**
+ * MembershipPackage entity for gym management system
+ */
 @Entity
 @Table(name = "membership_packages")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class MembershipPackage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,22 +43,6 @@ public class MembershipPackage {
     private Timestamp updatedAt;
 
     @Column(name = "is_deleted", columnDefinition = "TINYINT(1) DEFAULT 0")
+    @Builder.Default
     private Integer isDeleted = 0;
-
-    public Integer getPackageId() { return packageId; }
-    public void setPackageId(Integer packageId) { this.packageId = packageId; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public Integer getDurationMonths() { return durationMonths; }
-    public void setDurationMonths(Integer durationMonths) { this.durationMonths = durationMonths; }
-    public Double getPrice() { return price; }
-    public void setPrice(Double price) { this.price = price; }
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-    public Timestamp getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
-    public Timestamp getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
-    public Integer getIsDeleted() { return isDeleted; }
-    public void setIsDeleted(Integer isDeleted) { this.isDeleted = isDeleted; }
 }

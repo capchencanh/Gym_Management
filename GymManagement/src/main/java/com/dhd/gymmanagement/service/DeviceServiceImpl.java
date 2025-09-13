@@ -65,7 +65,6 @@ public class DeviceServiceImpl implements DeviceService {
                         ObjectUtils.asMap("resource_type", "auto", "folder", "gym_devices"));
                 device.setImage((String) uploadResult.get("secure_url"));
             } catch (IOException e) {
-                // Log error but don't fail the device creation
                 System.err.println("Error uploading image: " + e.getMessage());
             }
         }

@@ -22,6 +22,12 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     
     boolean existsByPhoneNumber(String phoneNumber);
     
+    @Query("SELECT COUNT(u) > 0 FROM User u WHERE u.email = :email AND u.isDeleted = 0")
+    boolean existsByEmailAndIsDeletedFalse(@Param("email") String email);
+    
+    @Query("SELECT COUNT(u) > 0 FROM User u WHERE u.phoneNumber = :phoneNumber AND u.isDeleted = 0")
+    boolean existsByPhoneNumberAndIsDeletedFalse(@Param("phoneNumber") String phoneNumber);
+    
     List<User> findByRole(User.Role role);
     
     @Query("SELECT u FROM User u WHERE u.role = :role AND u.isDeleted = 0")

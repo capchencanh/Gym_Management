@@ -46,4 +46,6 @@ public interface TrainingClassRepository extends JpaRepository<TrainingClass, In
     
     @Query("SELECT COUNT(ce) FROM ClassEnrollment ce WHERE ce.trainingClass.classId = :classId AND (ce.isDeleted = 0 OR ce.isDeleted IS NULL)")
     Long countEnrolledUsers(@Param("classId") Integer classId);
+    
+    long countByIsDeleted(int isDeleted);
 }

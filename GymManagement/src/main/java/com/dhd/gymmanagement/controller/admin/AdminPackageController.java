@@ -98,6 +98,11 @@ public class AdminPackageController {
         return "admin/packages/form";
     }
     
+    @GetMapping("/new")
+    public String newPackageForm(Model model) {
+        return createPackageForm(model);
+    }
+    
     @PostMapping("/create")
     public String createPackage(@ModelAttribute MembershipPackage membershipPackage,
                                RedirectAttributes redirectAttributes) {

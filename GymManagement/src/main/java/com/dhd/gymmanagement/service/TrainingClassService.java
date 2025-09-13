@@ -113,4 +113,12 @@ public class TrainingClassService {
     public Long getEnrolledCount(Integer classId) {
         return trainingClassRepository.countEnrolledUsers(classId);
     }
+    
+    public long countTotalClasses() {
+        return trainingClassRepository.countByIsDeleted(0);
+    }
+    
+    public long countActiveClasses() {
+        return trainingClassRepository.countByIsDeleted(0);
+    }
 }

@@ -188,6 +188,11 @@
                                        class="btn btn-sm btn-warning me-1" title="Sửa">
                                         <i class="fas fa-edit"></i>
                                     </a>
+                                    <button type="button" class="btn btn-sm btn-primary me-1 view-users-btn" title="Xem user đang sử dụng" 
+                                            th:data-package-id="${package.packageId}"
+                                            th:data-package-name="${package.name}">
+                                        <i class="fas fa-users"></i>
+                                    </button>
                                     <button type="button" class="btn btn-sm btn-success me-1 cash-btn" title="Thu tiền mặt" 
                                             th:data-package-id="${package.packageId}"
                                             th:data-package-name="${package.name}">
@@ -345,7 +350,7 @@
               <table class="table table-sm table-bordered">
                 <thead class="table-danger">
                   <tr>
-                    <th>User ID</th>
+                    <th>Thông tin User</th>
                     <th>Ngày hết hạn</th>
                     <th>Số ngày hết hạn</th>
                     <th>Thao tác</th>
@@ -361,6 +366,54 @@
             <button type="button" class="btn btn-warning" id="renewAllBtn">
               <i class="fas fa-sync-alt me-1"></i>Gia hạn tất cả
             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal" tabindex="-1" id="userDetailsModal">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fas fa-user me-2"></i>Chi tiết gói tập của user
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div id="userDetailsContent">
+              <div class="text-center">
+                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                <p>Đang tải thông tin...</p>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal" tabindex="-1" id="packageUsersModal">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fas fa-users me-2"></i>User đang sử dụng gói
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div id="packageUsersContent">
+              <div class="text-center">
+                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                <p>Đang tải danh sách user...</p>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
           </div>
         </div>
       </div>
@@ -443,14 +496,21 @@
                                     }
                                     
                                     row.innerHTML = `
-                                        <td><span class="badge bg-secondary">${item.userId || 'N/A'}</span></td>
+                                        <td>
+                                            <div class="small">
+                                                <strong>${item.userName || 'N/A'}</strong><br>
+                                                <span class="text-muted">ID: ${item.userId || 'N/A'}</span><br>
+                                                <span class="text-muted">${item.userEmail || 'N/A'}</span><br>
+                                                <span class="text-muted">${item.userPhone || 'N/A'}</span>
+                                            </div>
+                                        </td>
                                         <td>${formattedDate}</td>
                                         <td><span class="badge bg-danger">${item.daysExpired || 0} ngày trước</span></td>
                                         <td>
-                                            <button type="button" class="btn btn-sm btn-warning renew-btn" 
-                                                    data-user-id="${item.userId}" data-package-id="${packageId}">
-                                                <i class="fas fa-sync-alt me-1"></i>Gia hạn
-                                            </button>
+                                        <button type="button" class="btn btn-sm btn-warning renew-btn" 
+                                                data-user-id="${item.userId}" data-package-id="${packageId}">
+                                            <i class="fas fa-sync-alt me-1"></i>Gia hạn
+                                        </button>
                                         </td>
                                     `;
                                     tableBody.appendChild(row);
@@ -487,7 +547,7 @@
 
             document.getElementById('renewAllBtn').addEventListener('click', function() {
                 if (confirm('Bạn có muốn gia hạn tất cả gói hết hạn này không?')) {
-                    alert('Tính năng gia hạn tất cả sẽ được implement sau!');
+                    renewAllExpiredMemberships();
                 }
             });
             
@@ -501,9 +561,78 @@
                         renewMembership(userId, packageId, button);
                     }
                 }
+                
+                
+                if (e.target.closest('.view-users-btn')) {
+                    const button = e.target.closest('.view-users-btn');
+                    const packageId = button.getAttribute('data-package-id');
+                    const packageName = button.getAttribute('data-package-name');
+                    showPackageUsers(packageId, packageName);
+                }
             });
             
             function renewMembership(userId, packageId, button) {
+                showRenewalModal(userId, packageId, button);
+            }
+            
+            function showRenewalModal(userId, packageId, button) {
+                const modal = document.createElement('div');
+                modal.className = 'modal fade show d-block';
+                modal.style.cssText = 'background-color: rgba(0,0,0,0.5); z-index: 9999;';
+                modal.innerHTML = `
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-sync-alt me-2"></i>Gia hạn gói tập
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Chọn thời gian gia hạn:</label>
+                                    <select class="form-select" id="renewalMonths">
+                                        <option value="1">1 tháng</option>
+                                        <option value="3">3 tháng</option>
+                                        <option value="6">6 tháng</option>
+                                        <option value="12">12 tháng</option>
+                                    </select>
+                                </div>
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Gia hạn sẽ được tính từ ngày hôm nay nếu gói đã quá hạn.
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                <button type="button" class="btn btn-primary" id="confirmRenewal">
+                                    <i class="fas fa-check me-1"></i>Xác nhận gia hạn
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                
+                document.getElementById('confirmRenewal').addEventListener('click', function() {
+                    const months = parseInt(document.getElementById('renewalMonths').value);
+                    modal.remove();
+                    processRenewal(userId, packageId, months, button);
+                });
+                
+                modal.querySelector('.btn-close').addEventListener('click', function() {
+                    modal.remove();
+                });
+                
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.remove();
+                    }
+                });
+            }
+            
+            function processRenewal(userId, packageId, months, button) {
                 button.disabled = true;
                 button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Đang gia hạn...';
                 
@@ -515,7 +644,7 @@
                     },
                     body: JSON.stringify({
                         packageId: packageId,
-                        months: 1
+                        months: months
                     })
                 })
                 .then(response => {
@@ -538,7 +667,7 @@
                         daysExpiredCell.innerHTML = '<span class="badge bg-success">Đã gia hạn</span>';
                     }
                     
-                    showSuccessMessage(` Gia hạn thành công!<br><br>User ID: ${userId}<br>Gói: ${data.packageId}<br>Thời gian: +${data.months} tháng`);
+                    showSuccessMessage(`Gia hạn thành công!<br><br>User: ${data.userName || 'N/A'}<br>Gói: ${data.packageName || 'N/A'}<br>Thời gian: +${months} tháng<br>Hết hạn mới: ${data.newEndDate || 'N/A'}`);
                     
                     setTimeout(() => {
                         location.reload();
@@ -550,6 +679,281 @@
                     
                     showAlert('danger', `Lỗi khi gia hạn: ${error.message}`);
                 });
+            }
+            
+            function renewAllExpiredMemberships() {
+                const tableBody = document.getElementById('expiredDetailsTable');
+                const rows = tableBody.querySelectorAll('tr');
+                const renewButtons = tableBody.querySelectorAll('.renew-btn');
+                
+                if (renewButtons.length === 0) {
+                    showAlert('warning', 'Không có gói nào để gia hạn!');
+                    return;
+                }
+                
+                let completedCount = 0;
+                let totalCount = renewButtons.length;
+                let successCount = 0;
+                let errorCount = 0;
+                
+                showAlert('info', `Bắt đầu gia hạn ${totalCount} gói...`);
+                
+                renewButtons.forEach((button, index) => {
+                    const userId = button.getAttribute('data-user-id');
+                    const packageId = button.getAttribute('data-package-id');
+                    
+                    setTimeout(() => {
+                        renewSingleMembership(userId, packageId, button, () => {
+                            completedCount++;
+                            if (button.classList.contains('btn-success')) {
+                                successCount++;
+                            } else {
+                                errorCount++;
+                            }
+                            
+                            if (completedCount === totalCount) {
+                                showAlert('success', `Hoàn thành! Thành công: ${successCount}, Lỗi: ${errorCount}`);
+                                setTimeout(() => {
+                                    location.reload();
+                                }, 2000);
+                            }
+                        });
+                    }, index * 500);
+                });
+            }
+            
+            function renewSingleMembership(userId, packageId, button, callback) {
+                fetch(`/api/packages/${packageId}`)
+                    .then(response => response.json())
+                    .then(packageData => {
+                        const packageDuration = packageData.durationMonths || 1;
+                        
+                        return fetch(`/api/admin/memberships/${userId}/renew`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || ''
+                            },
+                            body: JSON.stringify({
+                                packageId: packageId,
+                                months: packageDuration
+                            })
+                        });
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        button.innerHTML = '<i class="fas fa-check me-1"></i>Đã gia hạn';
+                        button.classList.remove('btn-warning');
+                        button.classList.add('btn-success');
+                        button.disabled = true;
+                        
+                        const row = button.closest('tr');
+                        const daysExpiredCell = row.querySelector('td:nth-child(3)');
+                        if (daysExpiredCell) {
+                            daysExpiredCell.innerHTML = '<span class="badge bg-success">Đã gia hạn</span>';
+                        }
+                        
+                        callback();
+                    })
+                    .catch(error => {
+                        button.innerHTML = '<i class="fas fa-times me-1"></i>Lỗi';
+                        button.classList.remove('btn-warning');
+                        button.classList.add('btn-danger');
+                        button.disabled = true;
+                        
+                        console.error(`Lỗi gia hạn User ${userId}:`, error);
+                        callback();
+                    });
+            }
+            
+            function showUserDetails(userId, userName) {
+                const modal = document.getElementById('userDetailsModal');
+                const content = document.getElementById('userDetailsContent');
+                
+                content.innerHTML = `
+                    <div class="text-center">
+                        <i class="fas fa-spinner fa-spin fa-2x"></i>
+                        <p>Đang tải thông tin gói tập của ${userName}...</p>
+                    </div>
+                `;
+                
+                const modalInstance = new bootstrap.Modal(modal);
+                modalInstance.show();
+                
+                fetch(`/api/admin/users/${userId}/memberships`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.length > 0) {
+                            let html = `
+                                <div class="mb-3">
+                                    <h6><i class="fas fa-user me-2"></i>Thông tin User</h6>
+                                    <p><strong>Tên:</strong> ${userName}</p>
+                                    <p><strong>ID:</strong> ${userId}</p>
+                                </div>
+                                <hr>
+                                <h6><i class="fas fa-dumbbell me-2"></i>Gói tập hiện tại</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Gói</th>
+                                                <th>Bắt đầu</th>
+                                                <th>Kết thúc</th>
+                                                <th>Trạng thái</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                            `;
+                            
+                            data.forEach(membership => {
+                                const startDate = new Date(membership.startDate).toLocaleDateString('vi-VN');
+                                const endDate = new Date(membership.endDate).toLocaleDateString('vi-VN');
+                                const status = membership.status === 'ACTIVE' ? 
+                                    '<span class="badge bg-success">Hoạt động</span>' : 
+                                    '<span class="badge bg-danger">Hết hạn</span>';
+                                
+                                html += `
+                                    <tr>
+                                        <td>${membership.packageName || 'N/A'}</td>
+                                        <td>${startDate}</td>
+                                        <td>${endDate}</td>
+                                        <td>${status}</td>
+                                    </tr>
+                                `;
+                            });
+                            
+                            html += `
+                                        </tbody>
+                                    </table>
+                                </div>
+                            `;
+                            
+                            content.innerHTML = html;
+                        } else {
+                            content.innerHTML = `
+                                <div class="text-center text-muted">
+                                    <i class="fas fa-info-circle fa-2x mb-3"></i>
+                                    <p>User này chưa có gói tập nào.</p>
+                                </div>
+                            `;
+                        }
+                    })
+                    .catch(error => {
+                        content.innerHTML = `
+                            <div class="text-center text-danger">
+                                <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                                <p>Lỗi khi tải thông tin: ${error.message}</p>
+                            </div>
+                        `;
+                    });
+            }
+            
+            function showPackageUsers(packageId, packageName) {
+                const modal = document.getElementById('packageUsersModal');
+                const content = document.getElementById('packageUsersContent');
+                
+                content.innerHTML = `
+                    <div class="text-center">
+                        <i class="fas fa-spinner fa-spin fa-2x"></i>
+                        <p>Đang tải danh sách user đang sử dụng gói "${packageName}"...</p>
+                    </div>
+                `;
+                
+                const modalInstance = new bootstrap.Modal(modal);
+                modalInstance.show();
+                
+                fetch(`/api/admin/packages/${packageId}/active-users`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.length > 0) {
+                            let html = `
+                                <div class="mb-3">
+                                    <h6><i class="fas fa-dumbbell me-2"></i>Gói: ${packageName}</h6>
+                                    <p class="text-muted">Tổng cộng <span class="badge bg-primary">${data.length}</span> user đang sử dụng</p>
+                                </div>
+                                <hr>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Thông tin User</th>
+                                                <th>Bắt đầu</th>
+                                                <th>Kết thúc</th>
+                                                <th>Trạng thái</th>
+                                                <th>Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                            `;
+                            
+                            data.forEach(user => {
+                                const startDate = new Date(user.startDate).toLocaleDateString('vi-VN');
+                                const endDate = new Date(user.endDate).toLocaleDateString('vi-VN');
+                                const status = user.status === 'ACTIVE' ? 
+                                    '<span class="badge bg-success">Hoạt động</span>' : 
+                                    '<span class="badge bg-danger">Hết hạn</span>';
+                                
+                                html += `
+                                    <tr>
+                                        <td>
+                                            <div class="small">
+                                                <strong>${user.userName || 'N/A'}</strong><br>
+                                                <span class="text-muted">ID: ${user.userId || 'N/A'}</span><br>
+                                                <span class="text-muted">${user.userEmail || 'N/A'}</span><br>
+                                                <span class="text-muted">${user.userPhone || 'N/A'}</span>
+                                            </div>
+                                        </td>
+                                        <td>${startDate}</td>
+                                        <td>${endDate}</td>
+                                        <td>${status}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-info view-user-details-btn" 
+                                                    data-user-id="${user.userId}" data-user-name="${user.userName}">
+                                                <i class="fas fa-eye me-1"></i>Chi tiết
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `;
+                            });
+                            
+                            html += `
+                                        </tbody>
+                                    </table>
+                                </div>
+                            `;
+                            
+                            content.innerHTML = html;
+                            
+                            content.querySelectorAll('.view-user-details-btn').forEach(btn => {
+                                btn.addEventListener('click', function() {
+                                    const userId = this.getAttribute('data-user-id');
+                                    const userName = this.getAttribute('data-user-name');
+                                    modalInstance.hide();
+                                    showUserDetails(userId, userName);
+                                });
+                            });
+                        } else {
+                            content.innerHTML = `
+                                <div class="text-center text-muted">
+                                    <i class="fas fa-info-circle fa-2x mb-3"></i>
+                                    <p>Gói "${packageName}" chưa có user nào sử dụng.</p>
+                                </div>
+                            `;
+                        }
+                    })
+                    .catch(error => {
+                        content.innerHTML = `
+                            <div class="text-center text-danger">
+                                <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                                <p>Lỗi khi tải danh sách user: ${error.message}</p>
+                            </div>
+                        `;
+                    });
             }
             
             function showAlert(type, message) {
@@ -599,7 +1003,6 @@
                 `;
                 document.body.appendChild(modal);
                 
-                // Tự động đóng sau 5 giây
                 setTimeout(() => {
                     if (modal.parentNode) {
                         modal.remove();

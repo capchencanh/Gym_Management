@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="gym-management"/>
+    <property name="LOG_LEVEL" value="INFO"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp/>
+                <logLevel/>
+                <threadName/>
+                <loggerName/>
+                <message/>
+                <arguments/>
+                <stackTrace/>
+                <context/>
+                <mdc/>
+                <globalCustomFields>{"app":"${APP_NAME}"}</globalCustomFields>
+            </providers>
+        </encoder>
+    </appender>
+
+    <root level="${LOG_LEVEL}">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>
+
+

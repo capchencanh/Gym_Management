@@ -2,6 +2,7 @@ package com.dhd.gymmanagement.service.impl;
 
 import com.dhd.gymmanagement.entity.UserMembership;
 import com.dhd.gymmanagement.repository.UserMembershipRepository;
+import com.dhd.gymmanagement.repository.UserRepository;
 import com.dhd.gymmanagement.service.UserMembershipService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,9 @@ public class UserMembershipServiceImpl implements UserMembershipService {
 
     @Autowired
     private UserMembershipRepository userMembershipRepository;
+    
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public List<UserMembership> getAllUserMemberships() {
@@ -71,18 +75,30 @@ public class UserMembershipServiceImpl implements UserMembershipService {
     public List<java.util.Map<String, Object>> getExpiredMembershipsByPackageId(Integer packageId) {
         List<java.util.Map<String, Object>> expiredMemberships = new java.util.ArrayList<>();
         
-        // Lấy tất cả membership của package này
         List<UserMembership> memberships = userMembershipRepository.findByPackageIdAndIsDeleted(packageId, 0);
         java.sql.Timestamp now = new java.sql.Timestamp(System.currentTimeMillis());
         
         for (UserMembership membership : memberships) {
-            // Kiểm tra nếu gói đã hết hạn
             if (membership.getEndDate() != null && membership.getEndDate().before(now)) {
                 java.util.Map<String, Object> expiredData = new java.util.HashMap<>();
                 expiredData.put("userId", membership.getUserId());
-                // Chuyển timestamp thành string để tránh vấn đề serialize
                 expiredData.put("endDate", membership.getEndDate().toString());
                 expiredData.put("daysExpired", (now.getTime() - membership.getEndDate().getTime()) / (1000 * 60 * 60 * 24));
+                
+                // Thêm thông tin user
+                try {
+                    com.dhd.gymmanagement.entity.User user = userRepository.findById(membership.getUserId()).orElse(null);
+                    if (user != null) {
+                        expiredData.put("userName", user.getName() != null ? user.getName() : "N/A");
+                        expiredData.put("userEmail", user.getEmail() != null ? user.getEmail() : "N/A");
+                        expiredData.put("userPhone", user.getPhoneNumber() != null ? user.getPhoneNumber() : "N/A");
+                    }
+                } catch (Exception e) {
+                    expiredData.put("userName", "N/A");
+                    expiredData.put("userEmail", "N/A");
+                    expiredData.put("userPhone", "N/A");
+                }
+                
                 expiredMemberships.add(expiredData);
             }
         }
@@ -126,8 +142,17 @@ public class UserMembershipServiceImpl implements UserMembershipService {
             
             java.sql.Timestamp newEndDate;
             if (latestMembership.getEndDate() != null) {
+                java.time.LocalDateTime now = java.time.LocalDateTime.now();
                 java.time.LocalDateTime currentEnd = latestMembership.getEndDate().toLocalDateTime();
-                java.time.LocalDateTime newEnd = currentEnd.plusMonths(months);
+                
+                java.time.LocalDateTime baseDate;
+                if (currentEnd.isBefore(now)) {
+                    baseDate = now;
+                } else {
+                    baseDate = currentEnd;
+                }
+                
+                java.time.LocalDateTime newEnd = baseDate.plusMonths(months);
                 newEndDate = java.sql.Timestamp.valueOf(newEnd);
             } else {
                 java.time.LocalDateTime now = java.time.LocalDateTime.now();
