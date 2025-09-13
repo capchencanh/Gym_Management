@@ -1,90 +1,107 @@
-import React, { useEffect, useReducer, useContext, useState } from "react";
+import React, { useEffect, useReducer, useContext, useState, Suspense, useMemo, useCallback } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Header from "./components/Layouts/Header";
 import Footer from "./components/Layouts/Footer";
-import Home from "./components/Home";
-import WorkoutLog from "./components/WorkoutLog";
-import Login from "./components/Login";
-import Register from "./components/Register";
-import PTManagement from "./components/PTManagement";
-import ClassList from "./components/ClassList";
-import Profile from "./components/Profile";
-import Package from "./components/Package";
+import ErrorBoundary from "./components/ErrorBoundary";
+import LoadingSpinner from "./components/LoadingSpinner";
 import { MyUserContext, MyDispatchContext } from "./configs/Contexts";
 import MyUserReducer from "./reducer/MyUserReducer"; 
 import Apis, { endpoints } from "./configs/Apis";
-import MySpinner from "./components/Layouts/MySpinner";
 import "./App.css";
-import AIChatBox from "./components/AIChatBox";
+
+const Home = React.lazy(() => import("./components/Home"));
+const WorkoutLog = React.lazy(() => import("./components/WorkoutLog"));
+const Login = React.lazy(() => import("./components/Login"));
+const Register = React.lazy(() => import("./components/Register"));
+const PTManagement = React.lazy(() => import("./components/PTManagement"));
+const ClassList = React.lazy(() => import("./components/ClassList"));
+const Profile = React.lazy(() => import("./components/Profile"));
+const Package = React.lazy(() => import("./components/Package"));
+const AIChatBox = React.lazy(() => import("./components/AIChatBox"));
 
 const App = () => {
     const [user, dispatch] = useReducer(MyUserReducer, null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const checkLogin = async () => {
-            try {
-                let res = await Apis.get(endpoints['profile']);
-                
-               
-                dispatch({
-                    type: "login",
-                    payload: {
-                        id: res.data.user_id,
-                        email: res.data.email,
-                        name: res.data.name,
-                        role: res.data.role,
-                        phone_number: res.data.phone_number,
-                        gender: res.data.gender,
-                        birthdate: res.data.birthdate,
-                        height: res.data.height,
-                        weight: res.data.weight,
-                        fitness_goal: res.data.fitness_goal,
-                        avatar_url: res.data.avatar_url
-                    }
-                });
-            } catch (ex) {
-                console.error("Phiên đăng nhập không hợp lệ hoặc đã hết hạn.");
-            } finally {
-                setLoading(false);
-            }
-        };
+    const checkLogin = useCallback(async () => {
+        try {
+            let res = await Apis.get(endpoints['profile']);
+            
+            dispatch({
+                type: "login",
+                payload: {
+                    id: res.data.user_id,
+                    email: res.data.email,
+                    name: res.data.name,
+                    role: res.data.role,
+                    phone_number: res.data.phone_number,
+                    gender: res.data.gender,
+                    birthdate: res.data.birthdate,
+                    height: res.data.height,
+                    weight: res.data.weight,
+                    fitness_goal: res.data.fitness_goal,
+                    avatar_url: res.data.avatar_url
+                }
+            });
+        } catch (ex) {
+            dispatch({ type: "logout" });
+            localStorage.clear();
+            sessionStorage.clear();
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
+    useEffect(() => {
         checkLogin();
-    }, []); 
+    }, [checkLogin]); 
+
+    const contextValue = useMemo(() => ({ user, dispatch }), [user, dispatch]);
 
     return (
-        <MyUserContext.Provider value={user}>
-            <MyDispatchContext.Provider value={dispatch}>
-                <BrowserRouter>
-                    <div className="App">
-                        <Header />
-                        <div className="App-main">
-                            {loading ? (
-                                <div className="loading-container">
-                                    <MySpinner />
-                                </div>
-                            ) : (
-                                <Routes>
-                                    <Route path="/" element={<Home />} />
-                                    <Route path="/login" element={<Login />} />
-                                    <Route path="/register" element={<Register />} />
-                                    <Route path="/workout" element={<WorkoutLog />} />
-                                    <Route path="/pt-management" element={<PTManagement userId={user?.id} />} />
-                                    <Route path="/classes" element={<ClassList />} />
-                                    <Route path="/profile" element={<Profile />} />
-                                    <Route path="/package" element={<Package />} />
-                                    <Route path="/home" element={<Home />} />
-                                    <Route path="*" element={<Home />} />
-                                </Routes>
-                            )}
+        <ErrorBoundary>
+            <MyUserContext.Provider value={user}>
+                <MyDispatchContext.Provider value={dispatch}>
+                    <BrowserRouter>
+                        <div className="App">
+                            <Header />
+                            <div className="App-main">
+                                {loading ? (
+                                    <LoadingSpinner 
+                                        size="large" 
+                                        text="Đang tải ứng dụng..." 
+                                    />
+                                ) : (
+                                    <Suspense fallback={
+                                        <LoadingSpinner 
+                                            size="medium" 
+                                            text="Đang tải trang..." 
+                                        />
+                                    }>
+                                        <Routes>
+                                            <Route path="/" element={<Home />} />
+                                            <Route path="/login" element={<Login />} />
+                                            <Route path="/register" element={<Register />} />
+                                            <Route path="/workout" element={<WorkoutLog />} />
+                                            <Route path="/pt-management" element={<PTManagement userId={user?.id} />} />
+                                            <Route path="/classes" element={<ClassList />} />
+                                            <Route path="/profile" element={<Profile />} />
+                                            <Route path="/package" element={<Package />} />
+                                            <Route path="/home" element={<Home />} />
+                                            <Route path="*" element={<Home />} />
+                                        </Routes>
+                                    </Suspense>
+                                )}
+                            </div>
+                            <Footer />
+                            <Suspense fallback={null}>
+                                <AIChatBox />
+                            </Suspense>
                         </div>
-                        <Footer />
-                        <AIChatBox />
-                    </div>
-                </BrowserRouter>
-            </MyDispatchContext.Provider>
-        </MyUserContext.Provider>
+                    </BrowserRouter>
+                </MyDispatchContext.Provider>
+            </MyUserContext.Provider>
+        </ErrorBoundary>
     );
 };
 

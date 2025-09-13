@@ -38,7 +38,6 @@ const PTManagement = ({ userId }) => {
                 setHasPTRequest(false);
             }
         } catch (error) {
-            console.error('Error checking PT assignment:', error);
             setHasPTRequest(false);
         } finally {
             setLoading(false);

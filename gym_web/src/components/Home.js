@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import { useUser } from '../configs/UserProvider';
 import './Home.css';
 
+/**
+ * Home component
+ */
 const Home = () => {
   const user = useUser();
 
@@ -12,7 +15,6 @@ const Home = () => {
     }
     return `Chào mừng ${user.name}!`;
   };
-
   const features = [
     {
       icon: "fas fa-dumbbell",

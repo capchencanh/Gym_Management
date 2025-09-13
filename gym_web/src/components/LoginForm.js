@@ -1,5 +1,5 @@
 import React from "react";
-import MySpinner from "./Layouts/MySpinner";
+import LoadingSpinner from "./LoadingSpinner";
 
 const LoginForm = ({ user, setState, login, loading, error }) => {
     const info = [
@@ -45,13 +45,16 @@ const LoginForm = ({ user, setState, login, loading, error }) => {
             ))}
 
             {loading ? (
-                <div className="loading-container">
-                    <MySpinner />
-                </div>
+                <LoadingSpinner 
+                    size="small" 
+                    text="Đang đăng nhập..." 
+                    centered={false}
+                />
             ) : (
                 <button 
                     type="submit" 
                     className="btn btn-primary w-100"
+                    disabled={loading}
                 >
                     <i className="fas fa-sign-in-alt me-2"></i>
                     Đăng nhập

@@ -41,7 +41,6 @@ const PTRequestForm = ({ userId }) => {
                             setPtRequestStatus(response.data[0]);
                         }
                     } catch (error) {
-                        console.error('Lỗi khi kiểm tra trạng thái PT:', error);
                     }
                 };
 
@@ -51,7 +50,6 @@ const PTRequestForm = ({ userId }) => {
                         const response = await Apis.get(`${endpoints['pt-availability']}/${userId}`);
                         setAvailabilities(response.data);
                     } catch (error) {
-                        console.error('Lỗi khi load thời gian rảnh:', error);
                     }
                 };
 

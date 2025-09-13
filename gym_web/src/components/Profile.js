@@ -217,7 +217,7 @@ const Profile = () => {
                                         <div className="detail-row">
                                             <div>
                                                 <p><i className="fas fa-envelope"></i>{user.email}</p>
-                                                <p><i className="fas fa-phone"></i>{user.phone_number}</p>
+                                                <p><i className="fas fa-phone"></i>{user.phone_number || 'Chưa cập nhật'}</p>
                                             </div>
                                             <div>
                                                 <p><i className="fas fa-calendar"></i>{user.birthdate ? new Date(user.birthdate).toLocaleDateString('vi-VN') : 'N/A'}</p>

@@ -2,13 +2,15 @@ import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Apis, { endpoints } from "../../configs/Apis";
 import { MyUserContext, MyDispatchContext } from "../../configs/Contexts";
-
+import { useAuth } from "../../hooks/useAuth";
+ 
 const Header = () => {
     const [categories, setCategories] = useState([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const user = useContext(MyUserContext); 
     const dispatch = useContext(MyDispatchContext);
     const navigate = useNavigate();
+    const { logout } = useAuth();
 
     const loadCates = async () => {
         try {
@@ -23,9 +25,15 @@ const Header = () => {
         }
     };
 
-    const handleLogout = () => {
-        dispatch({ type: "logout" });
-        navigate(user ? "/" : "/login");
+    const handleLogout = async () => {
+        try {
+            await logout();
+        } catch (error) {
+            dispatch({ type: "logout" });
+            localStorage.clear();
+            sessionStorage.clear();
+            navigate('/login');
+        }
     };
 
     const toggleDropdown = () => {

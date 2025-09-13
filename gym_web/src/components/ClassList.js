@@ -22,7 +22,6 @@ const ClassList = () => {
           enrolled: enrolledClassIds.includes(c.id || c.class_id)
         })));
       } catch (err) {
-        console.error("Lỗi load data:", err);
       }
     };
 
@@ -51,7 +50,6 @@ const ClassList = () => {
         alert(err.response.data?.message || "Không thể tham gia lớp.");
         setClasses((prev) => prev.map((c) => ((c.id || c.class_id) === classId ? { ...c, enrolled: true } : c)));
       } else {
-        console.error("Lỗi khi tham gia:", err);
         alert("Không thể tham gia lớp!");
       }
     }

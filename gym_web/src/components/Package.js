@@ -53,7 +53,6 @@ const Package = () => {
 
             setPackages(response.data);
         } catch (error) {
-            console.error('Lỗi khi tải danh sách gói tập:', error);
         } finally {
             setLoading(false);
         }
@@ -65,7 +64,6 @@ const Package = () => {
             const ids = (res.data || []).map(m => m.package_id);
             setActivePackageIds(ids);
         } catch (err) {
-            console.error('Lỗi khi lấy membership đang hoạt động:', err);
         }
     };
 
@@ -124,11 +122,9 @@ const Package = () => {
                 
                 window.location.href = response.data.payUrl;
             } else {
-                console.error('No payUrl in response:', response.data);
                 alert('Có lỗi xảy ra khi tạo thanh toán MoMo!');
             }
         } catch (error) {
-            console.error('Lỗi thanh toán:', error);
             alert('Có lỗi xảy ra khi thanh toán!');
         } finally {
             setProcessingPayment(false);
@@ -168,7 +164,6 @@ const Package = () => {
                     window.location.href = '/package?status=failed&orderId=' + orderId + '&message=' + response.data.message;
                 }
             } catch (error) {
-                console.error('Lỗi khi polling trạng thái thanh toán:', error);
             }
         }, 30000); 
         

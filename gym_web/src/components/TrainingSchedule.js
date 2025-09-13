@@ -19,7 +19,6 @@ const TrainingSchedule = ({ userId, trainerId, onClose }) => {
             const response = await Apis.get(`${endpoints['pt-sessions-by-user-trainer']}/${userId}/trainer/${trainerId}`);
             setSessions(response.data || []);
         } catch (error) {
-            console.error('Lỗi khi load lịch tập:', error);
             setError('Không thể tải lịch tập. Vui lòng thử lại sau.');
         } finally {
             setLoading(false);

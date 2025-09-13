@@ -26,16 +26,30 @@ Apis.interceptors.response.use(
     (error) => {
         if (error.response?.status === 401) {
             window.location.href = '/login';
+        } else if (error.response?.status === 403) {
+        } else if (error.response?.status >= 500) {
+        } else if (error.code === 'NETWORK_ERROR') {
         }
+        
+        if (error.response?.data) {
+            const { success, message, error: errorMessage, data } = error.response.data;
+            error.transformedData = {
+                success: success || false,
+                message: message || 'Có lỗi xảy ra',
+                error: errorMessage || error.message,
+                data: data || null
+            };
+        }
+        
         return Promise.reject(error);
     }
 );
 
 export const endpoints = {
     // Auth 
-    'login': 'api/auth/login',
-    'register': 'api/auth/register',
-    'logout': 'api/auth/logout',
+    'login': 'api/v1/auth/login',
+    'register': 'api/v1/auth/register',
+    'logout': 'api/v1/auth/logout',
     
     // User 
     'users': 'api/users',

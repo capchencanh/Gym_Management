@@ -20,7 +20,6 @@ const PaymentStatus = ({ orderId, onClose }) => {
             setPaymentInfo(response.data);
         } catch (err) {
             setError('Không thể kiểm tra trạng thái thanh toán');
-            console.error('Error checking payment status:', err);
         } finally {
             setLoading(false);
         }

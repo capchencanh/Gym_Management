@@ -63,6 +63,11 @@ const Register = () => {
             return false;
         }
 
+        if (user.phoneNumber && !/^[0-9]{10,11}$/.test(user.phoneNumber)) {
+            setError("Số điện thoại phải có 10-11 chữ số");
+            return false;
+        }
+
 
 
         return true;
@@ -85,7 +90,7 @@ const Register = () => {
                 name: user.name,
                 email: user.email,
                 password: user.password,
-                phoneNumber: user.phoneNumber || null
+                phoneNumber: user.phoneNumber && user.phoneNumber.trim() !== "" ? user.phoneNumber : null
             };
 
            
@@ -102,13 +107,25 @@ const Register = () => {
             if (ex.response) {
                 switch (ex.response.status) {
                     case 400:
-                        setError(ex.response.data || "Dữ liệu không hợp lệ");
+                        if (ex.response.data && typeof ex.response.data === 'object' && ex.response.data.message) {
+                            setError(ex.response.data.message);
+                        } else if (typeof ex.response.data === 'string') {
+                            setError(ex.response.data);
+                        } else {
+                            setError("Dữ liệu không hợp lệ");
+                        }
                         break;
                     case 409:
-                        setError("Email đã tồn tại trong hệ thống");
+                        if (ex.response.data && typeof ex.response.data === 'object' && ex.response.data.message) {
+                            setError(ex.response.data.message);
+                        } else {
+                            setError("Email đã tồn tại trong hệ thống");
+                        }
                         break;
                     default:
-                        if (ex.response.data && typeof ex.response.data === 'string') {
+                        if (ex.response.data && typeof ex.response.data === 'object' && ex.response.data.message) {
+                            setError(ex.response.data.message);
+                        } else if (typeof ex.response.data === 'string') {
                             setError(ex.response.data);
                         } else {
                             setError("Đăng ký thất bại. Vui lòng kiểm tra lại thông tin.");
@@ -157,6 +174,8 @@ const Register = () => {
                 value={user[field.field] || ""}
                 onChange={(e) => setState(e.target.value, field.field)}
                 required={field.required}
+                minLength={field.type === "password" ? 6 : undefined}
+                pattern={field.field === "phoneNumber" ? "[0-9]{10,11}" : undefined}
             />
         );
     };

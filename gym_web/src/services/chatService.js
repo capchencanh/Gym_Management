@@ -46,7 +46,6 @@ export class ChatService {
                    const messageRef = push(chatRef, newMessage);
                    return { success: true, messageId: messageRef.key };
                  } catch (error) {
-                   console.error('Error sending message:', error);
                    throw error;
                  }
                }
@@ -103,7 +102,6 @@ export class ChatService {
       const messageRef = ref(database, `chats/${chatRoomId}/${messageId}`);
       await update(messageRef, { read: true });
     } catch (error) {
-      console.error('Error marking message as read:', error);
     }
   }
 
@@ -147,7 +145,6 @@ export class ChatService {
       await set(chatRoomRef, chatRoomData);
       return chatRoomId;
     } catch (error) {
-      console.error('Error creating chat room:', error);
       throw error;
     }
   }

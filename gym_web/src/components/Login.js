@@ -1,57 +1,26 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { Col, Container, Row, Card } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
-import Apis, { endpoints } from "../configs/Apis";
-import { MyDispatchContext } from "../configs/Contexts";
 import LoginForm from "./LoginForm";
-import { handleLoginError } from "./LoginErrorHandler";
+import { useAuth } from "../hooks/useAuth";
 
+/**
+ * Login component
+ */
 const Login = () => {
     const [user, setUser] = useState({});
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const nav = useNavigate();
-    const dispatch = useContext(MyDispatchContext);
+    const { login, loading, error, reset } = useAuth();
 
     const setState = (value, field) => {
         setUser({ ...user, [field]: value });
     };
 
-    const login = async (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-
+        reset();
+        
         try {
-            setLoading(true);
-            setError(null);
-
-            await Apis.post(endpoints["login"], { 
-                email: user.email, 
-                password: user.password 
-            });
-
-            let u = await Apis.get(endpoints["profile"]);
-
-            dispatch({
-                type: "login",
-                payload: {
-                    id: u.data.user_id,
-                    email: u.data.email,
-                    name: u.data.name,
-                    role: u.data.role,
-                    phone_number: u.data.phone_number,
-                    gender: u.data.gender,
-                    birthdate: u.data.birthdate,
-                    height: u.data.height,
-                    weight: u.data.weight,
-                    fitness_goal: u.data.fitness_goal
-                },
-            });
-
-            nav("/");
+            await login(user.email, user.password);
         } catch (ex) {
-            setError(handleLoginError(ex));
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -74,7 +43,7 @@ const Login = () => {
                             <LoginForm 
                                 user={user}
                                 setState={setState}
-                                login={login}
+                                login={handleLogin}
                                 loading={loading}
                                 error={error}
                             />

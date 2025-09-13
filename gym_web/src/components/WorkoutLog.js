@@ -24,15 +24,10 @@ const WorkoutLog = () => {
     const [strengthExercises, setStrengthExercises] = useState([]);
     const [cardioExercises, setCardioExercises] = useState([]);
     const [workoutHistory, setWorkoutHistory] = useState([]);
-    
-    
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-
-
-
 
     useEffect(() => {
         if (user) {
@@ -62,7 +57,7 @@ const formatWorkoutHistoryFromDB = (dbData) => {
     const sessions = {};
     
     dbData.forEach(log => {
-        const sessionKey = `${log.session_date}_${log.session_name || 'Buổi tập'}`;
+        const sessionKey = `${log.session_date}_${log.session_name || 'Buổi tập chung'}`;
         
         if (!sessions[sessionKey]) {
             sessions[sessionKey] = {
@@ -98,6 +93,7 @@ const formatWorkoutHistoryFromDB = (dbData) => {
                 set: log.set_number,
                 weight: log.weight_kg,
                 reps: log.reps,
+                rest: log.rest_seconds || 60
             });
         }
     });
@@ -224,6 +220,7 @@ const formatWorkoutHistoryFromDB = (dbData) => {
                         workoutLogs.push({
                             user_id: user.user_id || user.id,
                             session_date: workoutData.date,
+                            session_name: workoutData.session_name || 'Buổi tập chung',
                             workout_type: 'strength',
                             exercise_name: exercise.name,
                             exercise_order: exerciseIndex + 1,
@@ -238,6 +235,7 @@ const formatWorkoutHistoryFromDB = (dbData) => {
                     workoutLogs.push({
                         user_id: user.user_id || user.id,
                         session_date: workoutData.date,
+                        session_name: workoutData.session_name || 'Buổi tập chung',
                         workout_type: 'cardio',
                         exercise_name: exercise.name,
                         exercise_order: exerciseIndex + 1,
@@ -256,6 +254,7 @@ const formatWorkoutHistoryFromDB = (dbData) => {
             setSuccess('Lưu buổi tập thành công!');
             
             setWorkoutData({
+                session_name: '',
                 date: new Date().toISOString().split('T')[0],
                 workoutType: 'strength',
                 notes: ''
@@ -361,7 +360,7 @@ const formatWorkoutHistoryFromDB = (dbData) => {
                                         <Card key={exercise.id} className="mb-3 border-primary">
                                             <Card.Body>
                                                 <Row>
-                                                    <Col md={4}>
+                                                    <Col md={6}>
                                                         <Form.Group className="mb-3">
                                                             <Form.Label>Tên bài tập</Form.Label>
                                                             <Form.Control
@@ -376,7 +375,7 @@ const formatWorkoutHistoryFromDB = (dbData) => {
                                                             />
                                                         </Form.Group>
                                                     </Col>
-                                                    <Col md={8}>
+                                                    <Col md={6}>
                                                         <div className="d-flex justify-content-between align-items-center mb-2">
                                                             <h6>Sets</h6>
                                                             <Button 
@@ -404,29 +403,29 @@ const formatWorkoutHistoryFromDB = (dbData) => {
                                                                         <td>{set.set}</td>
                                                                         <td>
                                                                             <Form.Control
-                                                                                size="sm"
                                                                                 type="number"
                                                                                 placeholder="0"
                                                                                 value={set.weight}
                                                                                 onChange={(e) => updateSet(exercise.id, setIndex, 'weight', e.target.value)}
+                                                                                style={{minWidth: '80px'}}
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <Form.Control
-                                                                                size="sm"
                                                                                 type="number"
                                                                                 placeholder="0"
                                                                                 value={set.reps}
                                                                                 onChange={(e) => updateSet(exercise.id, setIndex, 'reps', e.target.value)}
+                                                                                style={{minWidth: '80px'}}
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <Form.Control
-                                                                                size="sm"
                                                                                 type="number"
                                                                                 placeholder="60"
                                                                                 value={set.rest}
                                                                                 onChange={(e) => updateSet(exercise.id, setIndex, 'rest', e.target.value)}
+                                                                                style={{minWidth: '80px'}}
                                                                             />
                                                                         </td>
                                                                         <td>
@@ -463,7 +462,7 @@ const formatWorkoutHistoryFromDB = (dbData) => {
                                         <Card key={cardio.id} className="mb-3 border-success">
                                             <Card.Body>
                                                 <Row>
-                                                    <Col md={3}>
+                                                    <Col md={6}>
                                                         <Form.Group className="mb-3">
                                                             <Form.Label>Tên bài tập</Form.Label>
                                                             <Form.Control
@@ -478,7 +477,7 @@ const formatWorkoutHistoryFromDB = (dbData) => {
                                                             />
                                                         </Form.Group>
                                                     </Col>
-                                                    <Col md={3}>
+                                                    <Col md={2}>
                                                         <Form.Group className="mb-3">
                                                             <Form.Label>Thời gian (phút)</Form.Label>
                                                             <Form.Control
@@ -493,7 +492,7 @@ const formatWorkoutHistoryFromDB = (dbData) => {
                                                             />
                                                         </Form.Group>
                                                     </Col>
-                                                    <Col md={3}>
+                                                    <Col md={2}>
                                                         <Form.Group className="mb-3">
                                                             <Form.Label>Calories</Form.Label>
                                                             <Form.Control
@@ -508,7 +507,7 @@ const formatWorkoutHistoryFromDB = (dbData) => {
                                                             />
                                                         </Form.Group>
                                                     </Col>
-                                                    <Col md={3}>
+                                                    <Col md={2}>
                                                         <Form.Group className="mb-3">
                                                             <Form.Label>Cường độ</Form.Label>
                                                             <Form.Select
@@ -593,74 +592,96 @@ const formatWorkoutHistoryFromDB = (dbData) => {
                                 </Button>
                             </div>
                         </Card.Header>
-                        <Card.Body>
-                          <Card.Body style={{maxHeight: '80vh', overflowY: 'auto'}}>
-    {loading ? (
-        <div className="text-center py-5"><Spinner animation="border" /><p className="mt-2">Đang tải...</p></div>
-    ) : workoutHistory.length === 0 ? (
-        <div className="text-center text-muted py-5"><i className="fas fa-history fa-2x mb-2"></i><p>Chưa có lịch sử bài tập nào</p></div>
-    ) : (
-        <div>
-            {workoutHistory.map(session => (
-                <Card key={session.id} className="mb-3 workout-session-card">
-                    <Card.Header className="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 className="mb-0">{session.name}</h6>
-                            <small className="text-muted">{new Date(session.date).toLocaleDateString('vi-VN')}</small>
-                        </div>
-                        {session.exercises.length > 0 && 
-                            <Badge bg={session.exercises[0].type === 'strength' ? 'primary' : 'success'}>
-                                {session.exercises[0].type === 'strength' ? 'Tạ' : 'Cardio'}
-                            </Badge>
-                        }
-                    </Card.Header>
-                    <Card.Body>
-                        {session.exercises.map((exercise, index) => (
-                            <div key={index} className="exercise-details mb-2">
-                                <strong><i className={`fas ${exercise.type === 'strength' ? 'fa-dumbbell' : 'fa-running'} me-2`}></i>{exercise.name}</strong>
-                                {exercise.type === 'strength' ? (
-                                    <Table striped bordered size="sm" className="mt-1 mb-0">
-                                        <thead><tr><th>Set</th><th>Kg</th><th>Reps</th></tr></thead>
-                                        <tbody>
-                                            {exercise.sets.map((set, setIndex) => (
-                                                <tr key={setIndex}><td>{set.set}</td><td>{set.weight}</td><td>{set.reps}</td></tr>
-                                            ))}
-                                        </tbody>
-                                    </Table>
-                                ) : (
-                                    <div className="cardio-info mt-1 text-muted">
-                                        <span><i className="fas fa-clock me-1"></i> {exercise.duration || 0} phút</span>
-                                        <span className="ms-3"><i className="fas fa-fire me-1"></i> {exercise.calories || 0} cal</span>
-                                    </div>
-                                )}
-                                {exercise.comments && exercise.comments.length > 0 && (
-    <div className="pt-comments-section mt-2">
-        {exercise.comments.map((comment, cIndex) => (
-            <div key={cIndex} className="pt-comment">
-                <p className="comment-text mb-0">
-                    <i className="fas fa-comment-dots text-primary me-2"></i>
-                    {comment.comment}
-                </p>
-                <small className="comment-meta text-muted">
-                    - PT {comment.pt_name} lúc {comment.created_at}
-                </small>
-            </div>
-        ))}
-    </div>
-)}
-                            </div>
-                        ))}
-                        {session.notes && (
-                            <div className="session-notes border-top pt-2 mt-2">
-                                <p className="mb-0"><strong><i className="fas fa-sticky-note me-2"></i>Ghi chú:</strong> <span className="text-muted fst-italic">{session.notes}</span></p>
-                            </div>
-                        )}
-                    </Card.Body>
-                </Card>
-            ))}
-        </div>
-    )}
-</Card.Body>
+                        <Card.Body style={{maxHeight: '80vh', overflowY: 'auto'}}>
+                            {loading ? (
+                                <div className="text-center py-5">
+                                    <Spinner animation="border" />
+                                    <p className="mt-2">Đang tải...</p>
+                                </div>
+                            ) : workoutHistory.length === 0 ? (
+                                <div className="text-center text-muted py-5">
+                                    <i className="fas fa-history fa-2x mb-2"></i>
+                                    <p>Chưa có lịch sử bài tập nào</p>
+                                </div>
+                            ) : (
+                                <div>
+                                    {workoutHistory.map(session => (
+                                        <Card key={session.id} className="mb-3">
+                                            <Card.Header className="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h6 className="mb-0">{session.name}</h6>
+                                                    <small className="text-muted">{new Date(session.date).toLocaleDateString('vi-VN')}</small>
+                                                </div>
+                                                {session.exercises.length > 0 && 
+                                                    <Badge bg={session.exercises[0].type === 'strength' ? 'primary' : 'success'}>
+                                                        {session.exercises[0].type === 'strength' ? 'Tạ' : 'Cardio'}
+                                                    </Badge>
+                                                }
+                                            </Card.Header>
+                                            <Card.Body>
+                                                {session.exercises.map((exercise, index) => (
+                                                    <div key={index} className="mb-3">
+                                                        <strong>
+                                                            <i className={`fas ${exercise.type === 'strength' ? 'fa-dumbbell' : 'fa-running'} me-2`}></i>
+                                                            {exercise.name}
+                                                        </strong>
+                                                        {exercise.type === 'strength' ? (
+                                                            <Table striped bordered className="mt-2">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th className="text-center">Set</th>
+                                                                        <th className="text-center">Kg</th>
+                                                                        <th className="text-center">Reps</th>
+                                                                        <th className="text-center">Rest (s)</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {exercise.sets.map((set, setIndex) => (
+                                                                        <tr key={setIndex}>
+                                                                            <td className="text-center">{set.set}</td>
+                                                                            <td className="text-center">{set.weight}</td>
+                                                                            <td className="text-center">{set.reps}</td>
+                                                                            <td className="text-center">{set.rest || 60}</td>
+                                                                        </tr>
+                                                                    ))}
+                                                                </tbody>
+                                                            </Table>
+                                                        ) : (
+                                                            <div className="cardio-info mt-2 text-muted">
+                                                                <span><i className="fas fa-clock me-1"></i> {exercise.duration || 0} phút</span>
+                                                                <span className="ms-3"><i className="fas fa-fire me-1"></i> {exercise.calories || 0} cal</span>
+                                                            </div>
+                                                        )}
+                                                        {exercise.comments && exercise.comments.length > 0 && (
+                                                            <div className="pt-comments-section mt-2">
+                                                                {exercise.comments.map((comment, cIndex) => (
+                                                                    <div key={cIndex} className="pt-comment">
+                                                                        <p className="comment-text mb-0">
+                                                                            <i className="fas fa-comment-dots text-primary me-2"></i>
+                                                                            {comment.comment}
+                                                                        </p>
+                                                                        <small className="comment-meta text-muted">
+                                                                            - PT {comment.pt_name} lúc {comment.created_at}
+                                                                        </small>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                                {session.notes && (
+                                                    <div className="session-notes border-top pt-2 mt-2">
+                                                        <p className="mb-0">
+                                                            <strong><i className="fas fa-sticky-note me-2"></i>Ghi chú:</strong> 
+                                                            <span className="text-muted fst-italic">{session.notes}</span>
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </Card.Body>
+                                        </Card>
+                                    ))}
+                                </div>
+                            )}
                         </Card.Body>
                     </Card>
                 </Col>
