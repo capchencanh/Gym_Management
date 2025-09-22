@@ -1,0 +1,45 @@
+.workout-exercise-card {
+  border-radius: 10px;
+}
+
+.workout-sets-table { overflow-x: visible; }
+
+.workout-sets-table table th,
+.workout-sets-table table td {
+  vertical-align: middle;
+}
+
+/* Fit columns without horizontal scroll */
+.workout-sets { table-layout: fixed; width: 100%; }
+.workout-sets th { font-size: 14px; }
+.workout-sets .col-set { width: 56px; }
+.workout-sets .col-weight { width: 120px; }
+.workout-sets .col-reps { width: 110px; }
+.workout-sets .col-rest { width: 110px; }
+.workout-sets .action-cell { width: 64px; }
+
+.set-input { min-width: 64px; padding: 6px 8px; height: 36px; }
+
+@media (max-width: 576px) {
+  .workout-sets-table { overflow-x: visible; }
+  .workout-sets thead { display: none; }
+  .workout-sets tr.set-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-row-gap: 8px;
+    grid-column-gap: 12px;
+    padding: 8px 0;
+    border-top: 1px solid #eef1f5;
+  }
+  .workout-sets td { border: 0 !important; padding: 4px 0 !important; }
+  .workout-sets td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 12px;
+    color: #6c757d;
+    margin-bottom: 4px;
+  }
+  .set-input { min-width: 0; width: 100%; }
+  .action-cell { grid-column: span 2; }
+}
+

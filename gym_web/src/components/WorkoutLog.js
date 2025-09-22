@@ -3,6 +3,7 @@ import { Container, Row, Col, Card, Button, Form, Table, Badge, Alert, Spinner }
 import Apis from '../configs/Apis';
 import { useUser } from '../configs/UserProvider';
 import { useNavigate } from 'react-router-dom';
+import './WorkoutLog.css';
 
 const WorkoutLog = () => {
     const user = useUser();
@@ -357,10 +358,10 @@ const formatWorkoutHistoryFromDB = (dbData) => {
                                     </div>
 
                                     {strengthExercises.map((exercise, exerciseIndex) => (
-                                        <Card key={exercise.id} className="mb-3 border-primary">
+                                        <Card key={exercise.id} className="mb-3 border-primary shadow-sm workout-exercise-card">
                                             <Card.Body>
                                                 <Row>
-                                                    <Col md={6}>
+                                                    <Col lg={6} md={12}>
                                                         <Form.Group className="mb-3">
                                                             <Form.Label>Tên bài tập</Form.Label>
                                                             <Form.Control
@@ -375,7 +376,7 @@ const formatWorkoutHistoryFromDB = (dbData) => {
                                                             />
                                                         </Form.Group>
                                                     </Col>
-                                                    <Col md={6}>
+                                                    <Col lg={6} md={12}>
                                                         <div className="d-flex justify-content-between align-items-center mb-2">
                                                             <h6>Sets</h6>
                                                             <Button 
@@ -387,7 +388,8 @@ const formatWorkoutHistoryFromDB = (dbData) => {
                                                             </Button>
                                                         </div>
                                                         
-                                                        <Table size="sm">
+                                                        <div className="table-responsive workout-sets-table">
+                                                        <Table size="sm" className="mb-0 align-middle workout-sets">
                                                             <thead>
                                                                 <tr>
                                                                     <th>Set</th>
@@ -399,36 +401,36 @@ const formatWorkoutHistoryFromDB = (dbData) => {
                                                             </thead>
                                                             <tbody>
                                                                 {exercise.sets.map((set, setIndex) => (
-                                                                    <tr key={setIndex}>
-                                                                        <td>{set.set}</td>
-                                                                        <td>
+                                                                    <tr key={setIndex} className="set-row">
+                                                                        <td data-label="Set" className="col-set">{set.set}</td>
+                                                                        <td className="col-weight" data-label="Weight (kg)">
                                                                             <Form.Control
                                                                                 type="number"
                                                                                 placeholder="0"
                                                                                 value={set.weight}
                                                                                 onChange={(e) => updateSet(exercise.id, setIndex, 'weight', e.target.value)}
-                                                                                style={{minWidth: '80px'}}
+                                                                                className="set-input"
                                                                             />
                                                                         </td>
-                                                                        <td>
+                                                                        <td className="col-reps" data-label="Reps">
                                                                             <Form.Control
                                                                                 type="number"
                                                                                 placeholder="0"
                                                                                 value={set.reps}
                                                                                 onChange={(e) => updateSet(exercise.id, setIndex, 'reps', e.target.value)}
-                                                                                style={{minWidth: '80px'}}
+                                                                                className="set-input"
                                                                             />
                                                                         </td>
-                                                                        <td>
+                                                                        <td className="col-rest" data-label="Rest (s)">
                                                                             <Form.Control
                                                                                 type="number"
                                                                                 placeholder="60"
                                                                                 value={set.rest}
                                                                                 onChange={(e) => updateSet(exercise.id, setIndex, 'rest', e.target.value)}
-                                                                                style={{minWidth: '80px'}}
+                                                                                className="set-input"
                                                                             />
                                                                         </td>
-                                                                        <td>
+                                                                        <td className="action-cell" data-label="Action">
                                                                             {exercise.sets.length > 1 && (
                                                                                 <Button 
                                                                                     variant="outline-danger" 
@@ -443,6 +445,7 @@ const formatWorkoutHistoryFromDB = (dbData) => {
                                                                 ))}
                                                             </tbody>
                                                         </Table>
+                                                        </div>
                                                     </Col>
                                                 </Row>
                                             </Card.Body>

@@ -46,12 +46,12 @@ Apis.interceptors.response.use(
 );
 
 export const endpoints = {
-    // Auth 
+    // Auth
     'login': 'api/v1/auth/login',
     'register': 'api/v1/auth/register',
     'logout': 'api/v1/auth/logout',
     
-    // User 
+    // User
     'users': 'api/users',
     'profile': 'api/users/profile',
     'active-memberships': 'api/users/memberships/active',
@@ -59,30 +59,30 @@ export const endpoints = {
     'update-avatar': 'api/users/avatar',
     'change-password': 'api/users/change-password',
     
-    // Categories 
+    // Categories
     'categories2': 'api/categories2',
     
-    // Workout 
+    // Workout
     'workout-logs': 'api/workout-logs',
     'workout-history': 'api/workout-logs/history',
     'schedule': 'api/schedule',
     
-    // Diet 
+    // Diet
     'diet-plans': 'api/diet-plans',
     'meal-suggestions': 'api/meals/suggestions',
     
-    // Class 
+    // Class
     'classes': 'api/classes',
     'enrollments': 'api/enrollments',
     
-    // PT Chat 
+    // PT Chat
     'pt-chat': 'api/pt-chat',
     'messages': 'api/messages',
     
-    // Notification 
+    // Notification
     'notifications': 'api/notifications',
     
-    // Goals 
+    // Goals
     'goals': 'api/goals',
     'progress': 'api/progress',
     
