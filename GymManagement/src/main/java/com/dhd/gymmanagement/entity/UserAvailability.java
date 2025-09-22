@@ -32,7 +32,7 @@ public class UserAvailability {
     @Column(name = "is_deleted")
     private Integer isDeleted = 0;
 
-    // Getters and Setters
+
     public Integer getAvailabilityId() { return availabilityId; }
     public void setAvailabilityId(Integer availabilityId) { this.availabilityId = availabilityId; }
 

@@ -15,7 +15,7 @@ public class CommentResponseDTO {
                 .format(DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy"));
     }
 
-    // Getters and Setters
+
     public String getPtName() { return ptName; }
     public void setPtName(String ptName) { this.ptName = ptName; }
     public String getComment() { return comment; }

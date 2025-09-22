@@ -17,7 +17,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -42,10 +41,8 @@ public class PTDashboardController {
     @Autowired
     private WorkoutLogCommentService workoutLogCommentService;
 
-    // Dashboard chính của PT
     @GetMapping
     public String dashboard(Model model) {
-        // Lấy trainerId từ authentication
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
 
@@ -60,7 +57,6 @@ public class PTDashboardController {
                 if (existingTrainer != null) {
                     trainer = existingTrainer;
                 } else {
-                    // Tạo trainer record mới
                     Trainer newTrainer = new Trainer();
                     newTrainer.setUser(user);
                     newTrainer.setSpecialization("Fitness");

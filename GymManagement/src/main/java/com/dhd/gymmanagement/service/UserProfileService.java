@@ -15,7 +15,6 @@ import java.sql.Timestamp;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserProfileService {
@@ -82,7 +81,9 @@ public class UserProfileService {
         }
 
         // Upload new avatar
-        Map uploadResult = cloudinary.uploader().upload(avatarFile.getBytes(),
+        @SuppressWarnings("unchecked")
+        Map<String, Object> uploadResult = (Map<String, Object>) cloudinary.uploader().upload(
+                avatarFile.getBytes(),
                 ObjectUtils.asMap(
                         "resource_type", "auto",
                         "folder", "user_avatars"

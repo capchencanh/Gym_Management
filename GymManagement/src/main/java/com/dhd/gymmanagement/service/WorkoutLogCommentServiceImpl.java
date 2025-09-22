@@ -6,7 +6,6 @@ import com.dhd.gymmanagement.entity.WorkoutLogComment;
 import com.dhd.gymmanagement.repository.UserRepository;
 import com.dhd.gymmanagement.repository.WorkoutLogCommentRepository;
 import com.dhd.gymmanagement.repository.WorkoutLogRepository;
-import com.dhd.gymmanagement.service.WorkoutLogCommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +31,6 @@ public class WorkoutLogCommentServiceImpl implements WorkoutLogCommentService {
         WorkoutLog workoutLog = workoutLogRepository.findById(logId)
                 .orElseThrow(() -> new RuntimeException("Workout Log not found with id: " + logId));
 
-        // Tìm (PT) tương ứng
         User pt = userRepository.findById(ptId)
                 .orElseThrow(() -> new RuntimeException("PT not found with id: " + ptId));
 

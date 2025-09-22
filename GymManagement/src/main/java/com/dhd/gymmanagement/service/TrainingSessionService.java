@@ -20,7 +20,6 @@ public class TrainingSessionService {
     @Autowired
     private TrainingSessionRepository trainingSessionRepository;
     
-    // Lấy session theo user và trainer
     public List<TrainingSessionDTO> getSessionsByUserAndTrainer(Integer userId, Integer trainerId) {
         List<TrainingSession> sessions = trainingSessionRepository.findByUserIdAndTrainerId(userId, trainerId);
         return sessions.stream()
@@ -28,38 +27,31 @@ public class TrainingSessionService {
                 .collect(Collectors.toList());
     }
     
-    // Lấy session theo trainer
     public List<TrainingSession> getSessionsByTrainer(Integer trainerId) {
         return trainingSessionRepository.findByTrainerId(trainerId);
     }
     
-    // Lấy session theo trainer và ngày
     public List<TrainingSession> getSessionsByTrainerAndDate(Integer trainerId, Date sessionDate) {
         return trainingSessionRepository.findByTrainerIdAndDate(trainerId, sessionDate);
     }
     
-    // Lấy session theo user
     public List<TrainingSession> getSessionsByUser(Integer userId) {
         return trainingSessionRepository.findByUserId(userId);
     }
     
-    // Lấy session theo trạng thái
     public List<TrainingSession> getSessionsByStatus(TrainingSession.Status status) {
         return trainingSessionRepository.findByStatus(status);
     }
     
-    // Lấy session sắp tới của trainer
     public List<TrainingSession> getUpcomingSessionsByTrainer(Integer trainerId, Date startDate) {
         return trainingSessionRepository.findUpcomingSessionsByTrainer(trainerId, startDate);
     }
     
-    // Lấy session hôm nay của trainer
     public List<TrainingSession> getTodaySessions(Integer trainerId) {
         Date today = Date.valueOf(LocalDate.now());
         return trainingSessionRepository.findByTrainerIdAndDate(trainerId, today);
     }
     
-    // Cập nhật trạng thái session
     public TrainingSession updateSessionStatus(Integer sessionId, TrainingSession.Status status) {
         TrainingSession session = trainingSessionRepository.findById(sessionId).orElse(null);
         if (session != null) {
@@ -69,7 +61,6 @@ public class TrainingSessionService {
         return null;
     }
     
-    // Thêm ghi chú cho session
     public TrainingSession updateSessionNotes(Integer sessionId, String notes) {
         TrainingSession session = trainingSessionRepository.findById(sessionId).orElse(null);
         if (session != null) {
@@ -79,7 +70,6 @@ public class TrainingSessionService {
         return null;
     }
     
-    // Xóa session (soft delete)
     public void deleteSession(Integer sessionId) {
         TrainingSession session = trainingSessionRepository.findById(sessionId).orElse(null);
         if (session != null) {
@@ -88,7 +78,6 @@ public class TrainingSessionService {
         }
     }
     
-    // Tạo session mới (PT lên lịch tập)
     public TrainingSession createSession(User user, Trainer trainer, Date sessionDate, LocalTime startTime, LocalTime endTime, String notes) {
         TrainingSession session = new TrainingSession();
         session.setUser(user);

@@ -13,21 +13,18 @@ import com.dhd.gymmanagement.entity.MoMoPayment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/api/payment")
@@ -116,11 +113,11 @@ public class PaymentApiController {
                 
                 HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
                 
-                ResponseEntity<Map> momoResponse = restTemplate.exchange(
+                ResponseEntity<Map<String, Object>> momoResponse = restTemplate.exchange(
                     "https://test-payment.momo.vn/v2/gateway/api/create",
                     HttpMethod.POST,
                     entity,
-                    Map.class
+                    new ParameterizedTypeReference<Map<String, Object>>() {}
                 );
                 
                 if (momoResponse.getStatusCode().is2xxSuccessful() && momoResponse.getBody() != null) {
@@ -158,7 +155,7 @@ public class PaymentApiController {
             String orderId = queryParams.get("orderId");
             String resultCode = queryParams.get("resultCode");
             String transactionId = queryParams.get("transId");
-            String amount = queryParams.get("amount");
+            /* removed unused: amount */
             String message = queryParams.get("message");
             String requestId = queryParams.get("requestId");
             String responseTime = queryParams.get("responseTime");

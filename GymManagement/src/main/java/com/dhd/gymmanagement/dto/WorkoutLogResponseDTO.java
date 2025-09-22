@@ -86,7 +86,7 @@ public class WorkoutLogResponseDTO {
         }
     }
 
-    // --- Getters and Setters ---
+
 
     public Integer getLogId() {
         return logId;

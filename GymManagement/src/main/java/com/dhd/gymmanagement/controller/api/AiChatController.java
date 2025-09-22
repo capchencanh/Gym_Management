@@ -2,8 +2,8 @@ package com.dhd.gymmanagement.controller.api;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -39,7 +39,8 @@ public class AiChatController {
         sb.append("Bạn là trợ lý dinh dưỡng và tập luyện. Hãy đưa ra lời khuyên an toàn, rõ ràng, có thể áp dụng. ");
         Object userProfileObj = body == null ? null : body.get("userProfile");
         if (userProfileObj instanceof Map) {
-            Map up = (Map) userProfileObj;
+            @SuppressWarnings("unchecked")
+            Map<String, Object> up = (Map<String, Object>) userProfileObj;
             sb.append("Thông tin người dùng: ");
             if (up.get("name") != null) sb.append("tên=" + up.get("name") + ", ");
             if (up.get("gender") != null) sb.append("giới tính=" + up.get("gender") + ", ");
@@ -67,20 +68,29 @@ public class AiChatController {
 
         RestTemplate restTemplate = new RestTemplate();
         try {
-            ResponseEntity<Map> resp = restTemplate.exchange(GEMINI_URL, HttpMethod.POST, entity, Map.class);
+            ResponseEntity<Map<String, Object>> resp = restTemplate.exchange(
+                    GEMINI_URL,
+                    HttpMethod.POST,
+                    entity,
+                    new ParameterizedTypeReference<Map<String, Object>>() {}
+            );
             Map<String, Object> bodyResp = resp.getBody();
             if (bodyResp != null) {
                 Object candidatesObj = bodyResp.get("candidates");
                 if (candidatesObj instanceof List) {
-                    List candidates = (List) candidatesObj;
+                    @SuppressWarnings("unchecked")
+                    List<Map<String, Object>> candidates = (List<Map<String, Object>>) candidatesObj;
                     if (!candidates.isEmpty()) {
-                        Object contentObj = ((Map) candidates.get(0)).get("content");
+                        Object contentObj = candidates.get(0).get("content");
                         if (contentObj instanceof Map) {
-                            Object partsObjResp = ((Map) contentObj).get("parts");
+                            @SuppressWarnings("unchecked")
+                            Map<String, Object> contentMap = (Map<String, Object>) contentObj;
+                            Object partsObjResp = contentMap.get("parts");
                             if (partsObjResp instanceof List) {
-                                List parts = (List) partsObjResp;
+                                @SuppressWarnings("unchecked")
+                                List<Map<String, Object>> parts = (List<Map<String, Object>>) partsObjResp;
                                 if (!parts.isEmpty()) {
-                                    Object text = ((Map) parts.get(0)).get("text");
+                                    Object text = parts.get(0).get("text");
                                     if (text != null) {
                                         return Map.of("answer", String.valueOf(text));
                                     }

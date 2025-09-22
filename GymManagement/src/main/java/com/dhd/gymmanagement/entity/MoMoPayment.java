@@ -67,7 +67,7 @@ public class MoMoPayment {
         this.updatedAt = new Timestamp(System.currentTimeMillis());
     }
 
-    // Getters and Setters
+
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 

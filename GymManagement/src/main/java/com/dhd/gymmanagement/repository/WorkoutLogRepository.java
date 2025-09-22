@@ -12,7 +12,6 @@ import java.util.List;
 @Repository
 public interface WorkoutLogRepository extends JpaRepository<WorkoutLog, Integer> {
 
-    // Sử dụng nested property user.userId
     List<WorkoutLog> findByUser_UserIdAndIsDeleted(Integer userId, Integer isDeleted);
 
     List<WorkoutLog> findByUser_UserIdAndSessionDateBetweenAndIsDeleted(Integer userId, Date startDate, Date endDate, Integer isDeleted);

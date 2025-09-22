@@ -1,6 +1,5 @@
 package com.dhd.gymmanagement.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.sql.Timestamp;
 
@@ -35,7 +34,6 @@ public class Payment {
     @Column(name = "is_deleted", columnDefinition = "TINYINT(1) DEFAULT 0")
     private Integer isDeleted = 0;
 
-    // Enums
     public enum PaymentMethod {
         CARD, CASH, TRANSFER
     }
@@ -44,7 +42,6 @@ public class Payment {
         COMPLETED, FAILED, PENDING
     }
 
-    // Getters and Setters
     public Integer getPaymentId() { return paymentId; }
     public void setPaymentId(Integer paymentId) { this.paymentId = paymentId; }
 

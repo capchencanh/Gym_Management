@@ -46,7 +46,7 @@ public class AdminClassDTO {
         this.updatedAt = trainingClass.getUpdatedAt();
     }
 
-    // Getters and Setters
+
     public Integer getClassId() {
         return classId;
     }

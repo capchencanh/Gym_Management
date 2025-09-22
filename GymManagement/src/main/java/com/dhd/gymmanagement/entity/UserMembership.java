@@ -1,6 +1,5 @@
 package com.dhd.gymmanagement.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.sql.Timestamp;
 

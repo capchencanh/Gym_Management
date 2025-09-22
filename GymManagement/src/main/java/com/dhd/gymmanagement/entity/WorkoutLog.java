@@ -94,7 +94,7 @@ public class WorkoutLog {
         low, medium, high
     }
 
-    // Getters and Setters
+
 
     public String getSessionName() {
         return sessionName;

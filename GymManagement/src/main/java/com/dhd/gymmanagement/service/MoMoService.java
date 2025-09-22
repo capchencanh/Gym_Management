@@ -1,11 +1,7 @@
 package com.dhd.gymmanagement.service;
 
 import org.springframework.stereotype.Service;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -35,23 +31,9 @@ public class MoMoService {
                     "&requestId=" + requestId +
                     "&requestType=captureWallet";
             
-            String signature = hmacSHA256(MOMO_SECRET_KEY, rawSignature);
+            hmacSHA256(MOMO_SECRET_KEY, rawSignature);
             
-            String requestBody = "{\n" +
-                    "  \"partnerCode\": \"" + MOMO_PARTNER_CODE + "\",\n" +
-                    "  \"partnerName\": \"Test\",\n" +
-                    "  \"storeId\": \"MomoTestStore\",\n" +
-                    "  \"requestId\": \"" + requestId + "\",\n" +
-                    "  \"amount\": " + amount + ",\n" +
-                    "  \"orderId\": \"" + orderId + "\",\n" +
-                    "  \"orderInfo\": \"" + orderInfo + "\",\n" +
-                    "  \"redirectUrl\": \"" + MOMO_RETURN_URL + "\",\n" +
-                    "  \"ipnUrl\": \"" + MOMO_IPN_URL + "\",\n" +
-                    "  \"lang\": \"vi\",\n" +
-                    "  \"extraData\": \"\",\n" +
-                    "  \"requestType\": \"captureWallet\",\n" +
-                    "  \"signature\": \"" + signature + "\"\n" +
-                    "}";
+            // request body is constructed in PaymentApiController where the API call happens
             
 
             

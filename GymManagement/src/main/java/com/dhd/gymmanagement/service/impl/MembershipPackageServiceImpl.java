@@ -12,7 +12,6 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.ArrayList;
 
 @Service
 public class MembershipPackageServiceImpl implements MembershipPackageService {
@@ -37,14 +36,11 @@ public class MembershipPackageServiceImpl implements MembershipPackageService {
 
     @Override
     public MembershipPackage createPackage(MembershipPackage packageData) {
-        // Kiểm tra tên gói tập đã tồn tại
         if (isPackageNameExists(packageData.getName())) {
             throw new RuntimeException("Tên gói tập đã tồn tại: " + packageData.getName());
         }
         
-        // Thiết lập thời gian tạo và cập nhật
         LocalDateTime localNow = LocalDateTime.now();
-        // Làm tròn xuống giây, loại bỏ microsecond
         localNow = localNow.withNano(0);
         Timestamp now = Timestamp.valueOf(localNow);
         packageData.setCreatedAt(now);
@@ -67,13 +63,11 @@ public class MembershipPackageServiceImpl implements MembershipPackageService {
         
         MembershipPackage packageToUpdate = existingPackage.get();
         
-        // Kiểm tra nếu thay đổi tên thì tên mới không được trùng
         if (!packageToUpdate.getName().equals(packageData.getName()) && 
             isPackageNameExists(packageData.getName())) {
             throw new RuntimeException("Tên gói tập đã tồn tại: " + packageData.getName());
         }
         
-        // Cập nhật thông tin
         packageToUpdate.setName(packageData.getName());
         packageToUpdate.setDurationMonths(packageData.getDurationMonths());
         packageToUpdate.setPrice(packageData.getPrice());
@@ -210,7 +204,6 @@ public class MembershipPackageServiceImpl implements MembershipPackageService {
     public List<java.util.Map<String, Object>> getRevenueMonthlyData() {
         List<java.util.Map<String, Object>> revenueData = new java.util.ArrayList<>();
         
-        //  6 tháng gần nhất
         for (int i = 5; i >= 0; i--) {
             java.time.LocalDate date = java.time.LocalDate.now().minusMonths(i);
             String monthName = date.getMonth().getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.forLanguageTag("vi"));

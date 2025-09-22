@@ -45,7 +45,6 @@ public class UserService {
     
     @Autowired
     public void setMeterRegistry(MeterRegistry meterRegistry) {
-        // Initialize metrics counters
         this.userCreatedCounter = Counter.builder("user.events")
                 .tag("event", "created")
                 .description("Số lượng người dùng được tạo")
@@ -120,7 +119,6 @@ public class UserService {
         user.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         User saved = userRepository.save(user);
-        // Audit logging
         log.info("{\"audit\":true,\"action\":\"USER_CREATED\",\"user_id\":{},\"email\":\"{}\"}", saved.getUserId(), saved.getEmail());
         if (userCreatedCounter != null) userCreatedCounter.increment();
         return saved;

@@ -48,7 +48,7 @@ public class ApiResponse<T> {
         return response;
     }
 
-    // Getters and Setters
+
     public boolean isSuccess() { return success; }
     public void setSuccess(boolean success) { this.success = success; }
     

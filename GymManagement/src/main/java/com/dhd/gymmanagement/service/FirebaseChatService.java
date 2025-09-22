@@ -258,7 +258,7 @@ public class FirebaseChatService {
         private Object timestamp;
         private boolean read;
 
-        // Getters and Setters
+
         public String getMessageId() { return messageId; }
         public void setMessageId(String messageId) { this.messageId = messageId; }
         

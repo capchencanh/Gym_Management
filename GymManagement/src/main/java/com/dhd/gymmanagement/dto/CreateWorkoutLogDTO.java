@@ -65,7 +65,7 @@ public class CreateWorkoutLogDTO {
         return entity;
     }
     
-    // Getters and Setters
+
     public Integer getUserId() { return userId; }
     public void setUserId(Integer userId) { this.userId = userId; }
     

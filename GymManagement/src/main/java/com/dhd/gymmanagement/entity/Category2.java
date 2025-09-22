@@ -25,7 +25,7 @@ public class Category2 {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Getters and Setters
+
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 

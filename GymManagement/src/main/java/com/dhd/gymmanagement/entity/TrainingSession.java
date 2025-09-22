@@ -47,7 +47,7 @@ public class TrainingSession {
         NO_SHOW
     }
 
-    // Getters and Setters
+
     public Integer getSessionId() { return sessionId; }
     public void setSessionId(Integer sessionId) { this.sessionId = sessionId; }
 

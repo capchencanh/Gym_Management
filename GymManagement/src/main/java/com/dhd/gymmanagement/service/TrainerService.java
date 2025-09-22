@@ -73,7 +73,6 @@ public class TrainerService {
         return trainerRepository.findByUser_IsDeleted(0);
     }
     
-    // Method đơn giản để save trainer
     public Trainer save(Trainer trainer) {
         return trainerRepository.save(trainer);
     }

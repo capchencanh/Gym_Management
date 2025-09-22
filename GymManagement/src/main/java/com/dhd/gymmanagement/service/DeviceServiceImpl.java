@@ -4,7 +4,6 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.dhd.gymmanagement.entity.Device;
 import com.dhd.gymmanagement.repository.DeviceRepository;
-import com.dhd.gymmanagement.service.DeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -61,7 +60,8 @@ public class DeviceServiceImpl implements DeviceService {
         
         if (imageFile != null && !imageFile.isEmpty()) {
             try {
-                Map uploadResult = cloudinary.uploader().upload(imageFile.getBytes(),
+                @SuppressWarnings("unchecked")
+                Map<String, Object> uploadResult = (Map<String, Object>) cloudinary.uploader().upload(imageFile.getBytes(),
                         ObjectUtils.asMap("resource_type", "auto", "folder", "gym_devices"));
                 device.setImage((String) uploadResult.get("secure_url"));
             } catch (IOException e) {
@@ -110,7 +110,8 @@ public class DeviceServiceImpl implements DeviceService {
         
         if (imageFile != null && !imageFile.isEmpty()) {
             try {
-                Map uploadResult = cloudinary.uploader().upload(imageFile.getBytes(),
+                @SuppressWarnings("unchecked")
+                Map<String, Object> uploadResult = (Map<String, Object>) cloudinary.uploader().upload(imageFile.getBytes(),
                         ObjectUtils.asMap("resource_type", "auto", "folder", "gym_devices"));
                 device.setImage((String) uploadResult.get("secure_url"));
             } catch (IOException e) {

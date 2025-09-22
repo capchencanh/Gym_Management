@@ -80,7 +80,6 @@ public class AdminApiController {
                 response.put("packageId", packageId);
                 response.put("months", months);
                 
-                // Thêm thông tin user và package
                 try {
                     com.dhd.gymmanagement.entity.User user = userRepository.findById(userId).orElse(null);
                     if (user != null) {
@@ -92,7 +91,6 @@ public class AdminApiController {
                         response.put("packageName", pkg.getName() != null ? pkg.getName() : "N/A");
                     }
                     
-                    // Lấy thông tin membership mới
                     java.util.List<com.dhd.gymmanagement.entity.UserMembership> memberships = userMembershipService.getUserMembershipsByUserId(userId);
                     com.dhd.gymmanagement.entity.UserMembership latestMembership = memberships.stream()
                             .filter(m -> m.getPackageId().equals(packageId) && m.getIsDeleted() == 0)
@@ -103,7 +101,6 @@ public class AdminApiController {
                         response.put("newEndDate", latestMembership.getEndDate().toString());
                     }
                 } catch (Exception e) {
-                    // Không làm gì, chỉ thiếu thông tin thêm
                 }
                 
                 return ResponseEntity.ok(response);
@@ -133,7 +130,6 @@ public class AdminApiController {
                 membershipData.put("endDate", membership.getEndDate());
                 membershipData.put("status", membership.getStatus().toString());
                 
-                // Thêm thông tin package
                 try {
                     com.dhd.gymmanagement.entity.MembershipPackage pkg = membershipPackageService.getPackageById(membership.getPackageId()).orElse(null);
                     if (pkg != null) {
@@ -155,12 +151,9 @@ public class AdminApiController {
     @GetMapping("/packages/{packageId}/active-users")
     public ResponseEntity<List<Map<String, Object>>> getActiveUsersByPackageId(@PathVariable Integer packageId) {
         try {
-            List<com.dhd.gymmanagement.entity.UserMembership> memberships = userMembershipService.getUserMembershipsByUserId(packageId);
             List<Map<String, Object>> result = new java.util.ArrayList<>();
             
-            // Lấy tất cả memberships của package này
             List<com.dhd.gymmanagement.entity.UserMembership> allMemberships = userMembershipService.getAllUserMemberships();
-            java.sql.Timestamp now = new java.sql.Timestamp(System.currentTimeMillis());
             
             for (com.dhd.gymmanagement.entity.UserMembership membership : allMemberships) {
                 if (membership.getPackageId().equals(packageId) && membership.getIsDeleted() == 0) {
@@ -172,7 +165,6 @@ public class AdminApiController {
                     userData.put("endDate", membership.getEndDate());
                     userData.put("status", membership.getStatus().toString());
                     
-                    // Thêm thông tin user
                     try {
                         com.dhd.gymmanagement.entity.User user = userRepository.findById(membership.getUserId()).orElse(null);
                         if (user != null) {

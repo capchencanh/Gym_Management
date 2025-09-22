@@ -85,7 +85,6 @@ public class UserMembershipServiceImpl implements UserMembershipService {
                 expiredData.put("endDate", membership.getEndDate().toString());
                 expiredData.put("daysExpired", (now.getTime() - membership.getEndDate().getTime()) / (1000 * 60 * 60 * 24));
                 
-                // Thêm thông tin user
                 try {
                     com.dhd.gymmanagement.entity.User user = userRepository.findById(membership.getUserId()).orElse(null);
                     if (user != null) {

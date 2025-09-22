@@ -51,7 +51,7 @@ public class PTAssignmentDTO {
         }
     }
 
-    // Getters and Setters
+
     public Integer getAssignmentId() { return assignmentId; }
     public void setAssignmentId(Integer assignmentId) { this.assignmentId = assignmentId; }
 

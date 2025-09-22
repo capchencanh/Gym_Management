@@ -28,7 +28,7 @@ public class ClassEnrollmentDTO {
         this.isDeleted = enrollment.getIsDeleted();
     }
 
-    // Getters and Setters
+
     public Integer getEnrollmentId() {
         return enrollmentId;
     }
